@@ -17,7 +17,8 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-RAW_DIR = Path("data/raw")
+from mermaiddiagramsaiagent.data.sources import MERMAIDSEQBENCH, RAW_DIR, RONNIEALLEN
+
 REPORT_PATH = RAW_DIR / "report.json"
 RENDER_TIMEOUT_S = 60
 RENDER_WORKERS = 6
@@ -50,16 +51,16 @@ def read_csv(path: Path) -> list[dict[str, Any]]:
         return list(csv.DictReader(f))
 
 
-def load_ronnieallen(raw_dir: Path) -> Dataset:
-    data_dir = raw_dir / "ronnieallen" / "data"
+def load_ronnieallen() -> Dataset:
+    data_dir = RONNIEALLEN.local_dir / "data"
     files = {p.name: read_jsonl(p) for p in sorted(data_dir.glob("*.jsonl"))}
     # full.jsonl is the union of train/validation/test; use it for per-diagram statistics.
-    return Dataset("RonnieAllen/mermaid-flowchart-dataset", files, files["full.jsonl"], "prompt", "mermaid")
+    return Dataset(RONNIEALLEN.repo_id, files, files["full.jsonl"], "prompt", "mermaid")
 
 
-def load_mermaidseqbench(raw_dir: Path) -> Dataset:
-    records = read_csv(raw_dir / "mermaidseqbench" / "data.csv")
-    return Dataset("ibm-research/MermaidSeqBench", {"data.csv": records}, records, "nl_task_title", "expected_output")
+def load_mermaidseqbench() -> Dataset:
+    records = read_csv(MERMAIDSEQBENCH.local_dir / "data.csv")
+    return Dataset(MERMAIDSEQBENCH.repo_id, {"data.csv": records}, records, "nl_task_title", "expected_output")
 
 
 def strip_fences(code: str) -> tuple[str, bool]:
@@ -181,7 +182,7 @@ def print_summary(summary: dict[str, Any]) -> None:
 
 
 def main() -> None:
-    summaries = [summarize(load(RAW_DIR)) for load in (load_ronnieallen, load_mermaidseqbench)]
+    summaries = [summarize(load()) for load in (load_ronnieallen, load_mermaidseqbench)]
     for summary in summaries:
         print_summary(summary)
     report = {"date": date.today().isoformat(), "mmdc": mmdc_version(), "datasets": summaries}
