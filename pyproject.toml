@@ -7,10 +7,14 @@ authors = [
     { name = "mkan1ewski", email = "maciek1717.mk@gmail.com" }
 ]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "huggingface-hub>=2.4.0",
+]
 
 [project.scripts]
 mermaiddiagramsaiagent = "mermaiddiagramsaiagent:main"
+download-raw = "mermaiddiagramsaiagent.data.download:main"
+report-raw = "mermaiddiagramsaiagent.data.report:main"
 
 [build-system]
 requires = ["uv_build>=0.9.5,<0.10.0"]
