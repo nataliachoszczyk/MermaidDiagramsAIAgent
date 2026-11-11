@@ -62,7 +62,8 @@ def test_quoted_label_may_contain_delimiters() -> None:
     assert chart.nodes["A"].label == "Czy kwota > 1000 (brutto)? [PLN]"
 
 
-def test_label_starting_with_paren_falls_back_to_rect() -> None:
+def test_invalid_label_starting_with_paren_is_parsed_leniently() -> None:
+    # mmdc rejects this; the parser does not validate, it just reads the most likely intent.
     chart = parse_flowchart("flowchart TD\n    A[(opcjonalnie) sprawdź dane]")
     assert chart.nodes["A"] == Node("A", "(opcjonalnie) sprawdź dane", "rect")
 
@@ -97,6 +98,46 @@ def test_class_suffix_is_ignored() -> None:
 
 def test_polish_characters_in_ids() -> None:
     assert edge_pairs("flowchart TD\n    Zgłoszenie --> Weryfikacja") == [("Zgłoszenie", "Weryfikacja")]
+
+
+def test_multiline_quoted_label() -> None:
+    chart = parse_flowchart('flowchart TD\n    A["Sprawdź\n    dokumenty"] --> B')
+    assert chart.nodes["A"].label == "Sprawdź dokumenty"
+    assert chart.warnings == []
+
+
+# --- v11 shape syntax: A@{ shape: ..., label: ... } -----------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("shape", "expected"),
+    [("diamond", "rhombus"), ("decision", "rhombus"), ("rect", "rect"), ("stadium", "stadium"), ("cyl", "cylinder")],
+)
+def test_attribute_shape_aliases(shape: str, expected: str) -> None:
+    chart = parse_flowchart(f'flowchart TD\n    A@{{ shape: {shape}, label: "Czy zatwierdzono?" }}')
+    assert chart.nodes == {"A": Node("A", "Czy zatwierdzono?", expected)}
+    assert chart.warnings == []
+
+
+def test_attribute_shape_without_classic_equivalent_is_kept() -> None:
+    chart = parse_flowchart('flowchart TD\n    A@{ shape: docs, label: "Dokumenty" }')
+    assert chart.nodes["A"] == Node("A", "Dokumenty", "docs")
+
+
+def test_attributes_in_edges_and_without_label() -> None:
+    chart = parse_flowchart('flowchart TD\n    A@{ shape: diamond, label: "Czy, tak?" } --> B@{ shape: circle }')
+    assert chart.nodes == {"A": Node("A", "Czy, tak?", "rhombus"), "B": Node("B", "B", "circle")}
+    assert edge_pairs('flowchart TD\n    A@{ shape: diamond, label: "Czy, tak?" } --> B@{ shape: circle }') == [
+        ("A", "B")
+    ]
+
+
+def test_attributes_update_existing_node() -> None:
+    chart = parse_flowchart("flowchart TD\n    A[Start] --> B\n    A@{ shape: stadium }")
+    assert chart.nodes["A"] == Node("A", "Start", "stadium")
+
+
+# --- edges ----------------------------------------------------------------------------------------
 
 
 # --- edges ----------------------------------------------------------------------------------------
@@ -138,6 +179,37 @@ def test_ampersand_groups() -> None:
 
 def test_semicolons_separate_statements() -> None:
     assert edge_pairs("graph TD;\n    A-->B;\n    B-->C; C-->D") == [("A", "B"), ("B", "C"), ("C", "D")]
+
+
+def test_edge_ids_and_edge_properties() -> None:
+    chart = parse_flowchart("flowchart LR\n    A e1@--> B\n    B e2@-->|dalej| C\n    e1@{ animate: true }")
+    assert chart.edges == [Edge("A", "B", ""), Edge("B", "C", "dalej")]
+    assert chart.edge_ids == {"e1", "e2"}
+    assert list(chart.nodes) == ["A", "B", "C"]
+    assert chart.warnings == []
+
+
+# --- subgraphs ------------------------------------------------------------------------------------
+
+
+def test_subgraph_ids_are_groups_not_nodes() -> None:
+    code = """flowchart TB
+    Start --> Płatność
+    subgraph Płatność [Obsługa płatności]
+        A[Zapłać] --> B[Potwierdź]
+    end
+    Płatność --> Koniec
+    """
+    chart = parse_flowchart(code)
+    assert list(chart.nodes) == ["Start", "A", "B", "Koniec"]
+    assert chart.subgraphs == {"Płatność": "Obsługa płatności"}
+    assert [(e.src, e.dst) for e in chart.edges] == [("Start", "Płatność"), ("A", "B"), ("Płatność", "Koniec")]
+
+
+def test_subgraph_with_quoted_title_only() -> None:
+    chart = parse_flowchart('flowchart TB\n    subgraph "Obsługa zgłoszeń"\n        A --> B\n    end')
+    assert list(chart.nodes) == ["A", "B"]
+    assert chart.warnings == []
 
 
 # --- skipped and unknown lines --------------------------------------------------------------------
@@ -183,8 +255,14 @@ def test_unparsed_tail_is_reported() -> None:
         ("Zapisz<br>dane", "Zapisz dane"),
         ("Zapisz<br/>dane", "Zapisz dane"),
         ("Zapisz <BR /> dane", "Zapisz dane"),
-        ('"`**Zapisz** dane`"', "**Zapisz** dane"),
+        ('"`**Zapisz** _wszystkie_ dane`"', "Zapisz wszystkie dane"),
         ("  Zapisz   dane  ", "Zapisz dane"),
+        ('"Cytat: #quot;tak#quot;"', 'Cytat: "tak"'),
+        ("Serce #9829;", "Serce ♥"),
+        ("Krok #nieznany;", "Krok #nieznany;"),
+        ("fa:fa-user Klient", "Klient"),
+        ("fab:fa-truck-bold Dostawa", "Dostawa"),
+        ("id_klienta", "id_klienta"),
     ],
 )
 def test_clean_label(raw: str, expected: str) -> None:
