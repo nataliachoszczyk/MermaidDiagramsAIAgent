@@ -1,9 +1,8 @@
 """Check the flowchart parser against the real RonnieAllen diagrams (skipped if `uv run download-raw` was not run)."""
 
-import json
-
 import pytest
 
+from mermaiddiagramsaiagent.data.jsonl import read_jsonl
 from mermaiddiagramsaiagent.data.sources import RONNIEALLEN
 from mermaiddiagramsaiagent.eval.flowchart import parse_flowchart
 
@@ -18,14 +17,9 @@ DO_NOT_RENDER = {
 }
 
 
-def load_records() -> list[dict]:
-    with FULL_JSONL.open(encoding="utf-8") as f:
-        return [json.loads(line) for line in f if line.strip()]
-
-
 def test_all_diagrams_parse_without_warnings() -> None:
     failures = {}
-    for record in load_records():
+    for record in read_jsonl(FULL_JSONL):
         chart = parse_flowchart(record["mermaid"])
         if chart.warnings or not chart.edges:
             failures[record["prompt"]] = chart.warnings
@@ -34,7 +28,7 @@ def test_all_diagrams_parse_without_warnings() -> None:
 
 def test_node_and_decision_counts_match_dataset_metadata() -> None:
     mismatches = {}
-    for record in load_records():
+    for record in read_jsonl(FULL_JSONL):
         if record["prompt"] in DO_NOT_RENDER:
             continue
         chart = parse_flowchart(record["mermaid"])

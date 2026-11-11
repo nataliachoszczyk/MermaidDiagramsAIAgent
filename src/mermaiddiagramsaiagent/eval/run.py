@@ -1,0 +1,229 @@
+"""Evaluate a model on an evaluation set (JSONL in the design.md §2.2 format) and save one result file.
+
+    uv run evaluate --model qwen3:4b-instruct-2507-q8_0 --data data/pilot/pilot_en.jsonl
+
+Inference goes through the OpenAI-compatible API; the server is configured in .env (see .env.example).
+"""
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import subprocess
+import tempfile
+import time
+import urllib.request
+from dataclasses import asdict
+from datetime import datetime
+from pathlib import Path
+from statistics import mean
+from typing import Any
+
+from dotenv import load_dotenv
+from openai import OpenAI
+
+from mermaiddiagramsaiagent.data.jsonl import read_jsonl
+from mermaiddiagramsaiagent.eval.metrics import score_example
+from mermaiddiagramsaiagent.eval.output import normalize_output
+from mermaiddiagramsaiagent.eval.render import check_mmdc_works, mmdc_version, render
+
+SYSTEM_PROMPT_PATH = Path("prompts/system.txt")
+RESULTS_DIR = Path("results")
+TEMPERATURE = 0.0
+SEED = 0
+DEFAULT_MAX_TOKENS = 1024
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--model", required=True, help="model name as the server knows it")
+    parser.add_argument("--data", type=Path, required=True, help="evaluation JSONL")
+    parser.add_argument("--setting", default="zero-shot", choices=["zero-shot"], help="few-shot needs a val split")
+    parser.add_argument("--max-tokens", type=int, default=DEFAULT_MAX_TOKENS)
+    parser.add_argument("--limit", type=int, help="only the first N examples (for quick checks)")
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    client = make_client()
+    check_model_available(client, args.model)
+    check_mmdc_works()
+    system_prompt = SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
+    records = read_jsonl(args.data)[: args.limit]
+
+    examples = []
+    with tempfile.TemporaryDirectory() as tmp:
+        for i, record in enumerate(records, start=1):
+            example = evaluate_record(client, args.model, system_prompt, args.max_tokens, record, Path(tmp))
+            examples.append(example)
+            print_progress(i, len(records), example)
+
+    result = {
+        "config": run_config(args, client, system_prompt),
+        "summary": summarize(examples),
+        "examples": examples,
+    }
+    path = save_result(result, args)
+    print_summary(result["summary"])
+    print(f"\nSaved to {path}")
+
+
+def make_client() -> OpenAI:
+    load_dotenv()
+    if not os.environ.get("OPENAI_BASE_URL"):
+        raise SystemExit("OPENAI_BASE_URL is not set; copy .env.example to .env")
+    return OpenAI()
+
+
+def check_model_available(client: OpenAI, model: str) -> None:
+    available = {m.id for m in client.models.list()}
+    if model not in available:
+        raise SystemExit(f"model {model!r} not available on the server; for Ollama run: ollama pull {model}")
+
+
+def evaluate_record(
+    client: OpenAI, model: str, system_prompt: str, max_tokens: int, record: dict[str, Any], work_dir: Path
+) -> dict[str, Any]:
+    started = time.perf_counter()
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": record["description"]},
+        ],
+        temperature=TEMPERATURE,
+        seed=SEED,
+        max_tokens=max_tokens,
+    )
+    latency_s = time.perf_counter() - started
+    choice = response.choices[0]
+    raw_output = choice.message.content or ""
+    output = normalize_output(raw_output)
+    rendered = render(output.code, work_dir, record["id"])
+    score = score_example(output, rendered.ok, record["expected_mermaid"])
+    return {
+        "id": record["id"],
+        "diagram_type": record["diagram_type"],
+        "difficulty": record["difficulty"],
+        "description": record["description"],
+        "expected_mermaid": record["expected_mermaid"],
+        "raw_output": raw_output,
+        "code": output.code,
+        "finish_reason": choice.finish_reason,
+        "completion_tokens": response.usage.completion_tokens if response.usage else None,
+        "latency_s": round(latency_s, 2),
+        "render_error": rendered.error,
+        "score": asdict(score),
+    }
+
+
+def summarize(examples: list[dict[str, Any]]) -> dict[str, Any]:
+    """Macro averages overall, per diagram type and per difficulty (design.md §4.3)."""
+    summary: dict[str, Any] = {"overall": aggregate(examples)}
+    for key in ("diagram_type", "difficulty"):
+        groups: dict[str, list[dict[str, Any]]] = {}
+        for example in examples:
+            groups.setdefault(example[key], []).append(example)
+        summary[f"by_{key}"] = {name: aggregate(group) for name, group in sorted(groups.items())}
+    return summary
+
+
+def aggregate(examples: list[dict[str, Any]]) -> dict[str, Any]:
+    scores = [example["score"] for example in examples]
+    rendering = [s for s in scores if s["renders"]]
+    return {
+        "n": len(scores),
+        "mermaid_only": mean(s["mermaid_only"] for s in scores),
+        "render_rate": mean(s["renders"] for s in scores),
+        "type_acc": mean(s["type_ok"] for s in scores),
+        "node_f1": mean(s["node"]["f1"] for s in scores),
+        "edge_f1": mean(s["edge"]["f1"] for s in scores),
+        "node_f1_rendering_only": mean(s["node"]["f1"] for s in rendering) if rendering else None,
+        "edge_f1_rendering_only": mean(s["edge"]["f1"] for s in rendering) if rendering else None,
+        "truncated": sum(example["finish_reason"] == "length" for example in examples),
+    }
+
+
+def run_config(args: argparse.Namespace, client: OpenAI, system_prompt: str) -> dict[str, Any]:
+    return {
+        "date": datetime.now().isoformat(timespec="seconds"),
+        "model": args.model,
+        "model_digest": ollama_digest(str(client.base_url), args.model),
+        "setting": args.setting,
+        "base_url": str(client.base_url),
+        "temperature": TEMPERATURE,
+        "seed": SEED,
+        "max_tokens": args.max_tokens,
+        "limit": args.limit,
+        "system_prompt": system_prompt,
+        "system_prompt_sha256": sha256(system_prompt.encode("utf-8")),
+        "data": args.data.as_posix(),
+        "data_sha256": sha256(args.data.read_bytes()),
+        "metrics": "exact label matching after normalization (no embeddings yet)",
+        "mmdc": mmdc_version(),
+        "git_commit": git_commit(),
+    }
+
+
+def ollama_digest(base_url: str, model: str) -> str | None:
+    """Model digest from Ollama's native API, if the server is Ollama; None for other servers."""
+    url = base_url.rstrip("/").removesuffix("/v1") + "/api/tags"
+    try:
+        with urllib.request.urlopen(url, timeout=5) as response:
+            tags = json.load(response)
+        return next((m["digest"] for m in tags.get("models", []) if m["name"] == model), None)
+    except (OSError, ValueError, KeyError, AttributeError):
+        return None
+
+
+def git_commit() -> str | None:
+    try:
+        proc = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True)
+        dirty = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True).stdout.strip()
+        return proc.stdout.strip() + ("-dirty" if dirty else "")
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def save_result(result: dict[str, Any], args: argparse.Namespace) -> Path:
+    stamp = datetime.now().strftime("%Y-%m-%d_%H%M")
+    model = re.sub(r"[^\w.-]+", "-", args.model)
+    path = RESULTS_DIR / f"{stamp}_{model}_{args.setting}_{args.data.stem}.json"
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    return path
+
+
+def print_progress(i: int, total: int, example: dict[str, Any]) -> None:
+    s = example["score"]
+    flags = "".join(flag for flag, on in (("F", s["fenced"]), ("T", s["extra_text"])) if on) or "-"
+    print(
+        f"[{i:>3}/{total}] {example['id']:<18} render={'ok ' if s['renders'] else 'ERR'} "
+        f"node_f1={s['node']['f1']:.2f} edge_f1={s['edge']['f1']:.2f} flags={flags} {example['latency_s']}s"
+    )
+
+
+def print_summary(summary: dict[str, Any]) -> None:
+    print("\n" + format_row("group", None))
+    print(format_row("overall", summary["overall"]))
+    for key in ("by_diagram_type", "by_difficulty"):
+        for name, values in summary[key].items():
+            print(format_row(f"  {name}", values))
+
+
+def format_row(name: str, values: dict[str, Any] | None) -> str:
+    columns = ("n", "mermaid_only", "render_rate", "type_acc", "node_f1", "edge_f1")
+    if values is None:
+        return f"{name:<14}" + "".join(f"{c:>14}" for c in columns)
+    cells = [f"{values[c]:>14}" if c == "n" else f"{values[c]:>14.3f}" for c in columns]
+    return f"{name:<14}" + "".join(cells)
+
+
+if __name__ == "__main__":
+    main()

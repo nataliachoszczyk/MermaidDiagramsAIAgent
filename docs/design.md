@@ -11,6 +11,7 @@ proposed default. When a decision is made, update this file and the decision log
 - **Out of scope inputs** (text that does not describe a process): the model must answer with the exact
   refusal string `BRAK_PROCESU`. **[OPEN]** exact string.
 - **Model under test:** a small open model (~4B, optionally 9B) served through an OpenAI-compatible API (Ollama).
+  Base model: `Qwen3-4B-Instruct-2507` (Ollama `qwen3:4b-instruct-2507-q8_0`, HF `Qwen/Qwen3-4B-Instruct-2507`).
 
 ## 2. Data
 
@@ -21,6 +22,7 @@ proposed default. When a decision is made, update this file and the decision log
 | train | 1,000–3,000 | local synthesis (§3) | training |
 | val | 100–200 | held-out part of synthesis | checkpoint and hyperparameter selection, few-shot examples |
 | golden | ~150 | public datasets + hand-written, all human-verified (§2.3) | final before/after numbers only |
+| pilot | 22 | RonnieAllen `test` split, English, unverified (`uv run build-pilot`) | smoke test of the evaluation pipeline only; numbers are not reported |
 
 The golden set never feeds training, validation or few-shot prompts. Train/val are deduplicated against it
 (embedding cosine similarity of descriptions ≥ 0.9 → drop). **[OPEN]** threshold.
@@ -52,8 +54,13 @@ Out-of-scope examples use `diagram_type: "none"` and `expected_mermaid: "BRAK_PR
 | sequenceDiagram | `ibm-research/MermaidSeqBench` (Apache-2.0) | ~30 | one variant per scenario (the set is ~30 scenarios augmented ~4×); translate; human check |
 | handwritten | team | 20–30 | written "in user words", includes ~5 out-of-scope texts |
 
-Difficulty: `easy` ≤ 6 nodes and no decision; `medium` 7–12 nodes or 1–2 decisions; `hard` otherwise
-(loops, parallel paths, subgraphs, sequence diagrams with `alt`/`loop`). **[OPEN]** thresholds.
+**Status: not built yet — open task.** Needs a script that generates the step-by-step Polish descriptions and
+translated labels with a local model, an `mmdc` check of every diagram, and a human pass over every record.
+Until then the evaluation pipeline runs on the English pilot (§2.1).
+
+Difficulty (flowchart, as implemented in `data/pilot.py`): `easy` ≤ 6 nodes and no decision; `medium`
+≤ 12 nodes and ≤ 2 decisions; `hard` otherwise. Sequence diagrams: `hard` if they use `alt`/`loop`.
+**[OPEN]** thresholds.
 
 Rejected: `Celiadraw/text-to-mermaid` (LLM-generated, contains diagrams that do not render).
 
@@ -119,9 +126,11 @@ Every generated record keeps the generator model name and the generation paramet
 
 ### 4.4 Run record
 
-Each run writes `results/<date>_<model>_<setting>.json` with: model name and version/hash, setting
-(zero-shot / few-shot / fine-tuned checkpoint), system prompt hash, τ, golden set hash, per-example results,
-aggregated metrics.
+Each run (`uv run evaluate --model <name> --data <jsonl>`) writes
+`results/<date>_<time>_<model>_<setting>_<data>.json` with: model name and Ollama digest, setting
+(zero-shot / few-shot / fine-tuned checkpoint), system prompt text and hash, temperature, seed, max tokens,
+data file hash, matching method / τ, mmdc version, git commit, per-example results (raw output, render error,
+scores) and aggregated metrics. Few-shot is not implemented until `val` exists.
 
 ## 5. Training
 
@@ -147,4 +156,6 @@ aggregated metrics.
 | 2026-11-10 | Synthesis is the main training source; GitHub mining optional | GitHub diagrams are mostly architecture, heavy filtering needed |
 | 2026-11-10 | Golden set from RonnieAllen + MermaidSeqBench + handwritten | Different source than training data, permissive licenses |
 | 2026-11-10 | Celiadraw dataset rejected | Contains non-rendering diagrams |
+| 2026-11-11 | Base model Qwen3-4B-Instruct-2507, q8_0 in Ollama | Apache-2.0; instruct (non-thinking) variant outputs code directly — plain `qwen3:4b` in Ollama is the thinking variant; same weights on HF for MLX/PEFT; q8_0 is close to the weights we fine-tune, and the fine-tuned model is exported with the same quantization |
+| 2026-11-11 | English pilot from RonnieAllen `test` before the Polish golden set | Run the pipeline end to end now; Polish descriptions are an open task |
 | 2026-11-11 | Own Python parser for flowchart / sequenceDiagram instead of Mermaid's JS parser | Small subset, no Node dependency in eval, easy to test; existing Python wrappers (`mermaid-parser-py`) are immature and rely on a deprecated Mermaid API |

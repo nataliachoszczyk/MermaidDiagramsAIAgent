@@ -9,12 +9,16 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "huggingface-hub>=2.4.0",
+    "openai>=3.49.0",
+    "python-dotenv>=1.2.4",
 ]
 
 [project.scripts]
 mermaiddiagramsaiagent = "mermaiddiagramsaiagent:main"
 download-raw = "mermaiddiagramsaiagent.data.download:main"
 report-raw = "mermaiddiagramsaiagent.data.report:main"
+build-pilot = "mermaiddiagramsaiagent.data.pilot:main"
+evaluate = "mermaiddiagramsaiagent.eval.run:main"
 
 [build-system]
 requires = ["uv_build>=0.9.5,<0.10.0"]
