@@ -22,7 +22,12 @@ proposed default. When a decision is made, update this file and the decision log
 | train | 1,000–3,000 | local synthesis (§3) | training |
 | val | 100–200 | held-out part of synthesis | checkpoint and hyperparameter selection, few-shot examples |
 | golden | ~150 | public datasets + hand-written, all human-verified (§2.3) | final before/after numbers only |
-| pilot | 22 | RonnieAllen `test` split, English, unverified (`uv run build-pilot`) | smoke test of the evaluation pipeline only; numbers are not reported |
+| pilot | 22 | RonnieAllen `test` split, English, unverified (`uv run build-pilot`) | smoke test of the evaluation pipeline only; numbers are not reported (see below) |
+
+The pilot descriptions are the original one-line prompts ("Create a flowchart for: password reset via email
+link"). The model has to guess the steps and their names, so `node_f1` / `edge_f1` on the pilot measure guessing,
+not description → diagram conversion. Only `mermaid_only`, `render_rate` and `type_acc` are meaningful on it.
+Fix: see the status in §2.3.
 
 The golden set never feeds training, validation or few-shot prompts. Train/val are deduplicated against it
 (embedding cosine similarity of descriptions ≥ 0.9 → drop). **[OPEN]** threshold.
@@ -58,9 +63,13 @@ Out-of-scope examples use `diagram_type: "none"` and `expected_mermaid: "BRAK_PR
 translated labels with a local model, an `mmdc` check of every diagram, and a human pass over every record.
 Until then the evaluation pipeline runs on the English pilot (§2.1).
 
+Plan: write the description generator with the output language as a parameter. First run it in English on the
+pilot, replacing its one-line prompts, so that F1 on the pilot becomes meaningful; then use the same script for
+the Polish golden descriptions.
+
 Difficulty (flowchart, as implemented in `data/pilot.py`): `easy` ≤ 6 nodes and no decision; `medium`
-≤ 12 nodes and ≤ 2 decisions; `hard` otherwise. Sequence diagrams: `hard` if they use `alt`/`loop`.
-**[OPEN]** thresholds.
+≤ 12 nodes and ≤ 2 decisions; `hard` otherwise. **[OPEN]** thresholds; whether loops, parallel paths and
+subgraphs also make a diagram `hard` (not implemented); the rule for sequence diagrams.
 
 Rejected: `Celiadraw/text-to-mermaid` (LLM-generated, contains diagrams that do not render).
 
@@ -87,12 +96,13 @@ Every generated record keeps the generator model name and the generation paramet
 - Same system prompt for every model and stage (stored in `prompts/system.txt`).
 - `zero-shot`: system prompt + description.
 - `few-shot`: system prompt + k = 3 fixed examples taken from `val` (never golden) + description.
-- Temperature 0, fixed max tokens. **[OPEN]** max tokens = 1024.
+- Temperature 0, seed 0, fixed max tokens. **[OPEN]** max tokens = 1024.
 
 ### 4.2 Per-example pipeline
 
 1. **Normalize output:** trim whitespace; if wrapped in ```` ``` ```` / ```` ```mermaid ```` fences, strip them and set
-   `fenced = true`; any other non-Mermaid text sets `extra_text = true`.
+   `fenced = true`; text around the fences or before the diagram header sets `extra_text = true`. Text after an
+   unfenced diagram is not detected here; it makes rendering fail instead.
 2. **Render:** `mmdc` on the normalized code → `renders: bool`.
 3. **Parse** to a graph:
    - flowchart: nodes = (id, label, shape), edges = (src, dst, label).
@@ -100,11 +110,14 @@ Every generated record keeps the generator model name and the generation paramet
    - Parser: own Python parser for the supported subset (`src/<package>/eval/`). Unknown lines are skipped and
      reported as warnings instead of failing the parse; parsing fails only when the header is missing or wrong.
      Validity is still decided by `mmdc` (step 2).
+   - **Status:** flowchart parser implemented; checked once against what Mermaid itself draws, on the
+     flowchart examples from the Mermaid docs. sequenceDiagram parser not implemented yet.
 4. **Match nodes** between prediction and reference:
    - exact match after normalization (lowercase, strip punctuation and whitespace) first;
    - remaining labels: embedding cosine similarity matrix (bge-m3), one-to-one assignment with the Hungarian
      algorithm (`scipy.optimize.linear_sum_assignment`), keep pairs with similarity ≥ τ. **[OPEN]** τ = 0.8,
      calibrated on ~20 manually judged examples in E1.
+   - **Status:** only exact matching is implemented.
 5. **Score.**
 
 ### 4.3 Metrics
@@ -123,6 +136,8 @@ Every generated record keeps the generator model name and the generation paramet
   rendering outputs only.
 - Aggregation: macro average over examples, reported overall and per `diagram_type` and `difficulty`.
 - **[OPEN]** sequence diagrams: whether message order and `alt`/`loop` blocks count in v1 (default: no).
+- **Status:** implemented for flowcharts: `render_rate`, `mermaid_only`, `type_acc`, `node_f1`, `edge_f1`.
+  Not yet: scoring sequence diagrams, `refusal_acc`, `judge_score`.
 
 ### 4.4 Run record
 

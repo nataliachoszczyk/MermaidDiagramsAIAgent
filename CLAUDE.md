@@ -8,18 +8,35 @@ Specification (data formats, metrics, training setup, open decisions): `docs/des
 changing data, evaluation or training code, and update it when a decision changes.
 
 ## Repository layout
-<!-- TODO: update once the structure exists -->
-- `data/golden/` – test set (JSONL: `id`, `source`, `description`, `expected_mermaid`, `diagram_type`, `difficulty`)
-- `data/synthetic/` – generated training and validation data
-- `src/<package>/eval/` – rendering (`mmdc`), Mermaid → graph parser, metrics (node/edge F1)
-- `src/<package>/synth/` – data synthesis: topics → diagram → filters → description → coverage check
-- `src/<package>/train/` – LoRA training and export
+Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist yet.
+- `data/raw/` – public source datasets, downloaded at pinned revisions (gitignored)
+- `data/pilot/` – English smoke-test set from the RonnieAllen `test` split. Descriptions are one-line prompts, so
+  node/edge F1 on it is meaningless (only `mermaid_only`, `render_rate`, `type_acc` are); not for reported numbers
+- `data/golden/` – test set, JSONL in the `docs/design.md` §2.2 format *(planned)*
+- `data/synthetic/` – generated training and validation data *(planned)*
+- `prompts/system.txt` – system prompt shared by every model and stage
+- `src/mermaiddiagramsaiagent/data/` – dataset definitions (`sources.py`), download, raw-data report, pilot builder, JSONL I/O
+- `src/mermaiddiagramsaiagent/eval/` – output normalization, rendering (`mmdc`), flowchart parser, metrics, evaluation runner
+- `src/mermaiddiagramsaiagent/synth/` – data synthesis: topics → diagram → filters → description → coverage check *(planned)*
+- `src/mermaiddiagramsaiagent/train/` – LoRA training and export *(planned)*
+- `tests/` – pytest; tests that need `data/raw/` are skipped when it has not been downloaded
 - `results/` – one file per evaluation run, including the full config
 
+## Setup (once)
+- `uv sync`
+- Mermaid CLI (`mmdc`) on `PATH`. If it fails with "Could not find chrome-headless-shell", install the browser
+  with the Puppeteer bundled in mermaid-cli: run `node install.mjs` in
+  `<mermaid-cli install dir>/node_modules/puppeteer`. `report-raw` and `evaluate` check `mmdc` before running.
+- Copy `.env.example` to `.env` (inference server URL; the API key is a dummy for Ollama).
+- Base model: `ollama pull qwen3:4b-instruct-2507-q8_0`
+
 ## Commands
-<!-- TODO: fill in as entry points are added -->
-- Setup: `uv sync`
 - Run anything: `uv run <command>` (entry points defined in `pyproject.toml`)
+- `uv run download-raw` – download the raw datasets into `data/raw/`
+- `uv run report-raw` – record counts, fields, diagram types and `mmdc` render check → `data/raw/report.json`
+- `uv run build-pilot` – build `data/pilot/pilot_en.jsonl`
+- `uv run evaluate --model <name> --data <jsonl> [--limit N]` – evaluate a model, save the run to `results/`
+- `uv run pytest` – tests
 - Render a single diagram: `mmdc -i diagram.mmd -o out.svg`
 
 ## Rules
@@ -39,7 +56,8 @@ changing data, evaluation or training code, and update it when a decision change
 - Inference goes through the OpenAI-compatible API (Ollama locally, `base_url` from `.env`), never a vendor-specific SDK in core code.
 - Training backend is selectable in config: MLX (`mlx-lm`) on Apple Silicon, PEFT/Unsloth on NVIDIA GPUs (e.g. Colab).
   Shared code (data loading, formatting, evaluation) must not depend on either backend.
-- Code, comments and docs in English; data content (descriptions, diagram labels) in Polish.
+- Code, comments and docs in English; data content (descriptions, diagram labels) in Polish. The only exception
+  is the English pilot in `data/pilot/`.
 
 ## Mermaid conventions
 - Model output must be bare Mermaid code. If it arrives wrapped in ```mermaid fences, strip them and record it
