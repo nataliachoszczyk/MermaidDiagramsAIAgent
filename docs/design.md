@@ -90,7 +90,9 @@ Every generated record keeps the generator model name and the generation paramet
 3. **Parse** to a graph:
    - flowchart: nodes = (id, label, shape), edges = (src, dst, label).
    - sequenceDiagram: nodes = participants (id, display name); edges = messages (from, to, text), in order.
-   - **[OPEN]** parser: own Python parser for the supported subset vs. calling Mermaid's JS parser.
+   - Parser: own Python parser for the supported subset (`src/<package>/eval/`). Unknown lines are skipped and
+     reported as warnings instead of failing the parse; parsing fails only when the header is missing or wrong.
+     Validity is still decided by `mmdc` (step 2).
 4. **Match nodes** between prediction and reference:
    - exact match after normalization (lowercase, strip punctuation and whitespace) first;
    - remaining labels: embedding cosine similarity matrix (bge-m3), one-to-one assignment with the Hungarian
@@ -145,3 +147,4 @@ aggregated metrics.
 | 2026-11-10 | Synthesis is the main training source; GitHub mining optional | GitHub diagrams are mostly architecture, heavy filtering needed |
 | 2026-11-10 | Golden set from RonnieAllen + MermaidSeqBench + handwritten | Different source than training data, permissive licenses |
 | 2026-11-10 | Celiadraw dataset rejected | Contains non-rendering diagrams |
+| 2026-11-11 | Own Python parser for flowchart / sequenceDiagram instead of Mermaid's JS parser | Small subset, no Node dependency in eval, easy to test; existing Python wrappers (`mermaid-parser-py`) are immature and rely on a deprecated Mermaid API |
