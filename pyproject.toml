@@ -11,6 +11,7 @@ dependencies = [
     "huggingface-hub>=2.4.0",
     "openai>=3.49.0",
     "python-dotenv>=1.2.4",
+    "scipy>=1.18.1",
 ]
 
 [project.scripts]
@@ -18,6 +19,7 @@ mermaiddiagramsaiagent = "mermaiddiagramsaiagent:main"
 download-raw = "mermaiddiagramsaiagent.data.download:main"
 report-raw = "mermaiddiagramsaiagent.data.report:main"
 build-pilot = "mermaiddiagramsaiagent.data.pilot:main"
+describe = "mermaiddiagramsaiagent.data.describe:main"
 evaluate = "mermaiddiagramsaiagent.eval.run:main"
 
 [build-system]

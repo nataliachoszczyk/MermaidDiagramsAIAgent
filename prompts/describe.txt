@@ -1,0 +1,9 @@
+You are given a Mermaid flowchart. Describe the process it shows the way a person would explain it to a colleague who will then draw the diagram.
+
+Rules:
+- Write in {language}.
+- Mention every step and every decision. Name the steps with the wording of the labels where it reads naturally.
+- For every decision, say what happens in each branch. If the process goes back to an earlier step, say which one.
+- Plain prose, 2–15 sentences. No lists, no headings.
+- Do not mention Mermaid, diagrams, node ids, shapes or arrows.
+- Output only the description.
