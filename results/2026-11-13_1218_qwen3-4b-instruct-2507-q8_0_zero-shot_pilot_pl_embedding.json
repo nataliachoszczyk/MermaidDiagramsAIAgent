@@ -1,0 +1,2626 @@
+{
+  "config": {
+    "date": "2026-11-13T12:18:53",
+    "model": "qwen3:4b-instruct-2507-q8_0",
+    "model_digest": "aa7252f68dda4d25dfffa65b3760af6d2c3231a140c0060c78d444686d98a374",
+    "setting": "zero-shot",
+    "base_url": "http://localhost:11434/v1/",
+    "temperature": 0.0,
+    "seed": 0,
+    "max_tokens": 1024,
+    "limit": null,
+    "system_prompt": "You convert a description of a process into a Mermaid diagram.\n\nRules:\n- Use `flowchart TD` for processes with steps and decisions; use `sequenceDiagram` for interactions between participants.\n- Output only the Mermaid code: no code fences, no explanations, no text before or after the diagram.\n- Keywords are lowercase. Put labels with special characters in double quotes. Never use `end` as a node id.\n- Keep the labels in the language of the description.\n- If the text does not describe a process, answer exactly: BRAK_PROCESU\n",
+    "system_prompt_sha256": "814e2dbf8ce3b7a719c3103d732e2599f91cadb1bd496e5c857519169a30a1f8",
+    "data": "data/pilot/pilot_pl.jsonl",
+    "data_sha256": "5f478f83796552163894688902231a1be6b35c9d59b038887209255500e3e774",
+    "matching": "embedding",
+    "embedding_model": "bge-m3:latest",
+    "embedding_model_digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+    "threshold": 0.7,
+    "mmdc": "12.2.0",
+    "git_commit": "b32dd5beaa6bc95fd4ad3c0648cd6c745115a8d8-dirty"
+  },
+  "summary": {
+    "overall": {
+      "n": 22,
+      "mermaid_only": 1,
+      "render_rate": 1,
+      "type_acc": 1,
+      "node_f1": 0.8707853099779396,
+      "edge_f1": 0.7513976124171429,
+      "shape_acc": 0.7333683992774902,
+      "node_f1_rendering_only": 0.8707853099779396,
+      "edge_f1_rendering_only": 0.7513976124171429,
+      "truncated": 0
+    },
+    "by_diagram_type": {
+      "flowchart": {
+        "n": 22,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.8707853099779396,
+        "edge_f1": 0.7513976124171429,
+        "shape_acc": 0.7333683992774902,
+        "node_f1_rendering_only": 0.8707853099779396,
+        "edge_f1_rendering_only": 0.7513976124171429,
+        "truncated": 0
+      }
+    },
+    "by_difficulty": {
+      "hard": {
+        "n": 6,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.8780349062702004,
+        "edge_f1": 0.7587658120706537,
+        "shape_acc": 0.7508741258741258,
+        "node_f1_rendering_only": 0.8780349062702004,
+        "edge_f1_rendering_only": 0.7587658120706537,
+        "truncated": 0
+      },
+      "medium": {
+        "n": 16,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.8680667113683418,
+        "edge_f1": 0.7486345375470762,
+        "shape_acc": 0.7268037518037518,
+        "node_f1_rendering_only": 0.8680667113683418,
+        "edge_f1_rendering_only": 0.7486345375470762,
+        "truncated": 0
+      }
+    }
+  },
+  "examples": [
+    {
+      "id": "pilot-flow-0001",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Użytkownik zaczyna od podania swojego adresu e-mail. System sprawdza, czy adres jest poprawny. Jeśli tak, wysyła na niego link do resetu hasła. Użytkownik szuka linku w skrzynce odbiorczej, klika go i wpisuje nowe hasło. Nowe hasło jest weryfikowane, po czym reset kończy się powodzeniem i proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Podaj adres e-mail]\n B --> C{Czy adres e-mail jest poprawny?}\n C -->|Tak| D[Wyślij link do resetu hasła na e-mail]\n D --> E[Sprawdź link w skrzynce odbiorczej]\n E --> F[Kliknij link]\n F --> G[Wpisz nowe hasło]\n G --> H[Zweryfikuj nowe hasło]\n H --> I[Reset zakończony powodzeniem]\n I --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Użytkownik podaje adres e-mail] --> B[System sprawdza, czy adres jest poprawny]\n    B -->|Tak| C[System wysyła link do resetu hasła]\n    B -->|Nie| D[Wyświetlanie błędu: niepoprawny adres e-mail]\n    C --> E[Użytkownik szuka linku w skrzynce odbiorczej]\n    E --> F[Użytkownik klika link]\n    F --> G[Użytkownik wpisuje nowe hasło]\n    G --> H[System weryfikuje nowe hasło]\n    H -->|Poprawne| I[Reset hasła powiódł się]\n    H -->|Błędne| J[Wyświetlanie błędu: hasło niepoprawne]\n    I --> K[Proces kończy się powodzeniem]",
+      "code": "flowchart TD\n    A[Użytkownik podaje adres e-mail] --> B[System sprawdza, czy adres jest poprawny]\n    B -->|Tak| C[System wysyła link do resetu hasła]\n    B -->|Nie| D[Wyświetlanie błędu: niepoprawny adres e-mail]\n    C --> E[Użytkownik szuka linku w skrzynce odbiorczej]\n    E --> F[Użytkownik klika link]\n    F --> G[Użytkownik wpisuje nowe hasło]\n    G --> H[System weryfikuje nowe hasło]\n    H -->|Poprawne| I[Reset hasła powiódł się]\n    H -->|Błędne| J[Wyświetlanie błędu: hasło niepoprawne]\n    I --> K[Proces kończy się powodzeniem]",
+      "finish_reason": "stop",
+      "completion_tokens": 208,
+      "latency_s": 5.21,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.7272727272727273,
+          "recall": 0.8,
+          "f1": 0.761904761904762
+        },
+        "edge": {
+          "precision": 0.7,
+          "recall": 0.7777777777777778,
+          "f1": 0.7368421052631577
+        },
+        "shape_acc": 0.875,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Użytkownik podaje adres e-mail",
+            "reference_label": "Podaj adres e-mail",
+            "method": "embedding",
+            "similarity": 0.7303,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "System sprawdza, czy adres jest poprawny",
+            "reference_label": "Czy adres e-mail jest poprawny?",
+            "method": "embedding",
+            "similarity": 0.7736,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "System wysyła link do resetu hasła",
+            "reference_label": "Wyślij link do resetu hasła na e-mail",
+            "method": "embedding",
+            "similarity": 0.8341,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Użytkownik szuka linku w skrzynce odbiorczej",
+            "reference_label": "Sprawdź link w skrzynce odbiorczej",
+            "method": "embedding",
+            "similarity": 0.8488,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Użytkownik klika link",
+            "reference_label": "Kliknij link",
+            "method": "embedding",
+            "similarity": 0.7544,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Użytkownik wpisuje nowe hasło",
+            "reference_label": "Wpisz nowe hasło",
+            "method": "embedding",
+            "similarity": 0.8295,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "H",
+            "predicted_label": "System weryfikuje nowe hasło",
+            "reference_label": "Zweryfikuj nowe hasło",
+            "method": "embedding",
+            "similarity": 0.8315,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "I",
+            "predicted_label": "Reset hasła powiódł się",
+            "reference_label": "Reset zakończony powodzeniem",
+            "method": "embedding",
+            "similarity": 0.8126,
+            "matched": true
+          },
+          {
+            "predicted_id": "J",
+            "reference_id": "A",
+            "predicted_label": "Wyświetlanie błędu: hasło niepoprawne",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.4459,
+            "matched": false
+          },
+          {
+            "predicted_id": "K",
+            "reference_id": "Z",
+            "predicted_label": "Proces kończy się powodzeniem",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.5561,
+            "matched": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0002",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Najpierw klonujemy repozytorium. Potem sprawdzamy, czy gałąź jest chroniona. Jeśli tak, potrzebna jest ręczna akceptacja i na tym proces się kończy. Jeśli nie, pomijamy zabezpieczenie, uruchamiamy testy jednostkowe, budujemy artefakty i wdrażamy je na środowisko testowe. Następnie sprawdzamy, czy wdrożenie się powiodło. Gdy się udało, testujemy środowisko i kończymy. Gdy się nie udało, przywracamy poprzednią wersję i też kończymy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Sklonuj repozytorium]\n B --> C{Czy gałąź jest chroniona?}\n C -->|Tak| D[Wymagana ręczna akceptacja]\n D --> Z([Koniec])\n C -->|Nie| E[Pomiń zabezpieczenie]\n E --> F[Uruchom testy jednostkowe]\n F --> G[Zbuduj artefakty]\n G --> H[Wdróż na środowisko testowe]\n H --> I{Czy wdrożenie się powiodło?}\n I -->|Tak| J[Przetestuj środowisko]\n J --> Z([Koniec])\n I -->|Nie| K[Przywróć poprzednią wersję]\n K --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Najpierw klonujemy repozytorium] --> B[Sprawdzamy, czy gałąź jest chroniona]\n    B -->|Tak| C[Potrzeba ręcznej akceptacji]\n    C --> D[Proces się kończy]\n    B -->|Nie| E[Pomijamy zabezpieczenie]\n    E --> F[Uruchamiamy testy jednostkowe]\n    F --> G[Budujemy artefakty]\n    G --> H[Wdrażamy na środowisko testowe]\n    H --> I[Sprawdzamy, czy wdrożenie się powiodło]\n    I -->|Tak| J[Testujemy środowisko]\n    J --> K[Proces się kończy]\n    I -->|Nie| L[Przywracamy poprzednią wersję]\n    L --> M[Proces się kończy]",
+      "code": "flowchart TD\n    A[Najpierw klonujemy repozytorium] --> B[Sprawdzamy, czy gałąź jest chroniona]\n    B -->|Tak| C[Potrzeba ręcznej akceptacji]\n    C --> D[Proces się kończy]\n    B -->|Nie| E[Pomijamy zabezpieczenie]\n    E --> F[Uruchamiamy testy jednostkowe]\n    F --> G[Budujemy artefakty]\n    G --> H[Wdrażamy na środowisko testowe]\n    H --> I[Sprawdzamy, czy wdrożenie się powiodło]\n    I -->|Tak| J[Testujemy środowisko]\n    J --> K[Proces się kończy]\n    I -->|Nie| L[Przywracamy poprzednią wersję]\n    L --> M[Proces się kończy]",
+      "finish_reason": "stop",
+      "completion_tokens": 203,
+      "latency_s": 4.21,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8461538461538461,
+          "recall": 0.9166666666666666,
+          "f1": 0.8799999999999999
+        },
+        "edge": {
+          "precision": 0.8333333333333334,
+          "recall": 0.7692307692307693,
+          "f1": 0.8
+        },
+        "shape_acc": 0.7272727272727273,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Najpierw klonujemy repozytorium",
+            "reference_label": "Sklonuj repozytorium",
+            "method": "embedding",
+            "similarity": 0.7267,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzamy, czy gałąź jest chroniona",
+            "reference_label": "Czy gałąź jest chroniona?",
+            "method": "embedding",
+            "similarity": 0.8748,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Potrzeba ręcznej akceptacji",
+            "reference_label": "Wymagana ręczna akceptacja",
+            "method": "embedding",
+            "similarity": 0.9101,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "Z",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7352,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Pomijamy zabezpieczenie",
+            "reference_label": "Pomiń zabezpieczenie",
+            "method": "embedding",
+            "similarity": 0.7295,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Uruchamiamy testy jednostkowe",
+            "reference_label": "Uruchom testy jednostkowe",
+            "method": "embedding",
+            "similarity": 0.8462,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Budujemy artefakty",
+            "reference_label": "Zbuduj artefakty",
+            "method": "embedding",
+            "similarity": 0.8625,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "H",
+            "predicted_label": "Wdrażamy na środowisko testowe",
+            "reference_label": "Wdróż na środowisko testowe",
+            "method": "embedding",
+            "similarity": 0.7776,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "I",
+            "predicted_label": "Sprawdzamy, czy wdrożenie się powiodło",
+            "reference_label": "Czy wdrożenie się powiodło?",
+            "method": "embedding",
+            "similarity": 0.8728,
+            "matched": true
+          },
+          {
+            "predicted_id": "J",
+            "reference_id": "J",
+            "predicted_label": "Testujemy środowisko",
+            "reference_label": "Przetestuj środowisko",
+            "method": "embedding",
+            "similarity": 0.8811,
+            "matched": true
+          },
+          {
+            "predicted_id": "K",
+            "reference_id": "A",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.5085,
+            "matched": false
+          },
+          {
+            "predicted_id": "L",
+            "reference_id": "K",
+            "predicted_label": "Przywracamy poprzednią wersję",
+            "reference_label": "Przywróć poprzednią wersję",
+            "method": "embedding",
+            "similarity": 0.8961,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0003",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Proces zaczyna się od rozpoczęcia odprawy. Sprawdzamy, czy pasażer ma bagaż. Jeśli ma, trzeba przygotować bagaż i wrócić do rozpoczęcia odprawy. Jeśli nie ma, wymagana jest kontrola bagażu, potem pasażer odbiera bagaż na lotnisku i przechodzi do strefy odlotów. Dalej jest krok odbioru bagażu i karty pokładowej, a na końcu pasażer otrzymuje kartę pokładową i proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Rozpoczęcie odprawy]\n B --> C{Czy pasażer ma bagaż?}\n C -->|Tak| D[Przygotuj bagaż]\n D --> B\n C -->|Nie| E[Wymagana kontrola bagażu]\n E --> F[Odbierz bagaż na lotnisku]\n F --> G[Przejdź do strefy odlotów]\n G --> H[Odbiór bagażu i karta pokładowa]\n H --> I[Pasażer otrzymuje kartę pokładową]\n I --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Rozeznanie odprawy] --> B{Czy pasażer ma bagaż?}\n    B -- Tak --> C[Przygotowanie bagażu]\n    C --> D[Wróć do rozpoczęcia odprawy]\n    B -- Nie --> E[Kontrola bagażu]\n    E --> F[Pasazer odbiera bagaż na lotnisku]\n    F --> G[Przechodzenie do strefy odlotów]\n    G --> H[Krok odbioru bagażu i karty pokładowej]\n    H --> I[Pasazer otrzymuje kartę pokładową]\n    I --> J[Koniec procesu]",
+      "code": "flowchart TD\n    A[Rozeznanie odprawy] --> B{Czy pasażer ma bagaż?}\n    B -- Tak --> C[Przygotowanie bagażu]\n    C --> D[Wróć do rozpoczęcia odprawy]\n    B -- Nie --> E[Kontrola bagażu]\n    E --> F[Pasazer odbiera bagaż na lotnisku]\n    F --> G[Przechodzenie do strefy odlotów]\n    G --> H[Krok odbioru bagażu i karty pokładowej]\n    H --> I[Pasazer otrzymuje kartę pokładową]\n    I --> J[Koniec procesu]",
+      "finish_reason": "stop",
+      "completion_tokens": 158,
+      "latency_s": 3.31,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.9,
+          "recall": 0.9,
+          "f1": 0.9
+        },
+        "edge": {
+          "precision": 0.8888888888888888,
+          "recall": 0.8,
+          "f1": 0.8421052631578948
+        },
+        "shape_acc": 0.8888888888888888,
+        "node_pairs": [
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Czy pasażer ma bagaż?",
+            "reference_label": "Czy pasażer ma bagaż?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Rozeznanie odprawy",
+            "reference_label": "Rozpoczęcie odprawy",
+            "method": "embedding",
+            "similarity": 0.7679,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Przygotowanie bagażu",
+            "reference_label": "Przygotuj bagaż",
+            "method": "embedding",
+            "similarity": 0.9368,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "A",
+            "predicted_label": "Wróć do rozpoczęcia odprawy",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.6406,
+            "matched": false
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Kontrola bagażu",
+            "reference_label": "Wymagana kontrola bagażu",
+            "method": "embedding",
+            "similarity": 0.8854,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Pasazer odbiera bagaż na lotnisku",
+            "reference_label": "Odbierz bagaż na lotnisku",
+            "method": "embedding",
+            "similarity": 0.8021,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Przechodzenie do strefy odlotów",
+            "reference_label": "Przejdź do strefy odlotów",
+            "method": "embedding",
+            "similarity": 0.9056,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "H",
+            "predicted_label": "Krok odbioru bagażu i karty pokładowej",
+            "reference_label": "Odbiór bagażu i karta pokładowa",
+            "method": "embedding",
+            "similarity": 0.9078,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "I",
+            "predicted_label": "Pasazer otrzymuje kartę pokładową",
+            "reference_label": "Pasażer otrzymuje kartę pokładową",
+            "method": "embedding",
+            "similarity": 0.9961,
+            "matched": true
+          },
+          {
+            "predicted_id": "J",
+            "reference_id": "Z",
+            "predicted_label": "Koniec procesu",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7887,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0004",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Na początku wczytujemy oryginalny obraz i sprawdzamy, czy przekroczono limit rozmiaru. Jeśli tak, zmniejszamy obraz do limitu, generujemy miniaturę i kończymy. Jeśli nie, nic nie robimy z obrazem, generujemy miniaturę (to osobny krok w tej gałęzi), zapisujemy miniatury i kończymy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Wczytaj oryginalny obraz]\n B --> C{Czy przekroczono limit rozmiaru?}\n C -->|Tak| D[Zmniejsz obraz do limitu]\n D --> E[Wygeneruj miniaturę]\n E --> Z([Koniec])\n C -->|Nie| F[Nic nie rób]\n F --> G[Wygeneruj miniaturę]\n G --> H[Zapisz miniatury]\n H --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Na początku wczytujemy oryginalny obraz] --> B[Sprawdzamy, czy przekroczono limit rozmiaru]\n    B -->|Tak| C[Zmniejszamy obraz do limitu]\n    C --> D[Generujemy miniaturę]\n    D --> E[Kończymy]\n    B -->|Nie| F[Generujemy miniaturę]\n    F --> G[Zapisujemy miniatury]\n    G --> E",
+      "code": "flowchart TD\n    A[Na początku wczytujemy oryginalny obraz] --> B[Sprawdzamy, czy przekroczono limit rozmiaru]\n    B -->|Tak| C[Zmniejszamy obraz do limitu]\n    C --> D[Generujemy miniaturę]\n    D --> E[Kończymy]\n    B -->|Nie| F[Generujemy miniaturę]\n    F --> G[Zapisujemy miniatury]\n    G --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 110,
+      "latency_s": 2.35,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.7777777777777778,
+          "f1": 0.8750000000000001
+        },
+        "edge": {
+          "precision": 0.8571428571428571,
+          "recall": 0.6666666666666666,
+          "f1": 0.75
+        },
+        "shape_acc": 0.7142857142857143,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Na początku wczytujemy oryginalny obraz",
+            "reference_label": "Wczytaj oryginalny obraz",
+            "method": "embedding",
+            "similarity": 0.7394,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzamy, czy przekroczono limit rozmiaru",
+            "reference_label": "Czy przekroczono limit rozmiaru?",
+            "method": "embedding",
+            "similarity": 0.8831,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Zmniejszamy obraz do limitu",
+            "reference_label": "Zmniejsz obraz do limitu",
+            "method": "embedding",
+            "similarity": 0.929,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Generujemy miniaturę",
+            "reference_label": "Wygeneruj miniaturę",
+            "method": "embedding",
+            "similarity": 0.9156,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "Z",
+            "predicted_label": "Kończymy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.751,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "G",
+            "predicted_label": "Generujemy miniaturę",
+            "reference_label": "Wygeneruj miniaturę",
+            "method": "embedding",
+            "similarity": 0.9156,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "H",
+            "predicted_label": "Zapisujemy miniatury",
+            "reference_label": "Zapisz miniatury",
+            "method": "embedding",
+            "similarity": 0.7973,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0005",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Zaczynamy od zebrania szczegółów zgłoszenia. Potem sprawdzamy, czy zgłoszenie ma wysoki priorytet. Jeśli tak, następuje eskalacja o wysokim priorytecie i proces się kończy. Jeśli nie, zgłoszenie trafia do standardowej obsługi, zostaje przypisane do członka zespołu, a potem zamknięte.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Zbierz szczegóły zgłoszenia]\n B --> C{Czy zgłoszenie ma wysoki priorytet?}\n C -->|Tak| D[Eskalacja o wysokim priorytecie]\n D --> Z([Koniec])\n C -->|Nie| E[Standardowa obsługa]\n E --> F[Przypisz do członka zespołu]\n F --> G[Zamknij zgłoszenie]\n G --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Zaczynamy od zebrania szczegółów zgłoszenia] --> B[Sprawdzamy, czy zgłoszenie ma wysoki priorytet]\n    B -->|Tak| C[Eskalacja o wysokim priorytecie]\n    C --> D[Proces się kończy]\n    B -->|Nie| E[Zgłoszenie trafia do standardowej obsługi]\n    E --> F[Zgłoszenie zostaje przypisane do członka zespołu]\n    F --> G[Zgłoszenie zostaje zamknięte]",
+      "code": "flowchart TD\n    A[Zaczynamy od zebrania szczegółów zgłoszenia] --> B[Sprawdzamy, czy zgłoszenie ma wysoki priorytet]\n    B -->|Tak| C[Eskalacja o wysokim priorytecie]\n    C --> D[Proces się kończy]\n    B -->|Nie| E[Zgłoszenie trafia do standardowej obsługi]\n    E --> F[Zgłoszenie zostaje przypisane do członka zespołu]\n    F --> G[Zgłoszenie zostaje zamknięte]",
+      "finish_reason": "stop",
+      "completion_tokens": 125,
+      "latency_s": 2.62,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.75,
+          "f1": 0.8571428571428571
+        },
+        "shape_acc": 0.7142857142857143,
+        "node_pairs": [
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Eskalacja o wysokim priorytecie",
+            "reference_label": "Eskalacja o wysokim priorytecie",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Zaczynamy od zebrania szczegółów zgłoszenia",
+            "reference_label": "Zbierz szczegóły zgłoszenia",
+            "method": "embedding",
+            "similarity": 0.7762,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzamy, czy zgłoszenie ma wysoki priorytet",
+            "reference_label": "Czy zgłoszenie ma wysoki priorytet?",
+            "method": "embedding",
+            "similarity": 0.902,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "Z",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7352,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Zgłoszenie trafia do standardowej obsługi",
+            "reference_label": "Standardowa obsługa",
+            "method": "embedding",
+            "similarity": 0.7601,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Zgłoszenie zostaje przypisane do członka zespołu",
+            "reference_label": "Przypisz do członka zespołu",
+            "method": "embedding",
+            "similarity": 0.8206,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Zgłoszenie zostaje zamknięte",
+            "reference_label": "Zamknij zgłoszenie",
+            "method": "embedding",
+            "similarity": 0.8134,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0006",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Najpierw kontaktujemy się z klientem i sprawdzamy, czy termin wizyty jest dostępny. Jeśli jest, rezerwujemy wizytę, wysyłamy e-mail z potwierdzeniem i kończymy. Jeśli nie, proponujemy inny termin i pytamy, czy klient chce przypomnienie. Jeśli chce, ustawiamy przypomnienie, potwierdzamy jego ustawienie, wysyłamy e-mail z przypomnieniem, oznaczamy wizytę jako zakończoną i kończymy.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Skontaktuj się z klientem]\nB --> C{Czy termin wizyty jest dostępny?}\nC -->|Tak| D[Zarezerwuj wizytę]\nD --> E[Wyślij e-mail z potwierdzeniem]\nE --> Z([Koniec])\nC -->|Nie| F[Zaproponuj inny termin]\nF --> G{Czy klient chce przypomnienie?}\nG -->|Tak| H[Ustaw przypomnienie]\nH --> I[Potwierdź ustawienie przypomnienia]\nI --> J[Wyślij e-mail z przypomnieniem]\nJ --> K[Oznacz wizytę jako zakończoną]\nK --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Najpierw kontaktujemy się z klientem i sprawdzamy, czy termin wizyty jest dostępny] --> B{Czy termin jest dostępny?}\n    B -- Tak --> C[Rezerwujemy wizytę]\n    C --> D[Wysyłamy e-mail z potwierdzeniem]\n    D --> E[Kończymy]\n    B -- Nie --> F[Proponujemy inny termin]\n    F --> G{Czy klient chce przypomnienie?}\n    G -- Tak --> H[Ustawiamy przypomnienie]\n    H --> I[Potwierdzamy ustawienie przypomnienia]\n    I --> J[Wysyłamy e-mail z przypomnieniem]\n    J --> K[Oznaczamy wizytę jako zakończoną]\n    K --> E\n    G -- Nie --> E",
+      "code": "flowchart TD\n    A[Najpierw kontaktujemy się z klientem i sprawdzamy, czy termin wizyty jest dostępny] --> B{Czy termin jest dostępny?}\n    B -- Tak --> C[Rezerwujemy wizytę]\n    C --> D[Wysyłamy e-mail z potwierdzeniem]\n    D --> E[Kończymy]\n    B -- Nie --> F[Proponujemy inny termin]\n    F --> G{Czy klient chce przypomnienie?}\n    G -- Tak --> H[Ustawiamy przypomnienie]\n    H --> I[Potwierdzamy ustawienie przypomnienia]\n    I --> J[Wysyłamy e-mail z przypomnieniem]\n    J --> K[Oznaczamy wizytę jako zakończoną]\n    K --> E\n    G -- Nie --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 205,
+      "latency_s": 4.25,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.9090909090909091,
+          "recall": 0.8333333333333334,
+          "f1": 0.8695652173913043
+        },
+        "edge": {
+          "precision": 0.8333333333333334,
+          "recall": 0.8333333333333334,
+          "f1": 0.8333333333333334
+        },
+        "shape_acc": 0.9,
+        "node_pairs": [
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Czy klient chce przypomnienie?",
+            "reference_label": "Czy klient chce przypomnienie?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Najpierw kontaktujemy się z klientem i sprawdzamy, czy termin wizyty jest dostępny",
+            "reference_label": "Skontaktuj się z klientem",
+            "method": "embedding",
+            "similarity": 0.6725,
+            "matched": false
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Czy termin jest dostępny?",
+            "reference_label": "Czy termin wizyty jest dostępny?",
+            "method": "embedding",
+            "similarity": 0.8926,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Rezerwujemy wizytę",
+            "reference_label": "Zarezerwuj wizytę",
+            "method": "embedding",
+            "similarity": 0.8976,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Wysyłamy e-mail z potwierdzeniem",
+            "reference_label": "Wyślij e-mail z potwierdzeniem",
+            "method": "embedding",
+            "similarity": 0.9332,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "Z",
+            "predicted_label": "Kończymy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.751,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Proponujemy inny termin",
+            "reference_label": "Zaproponuj inny termin",
+            "method": "embedding",
+            "similarity": 0.8695,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "H",
+            "predicted_label": "Ustawiamy przypomnienie",
+            "reference_label": "Ustaw przypomnienie",
+            "method": "embedding",
+            "similarity": 0.8648,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "I",
+            "predicted_label": "Potwierdzamy ustawienie przypomnienia",
+            "reference_label": "Potwierdź ustawienie przypomnienia",
+            "method": "embedding",
+            "similarity": 0.9207,
+            "matched": true
+          },
+          {
+            "predicted_id": "J",
+            "reference_id": "J",
+            "predicted_label": "Wysyłamy e-mail z przypomnieniem",
+            "reference_label": "Wyślij e-mail z przypomnieniem",
+            "method": "embedding",
+            "similarity": 0.9367,
+            "matched": true
+          },
+          {
+            "predicted_id": "K",
+            "reference_id": "K",
+            "predicted_label": "Oznaczamy wizytę jako zakończoną",
+            "reference_label": "Oznacz wizytę jako zakończoną",
+            "method": "embedding",
+            "similarity": 0.9192,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0007",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Użytkownik zamawia taksówkę. System sprawdza, czy użytkownik się spieszy. Jeśli tak, przydziela najszybszego dostępnego kierowcę. Jeśli nie, wybiera najbliższego kierowcę z najniższą ceną. W obu przypadkach proces się na tym kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Zamów taksówkę]\n B --> C{Czy użytkownik się spieszy?}\n C -->|Tak| D[Przydziel najszybszego dostępnego kierowcę]\n C -->|Nie| E[Wybierz najbliższego kierowcę z najniższą ceną]\n D --> Z([Koniec])\n E --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Użytkownik zamawia taksówkę] --> B[System sprawdza, czy użytkownik się spieszy?]\n    B -->|Tak| C[Przydziela najszybszego dostępnego kierowcę]\n    B -->|Nie| D[Wybiera najbliższego kierowcę z najniższą ceną]\n    C --> E[Proces się kończy]\n    D --> E",
+      "code": "flowchart TD\n    A[Użytkownik zamawia taksówkę] --> B[System sprawdza, czy użytkownik się spieszy?]\n    B -->|Tak| C[Przydziela najszybszego dostępnego kierowcę]\n    B -->|Nie| D[Wybiera najbliższego kierowcę z najniższą ceną]\n    C --> E[Proces się kończy]\n    D --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 104,
+      "latency_s": 2.19,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "shape_acc": 0.6,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Użytkownik zamawia taksówkę",
+            "reference_label": "Zamów taksówkę",
+            "method": "embedding",
+            "similarity": 0.8344,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "System sprawdza, czy użytkownik się spieszy?",
+            "reference_label": "Czy użytkownik się spieszy?",
+            "method": "embedding",
+            "similarity": 0.8668,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Przydziela najszybszego dostępnego kierowcę",
+            "reference_label": "Przydziel najszybszego dostępnego kierowcę",
+            "method": "embedding",
+            "similarity": 0.9655,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Wybiera najbliższego kierowcę z najniższą ceną",
+            "reference_label": "Wybierz najbliższego kierowcę z najniższą ceną",
+            "method": "embedding",
+            "similarity": 0.9566,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "Z",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7352,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0008",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "System sprawdza role użytkownika, a potem ustala, czy dana rola ma uprawnienia. Jeśli ma, przyznaje dostęp, a jeśli nie, odmawia dostępu. Potem proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Sprawdź role użytkownika]\n B --> C{Czy rola ma uprawnienia?}\n C -->|Tak| D[Przyznaj dostęp]\n C -->|Nie| E[Odmów dostępu]\n D --> Z([Koniec])\n E --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[System sprawdza role użytkownika] --> B{Czy rola ma uprawnienia?}\n    B -- Tak --> C[Przyznaje dostęp]\n    B -- Nie --> D[Odmawia dostępu]\n    C --> E[Proces się kończy]\n    D --> E",
+      "code": "flowchart TD\n    A[System sprawdza role użytkownika] --> B{Czy rola ma uprawnienia?}\n    B -- Tak --> C[Przyznaje dostęp]\n    B -- Nie --> D[Odmawia dostępu]\n    C --> E[Proces się kończy]\n    D --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 73,
+      "latency_s": 1.52,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "shape_acc": 0.8,
+        "node_pairs": [
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Czy rola ma uprawnienia?",
+            "reference_label": "Czy rola ma uprawnienia?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "System sprawdza role użytkownika",
+            "reference_label": "Sprawdź role użytkownika",
+            "method": "embedding",
+            "similarity": 0.8666,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Przyznaje dostęp",
+            "reference_label": "Przyznaj dostęp",
+            "method": "embedding",
+            "similarity": 0.8845,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Odmawia dostępu",
+            "reference_label": "Odmów dostępu",
+            "method": "embedding",
+            "similarity": 0.8731,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "Z",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7352,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0009",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Zaczynamy od rozpoczęcia przebiegu testów i pytamy, czy testy są automatyczne. Jeśli tak, testy automatyczne kończą się powodzeniem i proces się kończy. Jeśli nie, są dwie osobne ścieżki. W pierwszej kontynuujemy testami ręcznymi, testy ręczne zostają zaliczone i kończymy. W drugiej testy automatyczne się nie powiodły, więc potrzebne są testy ręczne, które też zostają zaliczone (osobny krok), i kończymy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Rozpocznij przebieg testów]\n B --> C{Czy testy są automatyczne?}\n C -->|Tak| D[Testy automatyczne zakończone powodzeniem]\n D --> Z([Koniec])\n C -->|Nie| E[Kontynuuj testami ręcznymi]\n E --> F[Testy ręczne zaliczone]\n F --> Z([Koniec])\n C -->|Nie| G[Testy automatyczne nie powiodły się]\n G --> H[Potrzebne testy ręczne]\n H --> I[Testy ręczne zaliczone]\n I --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Zaczynamy od rozpoczęcia przebiegu testów] --> B[Czy testy są automatyczne?]\n    B -- Tak --> C[Testy automatyczne kończą się powodzeniem]\n    C --> D[Proces się kończy]\n    B -- Nie --> E[Kontynuujemy testami ręcznymi]\n    E --> F[Testy ręczne zostają zaliczone]\n    F --> G[Proces się kończy]\n    B -- Nie --> H[Testy automatyczne się nie powiodły]\n    H --> I[Potrzebne są testy ręczne]\n    I --> J[Testy ręczne zostają zaliczone]\n    J --> K[Proces się kończy]",
+      "code": "flowchart TD\n    A[Zaczynamy od rozpoczęcia przebiegu testów] --> B[Czy testy są automatyczne?]\n    B -- Tak --> C[Testy automatyczne kończą się powodzeniem]\n    C --> D[Proces się kończy]\n    B -- Nie --> E[Kontynuujemy testami ręcznymi]\n    E --> F[Testy ręczne zostają zaliczone]\n    F --> G[Proces się kończy]\n    B -- Nie --> H[Testy automatyczne się nie powiodły]\n    H --> I[Potrzebne są testy ręczne]\n    I --> J[Testy ręczne zostają zaliczone]\n    J --> K[Proces się kończy]",
+      "finish_reason": "stop",
+      "completion_tokens": 169,
+      "latency_s": 3.51,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8181818181818182,
+          "recall": 0.9,
+          "f1": 0.8571428571428572
+        },
+        "edge": {
+          "precision": 0.8,
+          "recall": 0.7272727272727273,
+          "f1": 0.761904761904762
+        },
+        "shape_acc": 0.7777777777777778,
+        "node_pairs": [
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Czy testy są automatyczne?",
+            "reference_label": "Czy testy są automatyczne?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Zaczynamy od rozpoczęcia przebiegu testów",
+            "reference_label": "Rozpocznij przebieg testów",
+            "method": "embedding",
+            "similarity": 0.8715,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Testy automatyczne kończą się powodzeniem",
+            "reference_label": "Testy automatyczne zakończone powodzeniem",
+            "method": "embedding",
+            "similarity": 0.9155,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "A",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.5085,
+            "matched": false
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Kontynuujemy testami ręcznymi",
+            "reference_label": "Kontynuuj testami ręcznymi",
+            "method": "embedding",
+            "similarity": 0.9032,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Testy ręczne zostają zaliczone",
+            "reference_label": "Testy ręczne zaliczone",
+            "method": "embedding",
+            "similarity": 0.8758,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "Z",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7352,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "G",
+            "predicted_label": "Testy automatyczne się nie powiodły",
+            "reference_label": "Testy automatyczne nie powiodły się",
+            "method": "embedding",
+            "similarity": 0.9969,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "H",
+            "predicted_label": "Potrzebne są testy ręczne",
+            "reference_label": "Potrzebne testy ręczne",
+            "method": "embedding",
+            "similarity": 0.9799,
+            "matched": true
+          },
+          {
+            "predicted_id": "J",
+            "reference_id": "I",
+            "predicted_label": "Testy ręczne zostają zaliczone",
+            "reference_label": "Testy ręczne zaliczone",
+            "method": "embedding",
+            "similarity": 0.8758,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0010",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Klient podaje dane osobowe, a system sprawdza, czy polisa jest ważna. Jeśli jest, klient składa formularz roszczenia, wniosek zostaje rozpatrzony i zapada decyzja, czy roszczenie spełnia wymagania. Jeśli spełnia, roszczenie jest akceptowane, wysyłamy e-mail z akceptacją i kończymy. Jeśli nie spełnia, roszczenie jest odrzucane, podajemy uzasadnienie odmowy, wysyłamy e-mail z odmową i kończymy. Gdy polisa nie jest ważna, w osobnej gałęzi dzieją się te same trzy rzeczy: odrzucenie roszczenia, uzasadnienie odmowy i e-mail z odmową, po czym proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Podaj dane osobowe]\n B --> C{Czy polisa jest ważna?}\n C -->|Tak| D[Złóż formularz roszczenia]\n D --> E[Rozpatrz wniosek]\n E --> F{Czy roszczenie spełnia wymagania?}\n F -->|Tak| G[Zaakceptuj roszczenie]\n G --> H[Wyślij e-mail z akceptacją]\n H --> Z([Koniec])\n F -->|Nie| I[Odrzuć roszczenie]\n I --> J[Podaj uzasadnienie odmowy]\n J --> K[Wyślij e-mail z odmową]\n K --> Z([Koniec])\n C -->|Nie| L[Odrzuć roszczenie]\n L --> M[Podaj uzasadnienie odmowy]\n M --> N[Wyślij e-mail z odmową]\n N --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Klient podaje dane osobowe] --> B[System sprawdza, czy polisa jest ważna]\n    B -->|Tak| C[Klient składa formularz roszczenia]\n    B -->|Nie| D[Odrzucenie roszczenia]\n    D --> E[Podajemy uzasadnienie odmowy]\n    D --> F[Wysyłamy e-mail z odmową]\n    F --> G[Koniec]\n\n    C --> H[Wniosek zostaje rozpatrzony]\n    H --> I[Zapada decyzja, czy roszczenie spełnia wymagania]\n    I -->|Tak| J[Rozczenie jest akceptowane]\n    I -->|Nie| D\n\n    J --> K[Wysyłamy e-mail z akceptacją]\n    K --> G",
+      "code": "flowchart TD\n    A[Klient podaje dane osobowe] --> B[System sprawdza, czy polisa jest ważna]\n    B -->|Tak| C[Klient składa formularz roszczenia]\n    B -->|Nie| D[Odrzucenie roszczenia]\n    D --> E[Podajemy uzasadnienie odmowy]\n    D --> F[Wysyłamy e-mail z odmową]\n    F --> G[Koniec]\n\n    C --> H[Wniosek zostaje rozpatrzony]\n    H --> I[Zapada decyzja, czy roszczenie spełnia wymagania]\n    I -->|Tak| J[Rozczenie jest akceptowane]\n    I -->|Nie| D\n\n    J --> K[Wysyłamy e-mail z akceptacją]\n    K --> G",
+      "finish_reason": "stop",
+      "completion_tokens": 190,
+      "latency_s": 4.02,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8181818181818182,
+          "recall": 0.6,
+          "f1": 0.6923076923076923
+        },
+        "edge": {
+          "precision": 0.5,
+          "recall": 0.375,
+          "f1": 0.42857142857142855
+        },
+        "shape_acc": 0.7777777777777778,
+        "node_pairs": [
+          {
+            "predicted_id": "G",
+            "reference_id": "Z",
+            "predicted_label": "Koniec",
+            "reference_label": "Koniec",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Klient podaje dane osobowe",
+            "reference_label": "Podaj dane osobowe",
+            "method": "embedding",
+            "similarity": 0.7963,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "System sprawdza, czy polisa jest ważna",
+            "reference_label": "Czy polisa jest ważna?",
+            "method": "embedding",
+            "similarity": 0.6897,
+            "matched": false
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Klient składa formularz roszczenia",
+            "reference_label": "Złóż formularz roszczenia",
+            "method": "embedding",
+            "similarity": 0.8372,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "I",
+            "predicted_label": "Odrzucenie roszczenia",
+            "reference_label": "Odrzuć roszczenie",
+            "method": "embedding",
+            "similarity": 0.9408,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "J",
+            "predicted_label": "Podajemy uzasadnienie odmowy",
+            "reference_label": "Podaj uzasadnienie odmowy",
+            "method": "embedding",
+            "similarity": 0.9404,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "K",
+            "predicted_label": "Wysyłamy e-mail z odmową",
+            "reference_label": "Wyślij e-mail z odmową",
+            "method": "embedding",
+            "similarity": 0.9262,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "E",
+            "predicted_label": "Wniosek zostaje rozpatrzony",
+            "reference_label": "Rozpatrz wniosek",
+            "method": "embedding",
+            "similarity": 0.8093,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "F",
+            "predicted_label": "Zapada decyzja, czy roszczenie spełnia wymagania",
+            "reference_label": "Czy roszczenie spełnia wymagania?",
+            "method": "embedding",
+            "similarity": 0.8102,
+            "matched": true
+          },
+          {
+            "predicted_id": "J",
+            "reference_id": "G",
+            "predicted_label": "Rozczenie jest akceptowane",
+            "reference_label": "Zaakceptuj roszczenie",
+            "method": "embedding",
+            "similarity": 0.6635,
+            "matched": false
+          },
+          {
+            "predicted_id": "K",
+            "reference_id": "H",
+            "predicted_label": "Wysyłamy e-mail z akceptacją",
+            "reference_label": "Wyślij e-mail z akceptacją",
+            "method": "embedding",
+            "similarity": 0.9263,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0011",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Wczytujemy plik CSV i sprawdzamy, czy dane są poprawne. Jeśli tak, przetwarzamy dane CSV, zapisujemy je w bazie danych i kończymy. Jeśli nie, obsługujemy błędy, zapisujemy je w logu, pokazujemy użytkownikowi błędne wiersze i zapisujemy te wiersze. Użytkownik przegląda je i poprawia, po czym ponawiamy import, czyli wracamy do wczytania pliku CSV.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Wczytaj plik CSV]\n B --> C{Czy dane CSV są poprawne?}\n C -->|Tak| D[Przetwórz dane CSV]\n D --> E[Zapisz w bazie danych]\n E --> Z([Koniec])\n C -->|Nie| F[Obsłuż błędy]\n F --> G[Zapisz błędy w logu]\n G --> H[Pokaż użytkownikowi błędne wiersze]\n H --> I[Zapisz błędne wiersze]\n I --> J[Przejrzyj i popraw błędne wiersze]\n J --> K[Ponów import]\n K --> B\nZ([Koniec])",
+      "raw_output": "flowchart TD\n    A[Wczytujemy plik CSV] --> B[Sprawdzamy, czy dane są poprawne]\n    B -->|Tak| C[Przetwarzamy dane CSV]\n    C --> D[Zapisujemy dane w bazie danych]\n    D --> E[Kończymy]\n    B -->|Nie| F[Obsługujemy błędy]\n    F --> G[Zapisujemy błędy w logu]\n    F --> H[Pokazujemy użytkownikowi błędne wiersze]\n    F --> I[Zapisujemy błędne wiersze]\n    H --> J[Użytkownik przegląda i poprawia dane]\n    J --> A",
+      "code": "flowchart TD\n    A[Wczytujemy plik CSV] --> B[Sprawdzamy, czy dane są poprawne]\n    B -->|Tak| C[Przetwarzamy dane CSV]\n    C --> D[Zapisujemy dane w bazie danych]\n    D --> E[Kończymy]\n    B -->|Nie| F[Obsługujemy błędy]\n    F --> G[Zapisujemy błędy w logu]\n    F --> H[Pokazujemy użytkownikowi błędne wiersze]\n    F --> I[Zapisujemy błędne wiersze]\n    H --> J[Użytkownik przegląda i poprawia dane]\n    J --> A",
+      "finish_reason": "stop",
+      "completion_tokens": 149,
+      "latency_s": 3.1,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.9,
+          "recall": 0.75,
+          "f1": 0.8181818181818182
+        },
+        "edge": {
+          "precision": 0.6,
+          "recall": 0.5,
+          "f1": 0.5454545454545454
+        },
+        "shape_acc": 0.7777777777777778,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Wczytujemy plik CSV",
+            "reference_label": "Wczytaj plik CSV",
+            "method": "embedding",
+            "similarity": 0.9408,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzamy, czy dane są poprawne",
+            "reference_label": "Czy dane CSV są poprawne?",
+            "method": "embedding",
+            "similarity": 0.7346,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Przetwarzamy dane CSV",
+            "reference_label": "Przetwórz dane CSV",
+            "method": "embedding",
+            "similarity": 0.8501,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Zapisujemy dane w bazie danych",
+            "reference_label": "Zapisz w bazie danych",
+            "method": "embedding",
+            "similarity": 0.8906,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "Z",
+            "predicted_label": "Kończymy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.751,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Obsługujemy błędy",
+            "reference_label": "Obsłuż błędy",
+            "method": "embedding",
+            "similarity": 0.8173,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Zapisujemy błędy w logu",
+            "reference_label": "Zapisz błędy w logu",
+            "method": "embedding",
+            "similarity": 0.9266,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "H",
+            "predicted_label": "Pokazujemy użytkownikowi błędne wiersze",
+            "reference_label": "Pokaż użytkownikowi błędne wiersze",
+            "method": "embedding",
+            "similarity": 0.9044,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "I",
+            "predicted_label": "Zapisujemy błędne wiersze",
+            "reference_label": "Zapisz błędne wiersze",
+            "method": "embedding",
+            "similarity": 0.9035,
+            "matched": true
+          },
+          {
+            "predicted_id": "J",
+            "reference_id": "J",
+            "predicted_label": "Użytkownik przegląda i poprawia dane",
+            "reference_label": "Przejrzyj i popraw błędne wiersze",
+            "method": "embedding",
+            "similarity": 0.6082,
+            "matched": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0012",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Najpierw zbieramy szczegóły i sprawdzamy, czy priorytet jest wysoki. Jeśli tak, tworzymy nowe zgłoszenie i kończymy. Jeśli nie, segregujemy zgłoszenia i sprawdzamy, czy zgłoszenie było już wcześniej przypisane. Jeśli było, przypisujemy je ponownie, a jeśli nie, przypisujemy je do programisty. W obu przypadkach proces się kończy.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Zbierz szczegóły]\nB --> C{Czy priorytet jest wysoki?}\nC -->|Tak| D[Utwórz nowe zgłoszenie]\nD --> Z([Koniec])\nC -->|Nie| E[Posegreguj zgłoszenia]\nE --> F{Czy było już przypisane?}\nF -->|Tak| G[Przypisz zgłoszenie ponownie]\nG --> Z([Koniec])\nF -->|Nie| H[Przypisz do programisty]\nH --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Zbieramy szczegóły] --> B[Sprawdzamy, czy priorytet jest wysoki]\n    B -->|Tak| C[Tworzymy nowe zgłoszenie]\n    C --> D[Kończymy]\n    B -->|Nie| E[Segregujemy zgłoszenia]\n    E --> F[Sprawdzamy, czy zgłoszenie było już wcześniej przypisane]\n    F -->|Tak| G[Przypisujemy je ponownie]\n    F -->|Nie| H[Przypisujemy je do programisty]\n    G --> I[Kończymy]\n    H --> I",
+      "code": "flowchart TD\n    A[Zbieramy szczegóły] --> B[Sprawdzamy, czy priorytet jest wysoki]\n    B -->|Tak| C[Tworzymy nowe zgłoszenie]\n    C --> D[Kończymy]\n    B -->|Nie| E[Segregujemy zgłoszenia]\n    E --> F[Sprawdzamy, czy zgłoszenie było już wcześniej przypisane]\n    F -->|Tak| G[Przypisujemy je ponownie]\n    F -->|Nie| H[Przypisujemy je do programisty]\n    G --> I[Kończymy]\n    H --> I",
+      "finish_reason": "stop",
+      "completion_tokens": 152,
+      "latency_s": 3.16,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8888888888888888,
+          "recall": 0.8888888888888888,
+          "f1": 0.8888888888888888
+        },
+        "edge": {
+          "precision": 0.7777777777777778,
+          "recall": 0.7,
+          "f1": 0.7368421052631577
+        },
+        "shape_acc": 0.625,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Zbieramy szczegóły",
+            "reference_label": "Zbierz szczegóły",
+            "method": "embedding",
+            "similarity": 0.8294,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzamy, czy priorytet jest wysoki",
+            "reference_label": "Czy priorytet jest wysoki?",
+            "method": "embedding",
+            "similarity": 0.8983,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Tworzymy nowe zgłoszenie",
+            "reference_label": "Utwórz nowe zgłoszenie",
+            "method": "embedding",
+            "similarity": 0.9021,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "Z",
+            "predicted_label": "Kończymy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.751,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Segregujemy zgłoszenia",
+            "reference_label": "Posegreguj zgłoszenia",
+            "method": "embedding",
+            "similarity": 0.8702,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Sprawdzamy, czy zgłoszenie było już wcześniej przypisane",
+            "reference_label": "Czy było już przypisane?",
+            "method": "embedding",
+            "similarity": 0.7549,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Przypisujemy je ponownie",
+            "reference_label": "Przypisz zgłoszenie ponownie",
+            "method": "embedding",
+            "similarity": 0.7964,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "H",
+            "predicted_label": "Przypisujemy je do programisty",
+            "reference_label": "Przypisz do programisty",
+            "method": "embedding",
+            "similarity": 0.8375,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "A",
+            "predicted_label": "Kończymy",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.5586,
+            "matched": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0013",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "System tworzy link do pobrania i sprawdza, czy użytkownik jest zalogowany. Zalogowanemu wysyła link do pobrania e-mailem, a niezalogowanego przekierowuje na stronę logowania. Potem proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Utwórz link do pobrania]\n B --> C{Czy użytkownik jest zalogowany?}\n C -->|Tak| D[Wyślij link do pobrania e-mailem]\n C -->|Nie| E[Przekieruj na stronę logowania]\n D --> Z([Koniec])\n E --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[System tworzy link do pobrania] --> B{Czy użytkownik jest zalogowany?}\n    B -- Tak --> C[Zalogowanemu wysyła link do pobrania e-mailem]\n    B -- Nie --> D[Przekierowuje niezalogowanego na stronę logowania]\n    C --> E[Koniec]\n    D --> E",
+      "code": "flowchart TD\n    A[System tworzy link do pobrania] --> B{Czy użytkownik jest zalogowany?}\n    B -- Tak --> C[Zalogowanemu wysyła link do pobrania e-mailem]\n    B -- Nie --> D[Przekierowuje niezalogowanego na stronę logowania]\n    C --> E[Koniec]\n    D --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 89,
+      "latency_s": 1.89,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "shape_acc": 0.8,
+        "node_pairs": [
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Czy użytkownik jest zalogowany?",
+            "reference_label": "Czy użytkownik jest zalogowany?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "Z",
+            "predicted_label": "Koniec",
+            "reference_label": "Koniec",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "System tworzy link do pobrania",
+            "reference_label": "Utwórz link do pobrania",
+            "method": "embedding",
+            "similarity": 0.7568,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Zalogowanemu wysyła link do pobrania e-mailem",
+            "reference_label": "Wyślij link do pobrania e-mailem",
+            "method": "embedding",
+            "similarity": 0.7261,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Przekierowuje niezalogowanego na stronę logowania",
+            "reference_label": "Przekieruj na stronę logowania",
+            "method": "embedding",
+            "similarity": 0.7416,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0014",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Na początku sprawdzamy, czy kwota zwrotu przekracza limit. Jeśli tak, pytamy, czy klient jest VIP-em. Dla klienta VIP zwrot zostaje zatwierdzony, a dla zwykłego klienta zwrot również zostaje zatwierdzony, ale jako osobny wynik. Oba wyniki kończą proces.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Sprawdź, czy kwota zwrotu przekracza limit]\nB -->|Tak| C{Czy klient jest VIP-em?}\nC -->|Tak| D[Zwrot dla klienta VIP zatwierdzony]\nD --> Z([Koniec])\nC -->|Nie| E[Zwrot dla zwykłego klienta zatwierdzony]\nE --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Sprawdzamy, czy kwota zwrotu przekracza limit] -->|Tak| B[Pytamy, czy klient jest VIP-em]\n    A -->|Nie| C[Proces kończy się]\n    B -->|Tak| D[Zwrot zatwierdzony dla VIP]\n    B -->|Nie| E[Zwrot zatwierdzony dla zwykłego klienta jako osobny wynik]\n    D --> F[Proces kończy się]\n    E --> F[Proces kończy się]",
+      "code": "flowchart TD\n    A[Sprawdzamy, czy kwota zwrotu przekracza limit] -->|Tak| B[Pytamy, czy klient jest VIP-em]\n    A -->|Nie| C[Proces kończy się]\n    B -->|Tak| D[Zwrot zatwierdzony dla VIP]\n    B -->|Nie| E[Zwrot zatwierdzony dla zwykłego klienta jako osobny wynik]\n    D --> F[Proces kończy się]\n    E --> F[Proces kończy się]",
+      "finish_reason": "stop",
+      "completion_tokens": 125,
+      "latency_s": 2.58,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8333333333333334,
+          "recall": 0.8333333333333334,
+          "f1": 0.8333333333333334
+        },
+        "edge": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5
+        },
+        "shape_acc": 0.6,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Sprawdzamy, czy kwota zwrotu przekracza limit",
+            "reference_label": "Sprawdź, czy kwota zwrotu przekracza limit",
+            "method": "embedding",
+            "similarity": 0.9686,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Pytamy, czy klient jest VIP-em",
+            "reference_label": "Czy klient jest VIP-em?",
+            "method": "embedding",
+            "similarity": 0.9147,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "Z",
+            "predicted_label": "Proces kończy się",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7409,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "D",
+            "predicted_label": "Zwrot zatwierdzony dla VIP",
+            "reference_label": "Zwrot dla klienta VIP zatwierdzony",
+            "method": "embedding",
+            "similarity": 0.9351,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Zwrot zatwierdzony dla zwykłego klienta jako osobny wynik",
+            "reference_label": "Zwrot dla zwykłego klienta zatwierdzony",
+            "method": "embedding",
+            "similarity": 0.8158,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "A",
+            "predicted_label": "Proces kończy się",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.5041,
+            "matched": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0015",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Przyjmujemy wniosek urlopowy i sprawdzamy, czy rodzaj urlopu jest zatwierdzony. Jeśli tak, zatwierdzamy wniosek i kończymy. Jeśli nie, pytamy, czy pracownik ma przełożonego. Jeśli ma, pytamy, czy przełożony się zgadza. Zgoda przełożonego oznacza zatwierdzenie wniosku i koniec. Bez niej sprawdzamy, czy kierownik wyraził zgodę: jeśli tak, wniosek jest zatwierdzany. Jeśli nie, sprawdzamy jeszcze, czy jest zgoda działu wyższego szczebla. Gdy jest, zatwierdzamy wniosek, a gdy jej nie ma, odrzucamy wniosek urlopowy. Każde zatwierdzenie to osobny krok w swojej gałęzi, a wszystkie ścieżki prowadzą do końca.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Przyjmij wniosek urlopowy]\n B --> C{Czy rodzaj urlopu jest zatwierdzony?}\n C -->|Tak| D[Zatwierdź wniosek urlopowy]\n D --> Z([Koniec])\n C -->|Nie| E{Czy masz przełożonego?}\n E -->|Tak| F{Czy przełożony się zgadza?}\n F -->|Tak| G[Zatwierdź wniosek urlopowy]\n G --> Z([Koniec])\n F -->|Nie| H{Czy kierownik wyraził zgodę?}\n H -->|Tak| I[Zatwierdź wniosek urlopowy]\n I --> Z([Koniec])\n H -->|Nie| J{Czy jest zgoda działu wyższego szczebla?}\n J -->|Tak| K[Zatwierdź wniosek urlopowy]\n K --> Z([Koniec])\n J -->|Nie| L[Odrzuć wniosek urlopowy]\n L --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Przyjmujemy wniosek urlopowy] --> B{Czy rodzaj urlopu jest zatwierdzony?}\n    B -- Tak --> C[Zatwierdzamy wniosek]\n    B -- Nie --> D{Czy pracownik ma przełożonego?}\n    D -- Tak --> E{Czy przełożony się zgadza?}\n    E -- Tak --> F[Zatwierdzamy wniosek]\n    E -- Nie --> G{Czy kierownik wyraził zgodę?}\n    G -- Tak --> H[Zatwierdzamy wniosek]\n    G -- Nie --> I{Czy jest zgoda działu wyższego szczebla?}\n    I -- Tak --> J[Zatwierdzamy wniosek]\n    I -- Nie --> K[Odrzucamy wniosek urlopowy]\n    C --> L[Koniec]\n    F --> L\n    H --> L\n    J --> L\n    K --> L",
+      "code": "flowchart TD\n    A[Przyjmujemy wniosek urlopowy] --> B{Czy rodzaj urlopu jest zatwierdzony?}\n    B -- Tak --> C[Zatwierdzamy wniosek]\n    B -- Nie --> D{Czy pracownik ma przełożonego?}\n    D -- Tak --> E{Czy przełożony się zgadza?}\n    E -- Tak --> F[Zatwierdzamy wniosek]\n    E -- Nie --> G{Czy kierownik wyraził zgodę?}\n    G -- Tak --> H[Zatwierdzamy wniosek]\n    G -- Nie --> I{Czy jest zgoda działu wyższego szczebla?}\n    I -- Tak --> J[Zatwierdzamy wniosek]\n    I -- Nie --> K[Odrzucamy wniosek urlopowy]\n    C --> L[Koniec]\n    F --> L\n    H --> L\n    J --> L\n    K --> L",
+      "finish_reason": "stop",
+      "completion_tokens": 230,
+      "latency_s": 4.86,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.9230769230769231,
+          "f1": 0.9600000000000001
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.9375,
+          "f1": 0.967741935483871
+        },
+        "shape_acc": 0.9166666666666666,
+        "node_pairs": [
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Czy rodzaj urlopu jest zatwierdzony?",
+            "reference_label": "Czy rodzaj urlopu jest zatwierdzony?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "F",
+            "predicted_label": "Czy przełożony się zgadza?",
+            "reference_label": "Czy przełożony się zgadza?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "H",
+            "predicted_label": "Czy kierownik wyraził zgodę?",
+            "reference_label": "Czy kierownik wyraził zgodę?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "J",
+            "predicted_label": "Czy jest zgoda działu wyższego szczebla?",
+            "reference_label": "Czy jest zgoda działu wyższego szczebla?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "L",
+            "reference_id": "Z",
+            "predicted_label": "Koniec",
+            "reference_label": "Koniec",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Przyjmujemy wniosek urlopowy",
+            "reference_label": "Przyjmij wniosek urlopowy",
+            "method": "embedding",
+            "similarity": 0.9184,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Zatwierdzamy wniosek",
+            "reference_label": "Zatwierdź wniosek urlopowy",
+            "method": "embedding",
+            "similarity": 0.7855,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Czy pracownik ma przełożonego?",
+            "reference_label": "Czy masz przełożonego?",
+            "method": "embedding",
+            "similarity": 0.8945,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "G",
+            "predicted_label": "Zatwierdzamy wniosek",
+            "reference_label": "Zatwierdź wniosek urlopowy",
+            "method": "embedding",
+            "similarity": 0.7855,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "I",
+            "predicted_label": "Zatwierdzamy wniosek",
+            "reference_label": "Zatwierdź wniosek urlopowy",
+            "method": "embedding",
+            "similarity": 0.7855,
+            "matched": true
+          },
+          {
+            "predicted_id": "J",
+            "reference_id": "K",
+            "predicted_label": "Zatwierdzamy wniosek",
+            "reference_label": "Zatwierdź wniosek urlopowy",
+            "method": "embedding",
+            "similarity": 0.7855,
+            "matched": true
+          },
+          {
+            "predicted_id": "K",
+            "reference_id": "L",
+            "predicted_label": "Odrzucamy wniosek urlopowy",
+            "reference_label": "Odrzuć wniosek urlopowy",
+            "method": "embedding",
+            "similarity": 0.9325,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0016",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Klient przegląda obecny plan i ustalamy, czy chodzi o zmianę na niższy plan. Jeśli nie, klient wybiera nowy plan, aktualizujemy dane subskrypcji i przychodzi potwierdzenie. Pytamy, czy klient otrzymał potwierdzenie: jeśli tak, to koniec, a jeśli nie, kontaktuje się z pomocą techniczną i wracamy do tego pytania. Jeśli to zmiana na niższy plan, klient przegląda warunki takiej zmiany, potwierdza ją i aktualizujemy dane subskrypcji (osobny krok). Pytamy, czy klient potwierdził: jeśli tak, to koniec, a jeśli nie, kontaktuje się z pomocą techniczną (znów osobny krok) i wracamy do tego pytania.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Przejrzyj obecny plan]\n B --> C{Czy to zmiana na niższy plan?}\n C -->|Nie| D[Wybierz nowy plan]\n D --> E[Zaktualizuj dane subskrypcji]\n E --> F[Otrzymano potwierdzenie]\n F --> G{Czy otrzymałeś potwierdzenie?}\n G -->|Tak| Z([Koniec])\n G -->|Nie| H[Skontaktuj się z pomocą techniczną]\n H --> G\n C -->|Tak| I[Przejrzyj warunki zmiany na niższy plan]\n I --> J[Potwierdź zmianę na niższy plan]\n J --> K[Zaktualizuj dane subskrypcji]\n K --> L{Czy potwierdziłeś?}\n L -->|Tak| Z([Koniec])\n L -->|Nie| M[Skontaktuj się z pomocą techniczną]\n M --> L",
+      "raw_output": "flowchart TD\n    A[Klient przegląda obecny plan] --> B{Czy chodzi o zmianę na niższy plan?}\n    B -- Nie --> C[Klient wybiera nowy plan]\n    C --> D[Actualizujemy dane subskrypcji]\n    D --> E[Przychodzi potwierdzenie]\n    E --> F{Czy klient otrzymał potwierdzenie?}\n    F -- Tak --> G[Koniec]\n    F -- Nie --> H[Kontakt z pomocą techniczną]\n    H --> F\n\n    B -- Tak --> I[Klient przegląda warunki zmiany na niższy plan]\n    I --> J{Czy klient potwierdził?}\n    J -- Tak --> K[Koniec]\n    J -- Nie --> L[Kontakt z pomocą techniczną]\n    L --> J",
+      "code": "flowchart TD\n    A[Klient przegląda obecny plan] --> B{Czy chodzi o zmianę na niższy plan?}\n    B -- Nie --> C[Klient wybiera nowy plan]\n    C --> D[Actualizujemy dane subskrypcji]\n    D --> E[Przychodzi potwierdzenie]\n    E --> F{Czy klient otrzymał potwierdzenie?}\n    F -- Tak --> G[Koniec]\n    F -- Nie --> H[Kontakt z pomocą techniczną]\n    H --> F\n\n    B -- Tak --> I[Klient przegląda warunki zmiany na niższy plan]\n    I --> J{Czy klient potwierdził?}\n    J -- Tak --> K[Koniec]\n    J -- Nie --> L[Kontakt z pomocą techniczną]\n    L --> J",
+      "finish_reason": "stop",
+      "completion_tokens": 192,
+      "latency_s": 4.07,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.9166666666666666,
+          "recall": 0.7857142857142857,
+          "f1": 0.8461538461538461
+        },
+        "edge": {
+          "precision": 0.8461538461538461,
+          "recall": 0.6875,
+          "f1": 0.7586206896551724
+        },
+        "shape_acc": 0.9090909090909091,
+        "node_pairs": [
+          {
+            "predicted_id": "G",
+            "reference_id": "Z",
+            "predicted_label": "Koniec",
+            "reference_label": "Koniec",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Klient przegląda obecny plan",
+            "reference_label": "Przejrzyj obecny plan",
+            "method": "embedding",
+            "similarity": 0.7925,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Czy chodzi o zmianę na niższy plan?",
+            "reference_label": "Czy to zmiana na niższy plan?",
+            "method": "embedding",
+            "similarity": 0.9805,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Klient wybiera nowy plan",
+            "reference_label": "Wybierz nowy plan",
+            "method": "embedding",
+            "similarity": 0.7967,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Actualizujemy dane subskrypcji",
+            "reference_label": "Zaktualizuj dane subskrypcji",
+            "method": "embedding",
+            "similarity": 0.8972,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "F",
+            "predicted_label": "Przychodzi potwierdzenie",
+            "reference_label": "Otrzymano potwierdzenie",
+            "method": "embedding",
+            "similarity": 0.8653,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "G",
+            "predicted_label": "Czy klient otrzymał potwierdzenie?",
+            "reference_label": "Czy otrzymałeś potwierdzenie?",
+            "method": "embedding",
+            "similarity": 0.9204,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "H",
+            "predicted_label": "Kontakt z pomocą techniczną",
+            "reference_label": "Skontaktuj się z pomocą techniczną",
+            "method": "embedding",
+            "similarity": 0.9299,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "I",
+            "predicted_label": "Klient przegląda warunki zmiany na niższy plan",
+            "reference_label": "Przejrzyj warunki zmiany na niższy plan",
+            "method": "embedding",
+            "similarity": 0.8272,
+            "matched": true
+          },
+          {
+            "predicted_id": "J",
+            "reference_id": "L",
+            "predicted_label": "Czy klient potwierdził?",
+            "reference_label": "Czy potwierdziłeś?",
+            "method": "embedding",
+            "similarity": 0.8127,
+            "matched": true
+          },
+          {
+            "predicted_id": "K",
+            "reference_id": "A",
+            "predicted_label": "Koniec",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.5577,
+            "matched": false
+          },
+          {
+            "predicted_id": "L",
+            "reference_id": "M",
+            "predicted_label": "Kontakt z pomocą techniczną",
+            "reference_label": "Skontaktuj się z pomocą techniczną",
+            "method": "embedding",
+            "similarity": 0.9299,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0017",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Łączymy się z bazą danych i sprawdzamy, czy kopia zapasowa się powiodła. Jeśli tak, przeprowadzamy weryfikację i przy wyniku pozytywnym przechodzimy do pytania, czy weryfikacja się powiodła. Jeśli kopia się nie powiodła, od razu przechodzimy do tego samego pytania. Gdy weryfikacja się powiodła, proces się kończy.",
+      "expected_mermaid": "flowchart TD\nA([Start])\nB[Połącz się z bazą danych]\nC{Czy kopia zapasowa się powiodła?}\nD[Przeprowadź weryfikację]\nE{Czy weryfikacja się powiodła?}\nZ([Koniec])\n\n A --> B\n B --> C\n C -->|Tak| D\n C -->|Nie| E\n D -->|Tak| E\n E -->|Tak| Z",
+      "raw_output": "flowchart TD\n    A[Łączymy się z bazą danych] --> B[Sprawdzamy, czy kopia zapasowa się powiodła]\n    B -- Tak --> C[Weryfikacja]\n    B -- Nie --> B\n    C --> D[Czy weryfikacja się powiodła?]\n    D -- Tak --> E[Proces się kończy]\n    D -- Nie --> F[Proces się kończy]",
+      "code": "flowchart TD\n    A[Łączymy się z bazą danych] --> B[Sprawdzamy, czy kopia zapasowa się powiodła]\n    B -- Tak --> C[Weryfikacja]\n    B -- Nie --> B\n    C --> D[Czy weryfikacja się powiodła?]\n    D -- Tak --> E[Proces się kończy]\n    D -- Nie --> F[Proces się kończy]",
+      "finish_reason": "stop",
+      "completion_tokens": 100,
+      "latency_s": 2.18,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8333333333333334,
+          "recall": 0.8333333333333334,
+          "f1": 0.8333333333333334
+        },
+        "edge": {
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "f1": 0.6666666666666666
+        },
+        "shape_acc": 0.4,
+        "node_pairs": [
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Czy weryfikacja się powiodła?",
+            "reference_label": "Czy weryfikacja się powiodła?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Łączymy się z bazą danych",
+            "reference_label": "Połącz się z bazą danych",
+            "method": "embedding",
+            "similarity": 0.8801,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzamy, czy kopia zapasowa się powiodła",
+            "reference_label": "Czy kopia zapasowa się powiodła?",
+            "method": "embedding",
+            "similarity": 0.851,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Weryfikacja",
+            "reference_label": "Przeprowadź weryfikację",
+            "method": "embedding",
+            "similarity": 0.8883,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "Z",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7352,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "A",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.5085,
+            "matched": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0018",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Najpierw rozpoznajemy prośbę użytkownika i sprawdzamy, czy to zapytanie. Jeśli tak, tworzymy zapytanie wyszukiwania, przeszukujemy bazę danych, pobieramy i przetwarzamy wyniki, klasyfikujemy typ odpowiedzi, generujemy odpowiedź e-mail, planujemy wysyłkę e-maila i kończymy zadanie. Potem sprawdzamy, czy potrzebny jest dalszy kontakt. Jeśli tak, planujemy go, zapisujemy jego szczegóły, przechodzimy do kroku o nazwie Koniec i proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Rozpoznaj prośbę użytkownika]\n B --> C{Czy to zapytanie?}\n C -->|Tak| D[Utwórz zapytanie wyszukiwania]\n D --> E[Przeszukaj bazę danych]\n E --> F[Pobierz i przetwórz wyniki]\n F --> G[Sklasyfikuj typ odpowiedzi]\n G --> H[Wygeneruj odpowiedź e-mail]\n H --> I[Zaplanuj wysyłkę e-maila]\n I --> J[Zakończ zadanie]\n J --> K{Czy potrzebny jest dalszy kontakt?}\n K -->|Tak| L[Zaplanuj dalszy kontakt]\n L --> M[Zapisz szczegóły dalszego kontaktu]\n M --> N[Koniec]\n N --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Najpierw rozpoznajemy prośbę użytkownika] --> B[Sprawdzamy, czy to zapytanie]\n    B -->|Tak| C[Tworzymy zapytanie wyszukiwania]\n    C --> D[Przeszukujemy bazę danych]\n    D --> E[Pobieramy i przetwarzamy wyniki]\n    E --> F[Klasyfikujemy typ odpowiedzi]\n    F --> G[Generujemy odpowiedź e-mail]\n    G --> H[Planujemy wysyłkę e-maila]\n    H --> I[Kończymy zadanie]\n    I --> J[Sprawdzamy, czy potrzebny jest dalszy kontakt]\n    J -->|Tak| K[Planujemy dalszy kontakt]\n    K --> L[Zapisujemy szczegóły kontaktu]\n    L --> M[Koniec]\n    J -->|Nie| M",
+      "code": "flowchart TD\n    A[Najpierw rozpoznajemy prośbę użytkownika] --> B[Sprawdzamy, czy to zapytanie]\n    B -->|Tak| C[Tworzymy zapytanie wyszukiwania]\n    C --> D[Przeszukujemy bazę danych]\n    D --> E[Pobieramy i przetwarzamy wyniki]\n    E --> F[Klasyfikujemy typ odpowiedzi]\n    F --> G[Generujemy odpowiedź e-mail]\n    G --> H[Planujemy wysyłkę e-maila]\n    H --> I[Kończymy zadanie]\n    I --> J[Sprawdzamy, czy potrzebny jest dalszy kontakt]\n    J -->|Tak| K[Planujemy dalszy kontakt]\n    K --> L[Zapisujemy szczegóły kontaktu]\n    L --> M[Koniec]\n    J -->|Nie| M",
+      "finish_reason": "stop",
+      "completion_tokens": 211,
+      "latency_s": 4.36,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8666666666666667,
+          "f1": 0.9285714285714286
+        },
+        "edge": {
+          "precision": 0.9230769230769231,
+          "recall": 0.8571428571428571,
+          "f1": 0.888888888888889
+        },
+        "shape_acc": 0.8461538461538461,
+        "node_pairs": [
+          {
+            "predicted_id": "M",
+            "reference_id": "N",
+            "predicted_label": "Koniec",
+            "reference_label": "Koniec",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Najpierw rozpoznajemy prośbę użytkownika",
+            "reference_label": "Rozpoznaj prośbę użytkownika",
+            "method": "embedding",
+            "similarity": 0.8462,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzamy, czy to zapytanie",
+            "reference_label": "Czy to zapytanie?",
+            "method": "embedding",
+            "similarity": 0.8489,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Tworzymy zapytanie wyszukiwania",
+            "reference_label": "Utwórz zapytanie wyszukiwania",
+            "method": "embedding",
+            "similarity": 0.8696,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Przeszukujemy bazę danych",
+            "reference_label": "Przeszukaj bazę danych",
+            "method": "embedding",
+            "similarity": 0.8969,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "F",
+            "predicted_label": "Pobieramy i przetwarzamy wyniki",
+            "reference_label": "Pobierz i przetwórz wyniki",
+            "method": "embedding",
+            "similarity": 0.8388,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "G",
+            "predicted_label": "Klasyfikujemy typ odpowiedzi",
+            "reference_label": "Sklasyfikuj typ odpowiedzi",
+            "method": "embedding",
+            "similarity": 0.884,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "H",
+            "predicted_label": "Generujemy odpowiedź e-mail",
+            "reference_label": "Wygeneruj odpowiedź e-mail",
+            "method": "embedding",
+            "similarity": 0.8739,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "I",
+            "predicted_label": "Planujemy wysyłkę e-maila",
+            "reference_label": "Zaplanuj wysyłkę e-maila",
+            "method": "embedding",
+            "similarity": 0.8706,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "J",
+            "predicted_label": "Kończymy zadanie",
+            "reference_label": "Zakończ zadanie",
+            "method": "embedding",
+            "similarity": 0.8795,
+            "matched": true
+          },
+          {
+            "predicted_id": "J",
+            "reference_id": "K",
+            "predicted_label": "Sprawdzamy, czy potrzebny jest dalszy kontakt",
+            "reference_label": "Czy potrzebny jest dalszy kontakt?",
+            "method": "embedding",
+            "similarity": 0.8713,
+            "matched": true
+          },
+          {
+            "predicted_id": "K",
+            "reference_id": "L",
+            "predicted_label": "Planujemy dalszy kontakt",
+            "reference_label": "Zaplanuj dalszy kontakt",
+            "method": "embedding",
+            "similarity": 0.8688,
+            "matched": true
+          },
+          {
+            "predicted_id": "L",
+            "reference_id": "M",
+            "predicted_label": "Zapisujemy szczegóły kontaktu",
+            "reference_label": "Zapisz szczegóły dalszego kontaktu",
+            "method": "embedding",
+            "similarity": 0.8884,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0019",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Klient dokonuje zakupu. Jeśli tak, sprawdzamy, czy produkt cyfrowy jest dostępny. Gdy jest, pobieranie się rozpoczyna, potem się kończy i proces jest zakończony. Gdy nie jest, klient kontaktuje się z obsługą, pojawia się błąd przetwarzania płatności, klient kontaktuje się z obsługą po raz drugi (osobny krok) i proces się kończy.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Klient dokonuje zakupu]\nB -->|Tak| C{Czy produkt cyfrowy jest dostępny?}\nC -->|Tak| D[Pobieranie się rozpoczyna]\nD --> E[Pobieranie zakończone]\nE --> Z([Koniec])\nC -->|Nie| F[Skontaktuj się z obsługą]\nF --> G[Błąd przetwarzania płatności]\nG --> H[Skontaktuj się z obsługą]\nH --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Klient dokonuje zakupu] --> B{Czy produkt cyfrowy jest dostępny?}\n    B -- Tak --> C[Pobieranie się rozpoczyna]\n    C --> D[Pobieranie się kończy]\n    D --> E[Zakończenie procesu]\n    B -- Nie --> F[Błąd przetwarzania płatności]\n    F --> G[Klient kontaktuje się z obsługą]\n    G --> H[Klient kontaktuje się z obsługą po raz drugi]\n    H --> I[Zakończenie procesu]",
+      "code": "flowchart TD\n    A[Klient dokonuje zakupu] --> B{Czy produkt cyfrowy jest dostępny?}\n    B -- Tak --> C[Pobieranie się rozpoczyna]\n    C --> D[Pobieranie się kończy]\n    D --> E[Zakończenie procesu]\n    B -- Nie --> F[Błąd przetwarzania płatności]\n    F --> G[Klient kontaktuje się z obsługą]\n    G --> H[Klient kontaktuje się z obsługą po raz drugi]\n    H --> I[Zakończenie procesu]",
+      "finish_reason": "stop",
+      "completion_tokens": 130,
+      "latency_s": 2.68,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.7777777777777778,
+          "recall": 0.7777777777777778,
+          "f1": 0.7777777777777778
+        },
+        "edge": {
+          "precision": 0.5,
+          "recall": 0.4444444444444444,
+          "f1": 0.47058823529411764
+        },
+        "shape_acc": 0.8571428571428571,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Klient dokonuje zakupu",
+            "reference_label": "Klient dokonuje zakupu",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Czy produkt cyfrowy jest dostępny?",
+            "reference_label": "Czy produkt cyfrowy jest dostępny?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Pobieranie się rozpoczyna",
+            "reference_label": "Pobieranie się rozpoczyna",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "G",
+            "predicted_label": "Błąd przetwarzania płatności",
+            "reference_label": "Błąd przetwarzania płatności",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Pobieranie się kończy",
+            "reference_label": "Pobieranie zakończone",
+            "method": "embedding",
+            "similarity": 0.7411,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "Z",
+            "predicted_label": "Zakończenie procesu",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7283,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "F",
+            "predicted_label": "Klient kontaktuje się z obsługą",
+            "reference_label": "Skontaktuj się z obsługą",
+            "method": "embedding",
+            "similarity": 0.7921,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "H",
+            "predicted_label": "Klient kontaktuje się z obsługą po raz drugi",
+            "reference_label": "Skontaktuj się z obsługą",
+            "method": "embedding",
+            "similarity": 0.6811,
+            "matched": false
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "A",
+            "predicted_label": "Zakończenie procesu",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.5349,
+            "matched": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0020",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Pobieramy dane logowania użytkownika i sprawdzamy, czy jest uwierzytelniony. Jeśli tak, weryfikujemy kwotę transakcji i sprawdzamy, czy transakcja mieści się w limitach. Jeśli tak, sprawdzamy historię oszustw i ustalamy, czy transakcja jest oznaczona do weryfikacji. Oznaczoną transakcję odrzucamy, a nieoznaczoną akceptujemy. W obu przypadkach proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Pobierz dane logowania użytkownika]\n B --> C{Czy użytkownik jest uwierzytelniony?}\n C -->|Tak| D[Zweryfikuj kwotę transakcji]\n D --> E{Czy transakcja mieści się w limitach?}\n E -->|Tak| F[Sprawdź historię oszustw]\n F --> G{Czy transakcja jest oznaczona do weryfikacji?}\n G -->|Tak| H[Odrzuć transakcję]\n G -->|Nie| I[Zaakceptuj transakcję]\n H --> Z([Koniec])\n I --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Pobieramy dane logowania użytkownika] --> B[Sprawdzamy, czy jest uwierzytelniony]\n    B -->|Tak| C[Weryfikujemy kwotę transakcji]\n    B -->|Nie| D[Proces się kończy]\n    C --> E[Sprawdzamy, czy transakcja mieści się w limitach]\n    E -->|Tak| F[Sprawdzamy historię oszustw]\n    E -->|Nie| D[Proces się kończy]\n    F --> G[Ustalamy, czy transakcja jest oznaczona do weryfikacji]\n    G -->|Tak| H[Odrzucamy transakcję]\n    G -->|Nie| I[Akceptujemy transakcję]\n    H --> J[Proces się kończy]\n    I --> J[Proces się kończy]",
+      "code": "flowchart TD\n    A[Pobieramy dane logowania użytkownika] --> B[Sprawdzamy, czy jest uwierzytelniony]\n    B -->|Tak| C[Weryfikujemy kwotę transakcji]\n    B -->|Nie| D[Proces się kończy]\n    C --> E[Sprawdzamy, czy transakcja mieści się w limitach]\n    E -->|Tak| F[Sprawdzamy historię oszustw]\n    E -->|Nie| D[Proces się kończy]\n    F --> G[Ustalamy, czy transakcja jest oznaczona do weryfikacji]\n    G -->|Tak| H[Odrzucamy transakcję]\n    G -->|Nie| I[Akceptujemy transakcję]\n    H --> J[Proces się kończy]\n    I --> J[Proces się kończy]",
+      "finish_reason": "stop",
+      "completion_tokens": 209,
+      "latency_s": 4.26,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.9,
+          "recall": 0.9,
+          "f1": 0.9
+        },
+        "edge": {
+          "precision": 0.6363636363636364,
+          "recall": 0.7,
+          "f1": 0.6666666666666666
+        },
+        "shape_acc": 0.5555555555555556,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Pobieramy dane logowania użytkownika",
+            "reference_label": "Pobierz dane logowania użytkownika",
+            "method": "embedding",
+            "similarity": 0.89,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzamy, czy jest uwierzytelniony",
+            "reference_label": "Czy użytkownik jest uwierzytelniony?",
+            "method": "embedding",
+            "similarity": 0.8696,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Weryfikujemy kwotę transakcji",
+            "reference_label": "Zweryfikuj kwotę transakcji",
+            "method": "embedding",
+            "similarity": 0.9374,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "Z",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7352,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Sprawdzamy, czy transakcja mieści się w limitach",
+            "reference_label": "Czy transakcja mieści się w limitach?",
+            "method": "embedding",
+            "similarity": 0.8959,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Sprawdzamy historię oszustw",
+            "reference_label": "Sprawdź historię oszustw",
+            "method": "embedding",
+            "similarity": 0.9196,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Ustalamy, czy transakcja jest oznaczona do weryfikacji",
+            "reference_label": "Czy transakcja jest oznaczona do weryfikacji?",
+            "method": "embedding",
+            "similarity": 0.9127,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "H",
+            "predicted_label": "Odrzucamy transakcję",
+            "reference_label": "Odrzuć transakcję",
+            "method": "embedding",
+            "similarity": 0.9196,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "I",
+            "predicted_label": "Akceptujemy transakcję",
+            "reference_label": "Zaakceptuj transakcję",
+            "method": "embedding",
+            "similarity": 0.9058,
+            "matched": true
+          },
+          {
+            "predicted_id": "J",
+            "reference_id": "A",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.5085,
+            "matched": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0021",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Po starcie wysyłamy e-mail z linkiem do resetu i sprawdzamy, czy użytkownik jest zweryfikowany. Jeśli tak, oznaczamy go jako zweryfikowanego. Następnie sprawdzamy, czy użytkownik kliknął link. Jeśli kliknął, resetujemy hasło, wylogowujemy użytkownika i kończymy. Jeśli nie kliknął, wracamy na sam początek.",
+      "expected_mermaid": "flowchart TD\nA([Start])\nB[Wyślij e-mail z linkiem do resetu]\nC{Czy użytkownik jest zweryfikowany?}\nD[Oznacz użytkownika jako zweryfikowanego]\nE{Czy użytkownik kliknął link?}\nF[Zresetuj hasło]\nG[Wyloguj użytkownika]\nZ([Koniec])\n\n A --> B\n B --> C\n C -->|Tak| D\n D --> E\n E -->|Tak| F\n E -->|Nie| A\n F --> G\n G --> Z",
+      "raw_output": "flowchart TD\n    A[Po starcie wysyłamy e-mail z linkiem do resetu] --> B[Sprawdzamy, czy użytkownik jest zweryfikowany]\n    B -->|Tak| C[Oznaczamy go jako zweryfikowanego]\n    B -->|Nie| A\n    C --> D[Sprawdzamy, czy użytkownik kliknął link]\n    D -->|Tak| E[Resetujemy hasło]\n    E --> F[Wylogowujemy użytkownika]\n    F --> G[Kończymy]\n    D -->|Nie| A",
+      "code": "flowchart TD\n    A[Po starcie wysyłamy e-mail z linkiem do resetu] --> B[Sprawdzamy, czy użytkownik jest zweryfikowany]\n    B -->|Tak| C[Oznaczamy go jako zweryfikowanego]\n    B -->|Nie| A\n    C --> D[Sprawdzamy, czy użytkownik kliknął link]\n    D -->|Tak| E[Resetujemy hasło]\n    E --> F[Wylogowujemy użytkownika]\n    F --> G[Kończymy]\n    D -->|Nie| A",
+      "finish_reason": "stop",
+      "completion_tokens": 134,
+      "latency_s": 2.77,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333
+        },
+        "edge": {
+          "precision": 0.75,
+          "recall": 0.75,
+          "f1": 0.75
+        },
+        "shape_acc": 0.5714285714285714,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Po starcie wysyłamy e-mail z linkiem do resetu",
+            "reference_label": "Wyślij e-mail z linkiem do resetu",
+            "method": "embedding",
+            "similarity": 0.8439,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzamy, czy użytkownik jest zweryfikowany",
+            "reference_label": "Czy użytkownik jest zweryfikowany?",
+            "method": "embedding",
+            "similarity": 0.9325,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Oznaczamy go jako zweryfikowanego",
+            "reference_label": "Oznacz użytkownika jako zweryfikowanego",
+            "method": "embedding",
+            "similarity": 0.7983,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Sprawdzamy, czy użytkownik kliknął link",
+            "reference_label": "Czy użytkownik kliknął link?",
+            "method": "embedding",
+            "similarity": 0.8863,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "F",
+            "predicted_label": "Resetujemy hasło",
+            "reference_label": "Zresetuj hasło",
+            "method": "embedding",
+            "similarity": 0.897,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "G",
+            "predicted_label": "Wylogowujemy użytkownika",
+            "reference_label": "Wyloguj użytkownika",
+            "method": "embedding",
+            "similarity": 0.8605,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "Z",
+            "predicted_label": "Kończymy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.751,
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-flow-0022",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Zbieramy dane i sprawdzamy, czy są czyste. Jeśli tak, przekształcamy je i sprawdzamy, czy są gotowe do załadowania. Jeśli tak, ładujemy dane do hurtowni i sprawdzamy, czy ładowanie się powiodło. Jeśli się powiodło, proces się kończy. Jeśli nie, zgłaszamy błąd i ponawiamy próbę, wracając do pytania, czy dane są czyste.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Zbierz dane]\n B --> C{Czy dane są czyste?}\n C -->|Tak| D[Przekształć dane]\n D --> E{Czy dane są gotowe do załadowania?}\n E -->|Tak| F[Załaduj dane do hurtowni]\n F --> G{Czy ładowanie się powiodło?}\n G -->|Tak| Z([Koniec])\n G -->|Nie| H[Zgłoś błąd i ponów próbę]\n H --> C",
+      "raw_output": "flowchart TD\n    A[Zbieramy dane] --> B[Sprawdzamy, czy są czyste]\n    B -->|Tak| C[Przekształcamy je]\n    B -->|Nie| D[Zgłoszamy błąd i ponawiamy próbę]\n    D --> B\n    C --> E[Sprawdzamy, czy są gotowe do załadowania]\n    E -->|Tak| F[Ładujemy dane do hurtowni]\n    E -->|Nie| D\n    F --> G[Sprawdzamy, czy ładowanie się powiodło]\n    G -->|Tak| H[Proces się kończy]\n    G -->|Nie| D",
+      "code": "flowchart TD\n    A[Zbieramy dane] --> B[Sprawdzamy, czy są czyste]\n    B -->|Tak| C[Przekształcamy je]\n    B -->|Nie| D[Zgłoszamy błąd i ponawiamy próbę]\n    D --> B\n    C --> E[Sprawdzamy, czy są gotowe do załadowania]\n    E -->|Tak| F[Ładujemy dane do hurtowni]\n    E -->|Nie| D\n    F --> G[Sprawdzamy, czy ładowanie się powiodło]\n    G -->|Tak| H[Proces się kończy]\n    G -->|Nie| D",
+      "finish_reason": "stop",
+      "completion_tokens": 158,
+      "latency_s": 3.23,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8888888888888888,
+          "f1": 0.9411764705882353
+        },
+        "edge": {
+          "precision": 0.8,
+          "recall": 0.8888888888888888,
+          "f1": 0.8421052631578948
+        },
+        "shape_acc": 0.5,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Zbieramy dane",
+            "reference_label": "Zbierz dane",
+            "method": "embedding",
+            "similarity": 0.8019,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzamy, czy są czyste",
+            "reference_label": "Czy dane są czyste?",
+            "method": "embedding",
+            "similarity": 0.7522,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Przekształcamy je",
+            "reference_label": "Przekształć dane",
+            "method": "embedding",
+            "similarity": 0.7121,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "H",
+            "predicted_label": "Zgłoszamy błąd i ponawiamy próbę",
+            "reference_label": "Zgłoś błąd i ponów próbę",
+            "method": "embedding",
+            "similarity": 0.8728,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Sprawdzamy, czy są gotowe do załadowania",
+            "reference_label": "Czy dane są gotowe do załadowania?",
+            "method": "embedding",
+            "similarity": 0.8006,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Ładujemy dane do hurtowni",
+            "reference_label": "Załaduj dane do hurtowni",
+            "method": "embedding",
+            "similarity": 0.9332,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Sprawdzamy, czy ładowanie się powiodło",
+            "reference_label": "Czy ładowanie się powiodło?",
+            "method": "embedding",
+            "similarity": 0.885,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "Z",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7352,
+            "matched": true
+          }
+        ]
+      }
+    }
+  ]
+}

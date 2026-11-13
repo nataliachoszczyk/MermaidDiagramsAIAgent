@@ -1,0 +1,798 @@
+{
+  "config": {
+    "date": "2026-11-13T08:44:54",
+    "model": "qwen3:4b-instruct-2507-q8_0",
+    "model_digest": "aa7252f68dda4d25dfffa65b3760af6d2c3231a140c0060c78d444686d98a374",
+    "setting": "zero-shot",
+    "base_url": "http://localhost:11434/v1/",
+    "temperature": 0.0,
+    "seed": 0,
+    "max_tokens": 1024,
+    "limit": null,
+    "system_prompt": "You convert a description of a process into a Mermaid diagram.\n\nRules:\n- Use `flowchart TD` for processes with steps and decisions; use `sequenceDiagram` for interactions between participants.\n- Output only the Mermaid code: no code fences, no explanations, no text before or after the diagram.\n- Keywords are lowercase. Put labels with special characters in double quotes. Never use `end` as a node id.\n- Keep the labels in the language of the description.\n- If the text does not describe a process, answer exactly: BRAK_PROCESU\n",
+    "system_prompt_sha256": "814e2dbf8ce3b7a719c3103d732e2599f91cadb1bd496e5c857519169a30a1f8",
+    "data": "data/pilot/pilot_pl.jsonl",
+    "data_sha256": "5f478f83796552163894688902231a1be6b35c9d59b038887209255500e3e774",
+    "metrics": "exact label matching after normalization (no embeddings yet)",
+    "mmdc": "12.2.0",
+    "git_commit": "b32dd5beaa6bc95fd4ad3c0648cd6c745115a8d8-dirty"
+  },
+  "summary": {
+    "overall": {
+      "n": 22,
+      "mermaid_only": 1,
+      "render_rate": 1,
+      "type_acc": 1,
+      "node_f1": 0.09988037873413368,
+      "edge_f1": 0.016560289805071588,
+      "node_f1_rendering_only": 0.09988037873413368,
+      "edge_f1_rendering_only": 0.016560289805071588,
+      "truncated": 0
+    },
+    "by_diagram_type": {
+      "flowchart": {
+        "n": 22,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.09988037873413368,
+        "edge_f1": 0.016560289805071588,
+        "node_f1_rendering_only": 0.09988037873413368,
+        "edge_f1_rendering_only": 0.016560289805071588,
+        "truncated": 0
+      }
+    },
+    "by_difficulty": {
+      "hard": {
+        "n": 6,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.10421245421245422,
+        "edge_f1": 0.021505376344086027,
+        "node_f1_rendering_only": 0.10421245421245422,
+        "edge_f1_rendering_only": 0.021505376344086027,
+        "truncated": 0
+      },
+      "medium": {
+        "n": 16,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.09825585042976347,
+        "edge_f1": 0.014705882352941176,
+        "node_f1_rendering_only": 0.09825585042976347,
+        "edge_f1_rendering_only": 0.014705882352941176,
+        "truncated": 0
+      }
+    }
+  },
+  "examples": [
+    {
+      "id": "pilot-flow-0001",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Użytkownik zaczyna od podania swojego adresu e-mail. System sprawdza, czy adres jest poprawny. Jeśli tak, wysyła na niego link do resetu hasła. Użytkownik szuka linku w skrzynce odbiorczej, klika go i wpisuje nowe hasło. Nowe hasło jest weryfikowane, po czym reset kończy się powodzeniem i proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Podaj adres e-mail]\n B --> C{Czy adres e-mail jest poprawny?}\n C -->|Tak| D[Wyślij link do resetu hasła na e-mail]\n D --> E[Sprawdź link w skrzynce odbiorczej]\n E --> F[Kliknij link]\n F --> G[Wpisz nowe hasło]\n G --> H[Zweryfikuj nowe hasło]\n H --> I[Reset zakończony powodzeniem]\n I --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Użytkownik podaje adres e-mail] --> B[System sprawdza, czy adres jest poprawny]\n    B -->|Tak| C[System wysyła link do resetu hasła]\n    B -->|Nie| D[Wyświetlanie błędu: niepoprawny adres e-mail]\n    C --> E[Użytkownik szuka linku w skrzynce odbiorczej]\n    E --> F[Użytkownik klika link]\n    F --> G[Użytkownik wpisuje nowe hasło]\n    G --> H[System weryfikuje nowe hasło]\n    H -->|Poprawne| I[Reset hasła powiódł się]\n    H -->|Błędne| J[Wyświetlanie błędu: hasło niepoprawne]\n    I --> K[Proces kończy się powodzeniem]",
+      "code": "flowchart TD\n    A[Użytkownik podaje adres e-mail] --> B[System sprawdza, czy adres jest poprawny]\n    B -->|Tak| C[System wysyła link do resetu hasła]\n    B -->|Nie| D[Wyświetlanie błędu: niepoprawny adres e-mail]\n    C --> E[Użytkownik szuka linku w skrzynce odbiorczej]\n    E --> F[Użytkownik klika link]\n    F --> G[Użytkownik wpisuje nowe hasło]\n    G --> H[System weryfikuje nowe hasło]\n    H -->|Poprawne| I[Reset hasła powiódł się]\n    H -->|Błędne| J[Wyświetlanie błędu: hasło niepoprawne]\n    I --> K[Proces kończy się powodzeniem]",
+      "finish_reason": "stop",
+      "completion_tokens": 208,
+      "latency_s": 7.02,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0002",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Najpierw klonujemy repozytorium. Potem sprawdzamy, czy gałąź jest chroniona. Jeśli tak, potrzebna jest ręczna akceptacja i na tym proces się kończy. Jeśli nie, pomijamy zabezpieczenie, uruchamiamy testy jednostkowe, budujemy artefakty i wdrażamy je na środowisko testowe. Następnie sprawdzamy, czy wdrożenie się powiodło. Gdy się udało, testujemy środowisko i kończymy. Gdy się nie udało, przywracamy poprzednią wersję i też kończymy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Sklonuj repozytorium]\n B --> C{Czy gałąź jest chroniona?}\n C -->|Tak| D[Wymagana ręczna akceptacja]\n D --> Z([Koniec])\n C -->|Nie| E[Pomiń zabezpieczenie]\n E --> F[Uruchom testy jednostkowe]\n F --> G[Zbuduj artefakty]\n G --> H[Wdróż na środowisko testowe]\n H --> I{Czy wdrożenie się powiodło?}\n I -->|Tak| J[Przetestuj środowisko]\n J --> Z([Koniec])\n I -->|Nie| K[Przywróć poprzednią wersję]\n K --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Najpierw klonujemy repozytorium] --> B[Sprawdzamy, czy gałąź jest chroniona]\n    B -->|Tak| C[Potrzeba ręcznej akceptacji]\n    C --> D[Proces się kończy]\n    B -->|Nie| E[Pomijamy zabezpieczenie]\n    E --> F[Uruchamiamy testy jednostkowe]\n    F --> G[Budujemy artefakty]\n    G --> H[Wdrażamy na środowisko testowe]\n    H --> I[Sprawdzamy, czy wdrożenie się powiodło]\n    I -->|Tak| J[Testujemy środowisko]\n    J --> K[Proces się kończy]\n    I -->|Nie| L[Przywracamy poprzednią wersję]\n    L --> M[Proces się kończy]",
+      "code": "flowchart TD\n    A[Najpierw klonujemy repozytorium] --> B[Sprawdzamy, czy gałąź jest chroniona]\n    B -->|Tak| C[Potrzeba ręcznej akceptacji]\n    C --> D[Proces się kończy]\n    B -->|Nie| E[Pomijamy zabezpieczenie]\n    E --> F[Uruchamiamy testy jednostkowe]\n    F --> G[Budujemy artefakty]\n    G --> H[Wdrażamy na środowisko testowe]\n    H --> I[Sprawdzamy, czy wdrożenie się powiodło]\n    I -->|Tak| J[Testujemy środowisko]\n    J --> K[Proces się kończy]\n    I -->|Nie| L[Przywracamy poprzednią wersję]\n    L --> M[Proces się kończy]",
+      "finish_reason": "stop",
+      "completion_tokens": 203,
+      "latency_s": 4.23,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0003",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Proces zaczyna się od rozpoczęcia odprawy. Sprawdzamy, czy pasażer ma bagaż. Jeśli ma, trzeba przygotować bagaż i wrócić do rozpoczęcia odprawy. Jeśli nie ma, wymagana jest kontrola bagażu, potem pasażer odbiera bagaż na lotnisku i przechodzi do strefy odlotów. Dalej jest krok odbioru bagażu i karty pokładowej, a na końcu pasażer otrzymuje kartę pokładową i proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Rozpoczęcie odprawy]\n B --> C{Czy pasażer ma bagaż?}\n C -->|Tak| D[Przygotuj bagaż]\n D --> B\n C -->|Nie| E[Wymagana kontrola bagażu]\n E --> F[Odbierz bagaż na lotnisku]\n F --> G[Przejdź do strefy odlotów]\n G --> H[Odbiór bagażu i karta pokładowa]\n H --> I[Pasażer otrzymuje kartę pokładową]\n I --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Rozeznanie odprawy] --> B{Czy pasażer ma bagaż?}\n    B -- Tak --> C[Przygotowanie bagażu]\n    C --> D[Wróć do rozpoczęcia odprawy]\n    B -- Nie --> E[Kontrola bagażu]\n    E --> F[Pasazer odbiera bagaż na lotnisku]\n    F --> G[Przechodzenie do strefy odlotów]\n    G --> H[Krok odbioru bagażu i karty pokładowej]\n    H --> I[Pasazer otrzymuje kartę pokładową]\n    I --> J[Koniec procesu]",
+      "code": "flowchart TD\n    A[Rozeznanie odprawy] --> B{Czy pasażer ma bagaż?}\n    B -- Tak --> C[Przygotowanie bagażu]\n    C --> D[Wróć do rozpoczęcia odprawy]\n    B -- Nie --> E[Kontrola bagażu]\n    E --> F[Pasazer odbiera bagaż na lotnisku]\n    F --> G[Przechodzenie do strefy odlotów]\n    G --> H[Krok odbioru bagażu i karty pokładowej]\n    H --> I[Pasazer otrzymuje kartę pokładową]\n    I --> J[Koniec procesu]",
+      "finish_reason": "stop",
+      "completion_tokens": 158,
+      "latency_s": 3.35,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.1,
+          "recall": 0.1,
+          "f1": 0.10000000000000002
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0004",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Na początku wczytujemy oryginalny obraz i sprawdzamy, czy przekroczono limit rozmiaru. Jeśli tak, zmniejszamy obraz do limitu, generujemy miniaturę i kończymy. Jeśli nie, nic nie robimy z obrazem, generujemy miniaturę (to osobny krok w tej gałęzi), zapisujemy miniatury i kończymy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Wczytaj oryginalny obraz]\n B --> C{Czy przekroczono limit rozmiaru?}\n C -->|Tak| D[Zmniejsz obraz do limitu]\n D --> E[Wygeneruj miniaturę]\n E --> Z([Koniec])\n C -->|Nie| F[Nic nie rób]\n F --> G[Wygeneruj miniaturę]\n G --> H[Zapisz miniatury]\n H --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Na początku wczytujemy oryginalny obraz] --> B[Sprawdzamy, czy przekroczono limit rozmiaru]\n    B -->|Tak| C[Zmniejszamy obraz do limitu]\n    C --> D[Generujemy miniaturę]\n    D --> E[Kończymy]\n    B -->|Nie| F[Generujemy miniaturę]\n    F --> G[Zapisujemy miniatury]\n    G --> E",
+      "code": "flowchart TD\n    A[Na początku wczytujemy oryginalny obraz] --> B[Sprawdzamy, czy przekroczono limit rozmiaru]\n    B -->|Tak| C[Zmniejszamy obraz do limitu]\n    C --> D[Generujemy miniaturę]\n    D --> E[Kończymy]\n    B -->|Nie| F[Generujemy miniaturę]\n    F --> G[Zapisujemy miniatury]\n    G --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 110,
+      "latency_s": 2.35,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0005",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Zaczynamy od zebrania szczegółów zgłoszenia. Potem sprawdzamy, czy zgłoszenie ma wysoki priorytet. Jeśli tak, następuje eskalacja o wysokim priorytecie i proces się kończy. Jeśli nie, zgłoszenie trafia do standardowej obsługi, zostaje przypisane do członka zespołu, a potem zamknięte.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Zbierz szczegóły zgłoszenia]\n B --> C{Czy zgłoszenie ma wysoki priorytet?}\n C -->|Tak| D[Eskalacja o wysokim priorytecie]\n D --> Z([Koniec])\n C -->|Nie| E[Standardowa obsługa]\n E --> F[Przypisz do członka zespołu]\n F --> G[Zamknij zgłoszenie]\n G --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Zaczynamy od zebrania szczegółów zgłoszenia] --> B[Sprawdzamy, czy zgłoszenie ma wysoki priorytet]\n    B -->|Tak| C[Eskalacja o wysokim priorytecie]\n    C --> D[Proces się kończy]\n    B -->|Nie| E[Zgłoszenie trafia do standardowej obsługi]\n    E --> F[Zgłoszenie zostaje przypisane do członka zespołu]\n    F --> G[Zgłoszenie zostaje zamknięte]",
+      "code": "flowchart TD\n    A[Zaczynamy od zebrania szczegółów zgłoszenia] --> B[Sprawdzamy, czy zgłoszenie ma wysoki priorytet]\n    B -->|Tak| C[Eskalacja o wysokim priorytecie]\n    C --> D[Proces się kończy]\n    B -->|Nie| E[Zgłoszenie trafia do standardowej obsługi]\n    E --> F[Zgłoszenie zostaje przypisane do członka zespołu]\n    F --> G[Zgłoszenie zostaje zamknięte]",
+      "finish_reason": "stop",
+      "completion_tokens": 125,
+      "latency_s": 2.61,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.14285714285714285,
+          "recall": 0.125,
+          "f1": 0.13333333333333333
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0006",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Najpierw kontaktujemy się z klientem i sprawdzamy, czy termin wizyty jest dostępny. Jeśli jest, rezerwujemy wizytę, wysyłamy e-mail z potwierdzeniem i kończymy. Jeśli nie, proponujemy inny termin i pytamy, czy klient chce przypomnienie. Jeśli chce, ustawiamy przypomnienie, potwierdzamy jego ustawienie, wysyłamy e-mail z przypomnieniem, oznaczamy wizytę jako zakończoną i kończymy.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Skontaktuj się z klientem]\nB --> C{Czy termin wizyty jest dostępny?}\nC -->|Tak| D[Zarezerwuj wizytę]\nD --> E[Wyślij e-mail z potwierdzeniem]\nE --> Z([Koniec])\nC -->|Nie| F[Zaproponuj inny termin]\nF --> G{Czy klient chce przypomnienie?}\nG -->|Tak| H[Ustaw przypomnienie]\nH --> I[Potwierdź ustawienie przypomnienia]\nI --> J[Wyślij e-mail z przypomnieniem]\nJ --> K[Oznacz wizytę jako zakończoną]\nK --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Najpierw kontaktujemy się z klientem i sprawdzamy, czy termin wizyty jest dostępny] --> B{Czy termin jest dostępny?}\n    B -- Tak --> C[Rezerwujemy wizytę]\n    C --> D[Wysyłamy e-mail z potwierdzeniem]\n    D --> E[Kończymy]\n    B -- Nie --> F[Proponujemy inny termin]\n    F --> G{Czy klient chce przypomnienie?}\n    G -- Tak --> H[Ustawiamy przypomnienie]\n    H --> I[Potwierdzamy ustawienie przypomnienia]\n    I --> J[Wysyłamy e-mail z przypomnieniem]\n    J --> K[Oznaczamy wizytę jako zakończoną]\n    K --> E\n    G -- Nie --> E",
+      "code": "flowchart TD\n    A[Najpierw kontaktujemy się z klientem i sprawdzamy, czy termin wizyty jest dostępny] --> B{Czy termin jest dostępny?}\n    B -- Tak --> C[Rezerwujemy wizytę]\n    C --> D[Wysyłamy e-mail z potwierdzeniem]\n    D --> E[Kończymy]\n    B -- Nie --> F[Proponujemy inny termin]\n    F --> G{Czy klient chce przypomnienie?}\n    G -- Tak --> H[Ustawiamy przypomnienie]\n    H --> I[Potwierdzamy ustawienie przypomnienia]\n    I --> J[Wysyłamy e-mail z przypomnieniem]\n    J --> K[Oznaczamy wizytę jako zakończoną]\n    K --> E\n    G -- Nie --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 205,
+      "latency_s": 4.26,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.09090909090909091,
+          "recall": 0.08333333333333333,
+          "f1": 0.08695652173913043
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0007",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Użytkownik zamawia taksówkę. System sprawdza, czy użytkownik się spieszy. Jeśli tak, przydziela najszybszego dostępnego kierowcę. Jeśli nie, wybiera najbliższego kierowcę z najniższą ceną. W obu przypadkach proces się na tym kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Zamów taksówkę]\n B --> C{Czy użytkownik się spieszy?}\n C -->|Tak| D[Przydziel najszybszego dostępnego kierowcę]\n C -->|Nie| E[Wybierz najbliższego kierowcę z najniższą ceną]\n D --> Z([Koniec])\n E --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Użytkownik zamawia taksówkę] --> B[System sprawdza, czy użytkownik się spieszy?]\n    B -->|Tak| C[Przydziela najszybszego dostępnego kierowcę]\n    B -->|Nie| D[Wybiera najbliższego kierowcę z najniższą ceną]\n    C --> E[Proces się kończy]\n    D --> E",
+      "code": "flowchart TD\n    A[Użytkownik zamawia taksówkę] --> B[System sprawdza, czy użytkownik się spieszy?]\n    B -->|Tak| C[Przydziela najszybszego dostępnego kierowcę]\n    B -->|Nie| D[Wybiera najbliższego kierowcę z najniższą ceną]\n    C --> E[Proces się kończy]\n    D --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 104,
+      "latency_s": 2.2,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0008",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "System sprawdza role użytkownika, a potem ustala, czy dana rola ma uprawnienia. Jeśli ma, przyznaje dostęp, a jeśli nie, odmawia dostępu. Potem proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Sprawdź role użytkownika]\n B --> C{Czy rola ma uprawnienia?}\n C -->|Tak| D[Przyznaj dostęp]\n C -->|Nie| E[Odmów dostępu]\n D --> Z([Koniec])\n E --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[System sprawdza role użytkownika] --> B{Czy rola ma uprawnienia?}\n    B -- Tak --> C[Przyznaje dostęp]\n    B -- Nie --> D[Odmawia dostępu]\n    C --> E[Proces się kończy]\n    D --> E",
+      "code": "flowchart TD\n    A[System sprawdza role użytkownika] --> B{Czy rola ma uprawnienia?}\n    B -- Tak --> C[Przyznaje dostęp]\n    B -- Nie --> D[Odmawia dostępu]\n    C --> E[Proces się kończy]\n    D --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 73,
+      "latency_s": 1.57,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.2,
+          "recall": 0.16666666666666666,
+          "f1": 0.1818181818181818
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0009",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Zaczynamy od rozpoczęcia przebiegu testów i pytamy, czy testy są automatyczne. Jeśli tak, testy automatyczne kończą się powodzeniem i proces się kończy. Jeśli nie, są dwie osobne ścieżki. W pierwszej kontynuujemy testami ręcznymi, testy ręczne zostają zaliczone i kończymy. W drugiej testy automatyczne się nie powiodły, więc potrzebne są testy ręczne, które też zostają zaliczone (osobny krok), i kończymy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Rozpocznij przebieg testów]\n B --> C{Czy testy są automatyczne?}\n C -->|Tak| D[Testy automatyczne zakończone powodzeniem]\n D --> Z([Koniec])\n C -->|Nie| E[Kontynuuj testami ręcznymi]\n E --> F[Testy ręczne zaliczone]\n F --> Z([Koniec])\n C -->|Nie| G[Testy automatyczne nie powiodły się]\n G --> H[Potrzebne testy ręczne]\n H --> I[Testy ręczne zaliczone]\n I --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Zaczynamy od rozpoczęcia przebiegu testów] --> B[Czy testy są automatyczne?]\n    B -- Tak --> C[Testy automatyczne kończą się powodzeniem]\n    C --> D[Proces się kończy]\n    B -- Nie --> E[Kontynuujemy testami ręcznymi]\n    E --> F[Testy ręczne zostają zaliczone]\n    F --> G[Proces się kończy]\n    B -- Nie --> H[Testy automatyczne się nie powiodły]\n    H --> I[Potrzebne są testy ręczne]\n    I --> J[Testy ręczne zostają zaliczone]\n    J --> K[Proces się kończy]",
+      "code": "flowchart TD\n    A[Zaczynamy od rozpoczęcia przebiegu testów] --> B[Czy testy są automatyczne?]\n    B -- Tak --> C[Testy automatyczne kończą się powodzeniem]\n    C --> D[Proces się kończy]\n    B -- Nie --> E[Kontynuujemy testami ręcznymi]\n    E --> F[Testy ręczne zostają zaliczone]\n    F --> G[Proces się kończy]\n    B -- Nie --> H[Testy automatyczne się nie powiodły]\n    H --> I[Potrzebne są testy ręczne]\n    I --> J[Testy ręczne zostają zaliczone]\n    J --> K[Proces się kończy]",
+      "finish_reason": "stop",
+      "completion_tokens": 169,
+      "latency_s": 3.57,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.09090909090909091,
+          "recall": 0.1,
+          "f1": 0.09523809523809525
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0010",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Klient podaje dane osobowe, a system sprawdza, czy polisa jest ważna. Jeśli jest, klient składa formularz roszczenia, wniosek zostaje rozpatrzony i zapada decyzja, czy roszczenie spełnia wymagania. Jeśli spełnia, roszczenie jest akceptowane, wysyłamy e-mail z akceptacją i kończymy. Jeśli nie spełnia, roszczenie jest odrzucane, podajemy uzasadnienie odmowy, wysyłamy e-mail z odmową i kończymy. Gdy polisa nie jest ważna, w osobnej gałęzi dzieją się te same trzy rzeczy: odrzucenie roszczenia, uzasadnienie odmowy i e-mail z odmową, po czym proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Podaj dane osobowe]\n B --> C{Czy polisa jest ważna?}\n C -->|Tak| D[Złóż formularz roszczenia]\n D --> E[Rozpatrz wniosek]\n E --> F{Czy roszczenie spełnia wymagania?}\n F -->|Tak| G[Zaakceptuj roszczenie]\n G --> H[Wyślij e-mail z akceptacją]\n H --> Z([Koniec])\n F -->|Nie| I[Odrzuć roszczenie]\n I --> J[Podaj uzasadnienie odmowy]\n J --> K[Wyślij e-mail z odmową]\n K --> Z([Koniec])\n C -->|Nie| L[Odrzuć roszczenie]\n L --> M[Podaj uzasadnienie odmowy]\n M --> N[Wyślij e-mail z odmową]\n N --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Klient podaje dane osobowe] --> B[System sprawdza, czy polisa jest ważna]\n    B -->|Tak| C[Klient składa formularz roszczenia]\n    B -->|Nie| D[Odrzucenie roszczenia]\n    D --> E[Podajemy uzasadnienie odmowy]\n    D --> F[Wysyłamy e-mail z odmową]\n    F --> G[Koniec]\n\n    C --> H[Wniosek zostaje rozpatrzony]\n    H --> I[Zapada decyzja, czy roszczenie spełnia wymagania]\n    I -->|Tak| J[Rozczenie jest akceptowane]\n    I -->|Nie| D\n\n    J --> K[Wysyłamy e-mail z akceptacją]\n    K --> G",
+      "code": "flowchart TD\n    A[Klient podaje dane osobowe] --> B[System sprawdza, czy polisa jest ważna]\n    B -->|Tak| C[Klient składa formularz roszczenia]\n    B -->|Nie| D[Odrzucenie roszczenia]\n    D --> E[Podajemy uzasadnienie odmowy]\n    D --> F[Wysyłamy e-mail z odmową]\n    F --> G[Koniec]\n\n    C --> H[Wniosek zostaje rozpatrzony]\n    H --> I[Zapada decyzja, czy roszczenie spełnia wymagania]\n    I -->|Tak| J[Rozczenie jest akceptowane]\n    I -->|Nie| D\n\n    J --> K[Wysyłamy e-mail z akceptacją]\n    K --> G",
+      "finish_reason": "stop",
+      "completion_tokens": 190,
+      "latency_s": 4.09,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.09090909090909091,
+          "recall": 0.06666666666666667,
+          "f1": 0.07692307692307691
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0011",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Wczytujemy plik CSV i sprawdzamy, czy dane są poprawne. Jeśli tak, przetwarzamy dane CSV, zapisujemy je w bazie danych i kończymy. Jeśli nie, obsługujemy błędy, zapisujemy je w logu, pokazujemy użytkownikowi błędne wiersze i zapisujemy te wiersze. Użytkownik przegląda je i poprawia, po czym ponawiamy import, czyli wracamy do wczytania pliku CSV.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Wczytaj plik CSV]\n B --> C{Czy dane CSV są poprawne?}\n C -->|Tak| D[Przetwórz dane CSV]\n D --> E[Zapisz w bazie danych]\n E --> Z([Koniec])\n C -->|Nie| F[Obsłuż błędy]\n F --> G[Zapisz błędy w logu]\n G --> H[Pokaż użytkownikowi błędne wiersze]\n H --> I[Zapisz błędne wiersze]\n I --> J[Przejrzyj i popraw błędne wiersze]\n J --> K[Ponów import]\n K --> B\nZ([Koniec])",
+      "raw_output": "flowchart TD\n    A[Wczytujemy plik CSV] --> B[Sprawdzamy, czy dane są poprawne]\n    B -->|Tak| C[Przetwarzamy dane CSV]\n    C --> D[Zapisujemy dane w bazie danych]\n    D --> E[Kończymy]\n    B -->|Nie| F[Obsługujemy błędy]\n    F --> G[Zapisujemy błędy w logu]\n    F --> H[Pokazujemy użytkownikowi błędne wiersze]\n    F --> I[Zapisujemy błędne wiersze]\n    H --> J[Użytkownik przegląda i poprawia dane]\n    J --> A",
+      "code": "flowchart TD\n    A[Wczytujemy plik CSV] --> B[Sprawdzamy, czy dane są poprawne]\n    B -->|Tak| C[Przetwarzamy dane CSV]\n    C --> D[Zapisujemy dane w bazie danych]\n    D --> E[Kończymy]\n    B -->|Nie| F[Obsługujemy błędy]\n    F --> G[Zapisujemy błędy w logu]\n    F --> H[Pokazujemy użytkownikowi błędne wiersze]\n    F --> I[Zapisujemy błędne wiersze]\n    H --> J[Użytkownik przegląda i poprawia dane]\n    J --> A",
+      "finish_reason": "stop",
+      "completion_tokens": 149,
+      "latency_s": 3.12,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0012",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Najpierw zbieramy szczegóły i sprawdzamy, czy priorytet jest wysoki. Jeśli tak, tworzymy nowe zgłoszenie i kończymy. Jeśli nie, segregujemy zgłoszenia i sprawdzamy, czy zgłoszenie było już wcześniej przypisane. Jeśli było, przypisujemy je ponownie, a jeśli nie, przypisujemy je do programisty. W obu przypadkach proces się kończy.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Zbierz szczegóły]\nB --> C{Czy priorytet jest wysoki?}\nC -->|Tak| D[Utwórz nowe zgłoszenie]\nD --> Z([Koniec])\nC -->|Nie| E[Posegreguj zgłoszenia]\nE --> F{Czy było już przypisane?}\nF -->|Tak| G[Przypisz zgłoszenie ponownie]\nG --> Z([Koniec])\nF -->|Nie| H[Przypisz do programisty]\nH --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Zbieramy szczegóły] --> B[Sprawdzamy, czy priorytet jest wysoki]\n    B -->|Tak| C[Tworzymy nowe zgłoszenie]\n    C --> D[Kończymy]\n    B -->|Nie| E[Segregujemy zgłoszenia]\n    E --> F[Sprawdzamy, czy zgłoszenie było już wcześniej przypisane]\n    F -->|Tak| G[Przypisujemy je ponownie]\n    F -->|Nie| H[Przypisujemy je do programisty]\n    G --> I[Kończymy]\n    H --> I",
+      "code": "flowchart TD\n    A[Zbieramy szczegóły] --> B[Sprawdzamy, czy priorytet jest wysoki]\n    B -->|Tak| C[Tworzymy nowe zgłoszenie]\n    C --> D[Kończymy]\n    B -->|Nie| E[Segregujemy zgłoszenia]\n    E --> F[Sprawdzamy, czy zgłoszenie było już wcześniej przypisane]\n    F -->|Tak| G[Przypisujemy je ponownie]\n    F -->|Nie| H[Przypisujemy je do programisty]\n    G --> I[Kończymy]\n    H --> I",
+      "finish_reason": "stop",
+      "completion_tokens": 152,
+      "latency_s": 3.17,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0013",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "System tworzy link do pobrania i sprawdza, czy użytkownik jest zalogowany. Zalogowanemu wysyła link do pobrania e-mailem, a niezalogowanego przekierowuje na stronę logowania. Potem proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Utwórz link do pobrania]\n B --> C{Czy użytkownik jest zalogowany?}\n C -->|Tak| D[Wyślij link do pobrania e-mailem]\n C -->|Nie| E[Przekieruj na stronę logowania]\n D --> Z([Koniec])\n E --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[System tworzy link do pobrania] --> B{Czy użytkownik jest zalogowany?}\n    B -- Tak --> C[Zalogowanemu wysyła link do pobrania e-mailem]\n    B -- Nie --> D[Przekierowuje niezalogowanego na stronę logowania]\n    C --> E[Koniec]\n    D --> E",
+      "code": "flowchart TD\n    A[System tworzy link do pobrania] --> B{Czy użytkownik jest zalogowany?}\n    B -- Tak --> C[Zalogowanemu wysyła link do pobrania e-mailem]\n    B -- Nie --> D[Przekierowuje niezalogowanego na stronę logowania]\n    C --> E[Koniec]\n    D --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 89,
+      "latency_s": 1.89,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.4,
+          "recall": 0.3333333333333333,
+          "f1": 0.3636363636363636
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0014",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Na początku sprawdzamy, czy kwota zwrotu przekracza limit. Jeśli tak, pytamy, czy klient jest VIP-em. Dla klienta VIP zwrot zostaje zatwierdzony, a dla zwykłego klienta zwrot również zostaje zatwierdzony, ale jako osobny wynik. Oba wyniki kończą proces.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Sprawdź, czy kwota zwrotu przekracza limit]\nB -->|Tak| C{Czy klient jest VIP-em?}\nC -->|Tak| D[Zwrot dla klienta VIP zatwierdzony]\nD --> Z([Koniec])\nC -->|Nie| E[Zwrot dla zwykłego klienta zatwierdzony]\nE --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Sprawdzamy, czy kwota zwrotu przekracza limit] -->|Tak| B[Pytamy, czy klient jest VIP-em]\n    A -->|Nie| C[Proces kończy się]\n    B -->|Tak| D[Zwrot zatwierdzony dla VIP]\n    B -->|Nie| E[Zwrot zatwierdzony dla zwykłego klienta jako osobny wynik]\n    D --> F[Proces kończy się]\n    E --> F[Proces kończy się]",
+      "code": "flowchart TD\n    A[Sprawdzamy, czy kwota zwrotu przekracza limit] -->|Tak| B[Pytamy, czy klient jest VIP-em]\n    A -->|Nie| C[Proces kończy się]\n    B -->|Tak| D[Zwrot zatwierdzony dla VIP]\n    B -->|Nie| E[Zwrot zatwierdzony dla zwykłego klienta jako osobny wynik]\n    D --> F[Proces kończy się]\n    E --> F[Proces kończy się]",
+      "finish_reason": "stop",
+      "completion_tokens": 125,
+      "latency_s": 2.59,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0015",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Przyjmujemy wniosek urlopowy i sprawdzamy, czy rodzaj urlopu jest zatwierdzony. Jeśli tak, zatwierdzamy wniosek i kończymy. Jeśli nie, pytamy, czy pracownik ma przełożonego. Jeśli ma, pytamy, czy przełożony się zgadza. Zgoda przełożonego oznacza zatwierdzenie wniosku i koniec. Bez niej sprawdzamy, czy kierownik wyraził zgodę: jeśli tak, wniosek jest zatwierdzany. Jeśli nie, sprawdzamy jeszcze, czy jest zgoda działu wyższego szczebla. Gdy jest, zatwierdzamy wniosek, a gdy jej nie ma, odrzucamy wniosek urlopowy. Każde zatwierdzenie to osobny krok w swojej gałęzi, a wszystkie ścieżki prowadzą do końca.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Przyjmij wniosek urlopowy]\n B --> C{Czy rodzaj urlopu jest zatwierdzony?}\n C -->|Tak| D[Zatwierdź wniosek urlopowy]\n D --> Z([Koniec])\n C -->|Nie| E{Czy masz przełożonego?}\n E -->|Tak| F{Czy przełożony się zgadza?}\n F -->|Tak| G[Zatwierdź wniosek urlopowy]\n G --> Z([Koniec])\n F -->|Nie| H{Czy kierownik wyraził zgodę?}\n H -->|Tak| I[Zatwierdź wniosek urlopowy]\n I --> Z([Koniec])\n H -->|Nie| J{Czy jest zgoda działu wyższego szczebla?}\n J -->|Tak| K[Zatwierdź wniosek urlopowy]\n K --> Z([Koniec])\n J -->|Nie| L[Odrzuć wniosek urlopowy]\n L --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Przyjmujemy wniosek urlopowy] --> B{Czy rodzaj urlopu jest zatwierdzony?}\n    B -- Tak --> C[Zatwierdzamy wniosek]\n    B -- Nie --> D{Czy pracownik ma przełożonego?}\n    D -- Tak --> E{Czy przełożony się zgadza?}\n    E -- Tak --> F[Zatwierdzamy wniosek]\n    E -- Nie --> G{Czy kierownik wyraził zgodę?}\n    G -- Tak --> H[Zatwierdzamy wniosek]\n    G -- Nie --> I{Czy jest zgoda działu wyższego szczebla?}\n    I -- Tak --> J[Zatwierdzamy wniosek]\n    I -- Nie --> K[Odrzucamy wniosek urlopowy]\n    C --> L[Koniec]\n    F --> L\n    H --> L\n    J --> L\n    K --> L",
+      "code": "flowchart TD\n    A[Przyjmujemy wniosek urlopowy] --> B{Czy rodzaj urlopu jest zatwierdzony?}\n    B -- Tak --> C[Zatwierdzamy wniosek]\n    B -- Nie --> D{Czy pracownik ma przełożonego?}\n    D -- Tak --> E{Czy przełożony się zgadza?}\n    E -- Tak --> F[Zatwierdzamy wniosek]\n    E -- Nie --> G{Czy kierownik wyraził zgodę?}\n    G -- Tak --> H[Zatwierdzamy wniosek]\n    G -- Nie --> I{Czy jest zgoda działu wyższego szczebla?}\n    I -- Tak --> J[Zatwierdzamy wniosek]\n    I -- Nie --> K[Odrzucamy wniosek urlopowy]\n    C --> L[Koniec]\n    F --> L\n    H --> L\n    J --> L\n    K --> L",
+      "finish_reason": "stop",
+      "completion_tokens": 230,
+      "latency_s": 4.92,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.4166666666666667,
+          "recall": 0.38461538461538464,
+          "f1": 0.4
+        },
+        "edge": {
+          "precision": 0.13333333333333333,
+          "recall": 0.125,
+          "f1": 0.12903225806451615
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0016",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Klient przegląda obecny plan i ustalamy, czy chodzi o zmianę na niższy plan. Jeśli nie, klient wybiera nowy plan, aktualizujemy dane subskrypcji i przychodzi potwierdzenie. Pytamy, czy klient otrzymał potwierdzenie: jeśli tak, to koniec, a jeśli nie, kontaktuje się z pomocą techniczną i wracamy do tego pytania. Jeśli to zmiana na niższy plan, klient przegląda warunki takiej zmiany, potwierdza ją i aktualizujemy dane subskrypcji (osobny krok). Pytamy, czy klient potwierdził: jeśli tak, to koniec, a jeśli nie, kontaktuje się z pomocą techniczną (znów osobny krok) i wracamy do tego pytania.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Przejrzyj obecny plan]\n B --> C{Czy to zmiana na niższy plan?}\n C -->|Nie| D[Wybierz nowy plan]\n D --> E[Zaktualizuj dane subskrypcji]\n E --> F[Otrzymano potwierdzenie]\n F --> G{Czy otrzymałeś potwierdzenie?}\n G -->|Tak| Z([Koniec])\n G -->|Nie| H[Skontaktuj się z pomocą techniczną]\n H --> G\n C -->|Tak| I[Przejrzyj warunki zmiany na niższy plan]\n I --> J[Potwierdź zmianę na niższy plan]\n J --> K[Zaktualizuj dane subskrypcji]\n K --> L{Czy potwierdziłeś?}\n L -->|Tak| Z([Koniec])\n L -->|Nie| M[Skontaktuj się z pomocą techniczną]\n M --> L",
+      "raw_output": "flowchart TD\n    A[Klient przegląda obecny plan] --> B{Czy chodzi o zmianę na niższy plan?}\n    B -- Nie --> C[Klient wybiera nowy plan]\n    C --> D[Actualizujemy dane subskrypcji]\n    D --> E[Przychodzi potwierdzenie]\n    E --> F{Czy klient otrzymał potwierdzenie?}\n    F -- Tak --> G[Koniec]\n    F -- Nie --> H[Kontakt z pomocą techniczną]\n    H --> F\n\n    B -- Tak --> I[Klient przegląda warunki zmiany na niższy plan]\n    I --> J{Czy klient potwierdził?}\n    J -- Tak --> K[Koniec]\n    J -- Nie --> L[Kontakt z pomocą techniczną]\n    L --> J",
+      "code": "flowchart TD\n    A[Klient przegląda obecny plan] --> B{Czy chodzi o zmianę na niższy plan?}\n    B -- Nie --> C[Klient wybiera nowy plan]\n    C --> D[Actualizujemy dane subskrypcji]\n    D --> E[Przychodzi potwierdzenie]\n    E --> F{Czy klient otrzymał potwierdzenie?}\n    F -- Tak --> G[Koniec]\n    F -- Nie --> H[Kontakt z pomocą techniczną]\n    H --> F\n\n    B -- Tak --> I[Klient przegląda warunki zmiany na niższy plan]\n    I --> J{Czy klient potwierdził?}\n    J -- Tak --> K[Koniec]\n    J -- Nie --> L[Kontakt z pomocą techniczną]\n    L --> J",
+      "finish_reason": "stop",
+      "completion_tokens": 192,
+      "latency_s": 4.12,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.08333333333333333,
+          "recall": 0.07142857142857142,
+          "f1": 0.07692307692307691
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0017",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Łączymy się z bazą danych i sprawdzamy, czy kopia zapasowa się powiodła. Jeśli tak, przeprowadzamy weryfikację i przy wyniku pozytywnym przechodzimy do pytania, czy weryfikacja się powiodła. Jeśli kopia się nie powiodła, od razu przechodzimy do tego samego pytania. Gdy weryfikacja się powiodła, proces się kończy.",
+      "expected_mermaid": "flowchart TD\nA([Start])\nB[Połącz się z bazą danych]\nC{Czy kopia zapasowa się powiodła?}\nD[Przeprowadź weryfikację]\nE{Czy weryfikacja się powiodła?}\nZ([Koniec])\n\n A --> B\n B --> C\n C -->|Tak| D\n C -->|Nie| E\n D -->|Tak| E\n E -->|Tak| Z",
+      "raw_output": "flowchart TD\n    A[Łączymy się z bazą danych] --> B[Sprawdzamy, czy kopia zapasowa się powiodła]\n    B -- Tak --> C[Weryfikacja]\n    B -- Nie --> B\n    C --> D[Czy weryfikacja się powiodła?]\n    D -- Tak --> E[Proces się kończy]\n    D -- Nie --> F[Proces się kończy]",
+      "code": "flowchart TD\n    A[Łączymy się z bazą danych] --> B[Sprawdzamy, czy kopia zapasowa się powiodła]\n    B -- Tak --> C[Weryfikacja]\n    B -- Nie --> B\n    C --> D[Czy weryfikacja się powiodła?]\n    D -- Tak --> E[Proces się kończy]\n    D -- Nie --> F[Proces się kończy]",
+      "finish_reason": "stop",
+      "completion_tokens": 100,
+      "latency_s": 2.18,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.16666666666666666,
+          "recall": 0.16666666666666666,
+          "f1": 0.16666666666666666
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0018",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Najpierw rozpoznajemy prośbę użytkownika i sprawdzamy, czy to zapytanie. Jeśli tak, tworzymy zapytanie wyszukiwania, przeszukujemy bazę danych, pobieramy i przetwarzamy wyniki, klasyfikujemy typ odpowiedzi, generujemy odpowiedź e-mail, planujemy wysyłkę e-maila i kończymy zadanie. Potem sprawdzamy, czy potrzebny jest dalszy kontakt. Jeśli tak, planujemy go, zapisujemy jego szczegóły, przechodzimy do kroku o nazwie Koniec i proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Rozpoznaj prośbę użytkownika]\n B --> C{Czy to zapytanie?}\n C -->|Tak| D[Utwórz zapytanie wyszukiwania]\n D --> E[Przeszukaj bazę danych]\n E --> F[Pobierz i przetwórz wyniki]\n F --> G[Sklasyfikuj typ odpowiedzi]\n G --> H[Wygeneruj odpowiedź e-mail]\n H --> I[Zaplanuj wysyłkę e-maila]\n I --> J[Zakończ zadanie]\n J --> K{Czy potrzebny jest dalszy kontakt?}\n K -->|Tak| L[Zaplanuj dalszy kontakt]\n L --> M[Zapisz szczegóły dalszego kontaktu]\n M --> N[Koniec]\n N --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Najpierw rozpoznajemy prośbę użytkownika] --> B[Sprawdzamy, czy to zapytanie]\n    B -->|Tak| C[Tworzymy zapytanie wyszukiwania]\n    C --> D[Przeszukujemy bazę danych]\n    D --> E[Pobieramy i przetwarzamy wyniki]\n    E --> F[Klasyfikujemy typ odpowiedzi]\n    F --> G[Generujemy odpowiedź e-mail]\n    G --> H[Planujemy wysyłkę e-maila]\n    H --> I[Kończymy zadanie]\n    I --> J[Sprawdzamy, czy potrzebny jest dalszy kontakt]\n    J -->|Tak| K[Planujemy dalszy kontakt]\n    K --> L[Zapisujemy szczegóły kontaktu]\n    L --> M[Koniec]\n    J -->|Nie| M",
+      "code": "flowchart TD\n    A[Najpierw rozpoznajemy prośbę użytkownika] --> B[Sprawdzamy, czy to zapytanie]\n    B -->|Tak| C[Tworzymy zapytanie wyszukiwania]\n    C --> D[Przeszukujemy bazę danych]\n    D --> E[Pobieramy i przetwarzamy wyniki]\n    E --> F[Klasyfikujemy typ odpowiedzi]\n    F --> G[Generujemy odpowiedź e-mail]\n    G --> H[Planujemy wysyłkę e-maila]\n    H --> I[Kończymy zadanie]\n    I --> J[Sprawdzamy, czy potrzebny jest dalszy kontakt]\n    J -->|Tak| K[Planujemy dalszy kontakt]\n    K --> L[Zapisujemy szczegóły kontaktu]\n    L --> M[Koniec]\n    J -->|Nie| M",
+      "finish_reason": "stop",
+      "completion_tokens": 211,
+      "latency_s": 4.39,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.07692307692307693,
+          "recall": 0.06666666666666667,
+          "f1": 0.07142857142857144
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0019",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Klient dokonuje zakupu. Jeśli tak, sprawdzamy, czy produkt cyfrowy jest dostępny. Gdy jest, pobieranie się rozpoczyna, potem się kończy i proces jest zakończony. Gdy nie jest, klient kontaktuje się z obsługą, pojawia się błąd przetwarzania płatności, klient kontaktuje się z obsługą po raz drugi (osobny krok) i proces się kończy.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Klient dokonuje zakupu]\nB -->|Tak| C{Czy produkt cyfrowy jest dostępny?}\nC -->|Tak| D[Pobieranie się rozpoczyna]\nD --> E[Pobieranie zakończone]\nE --> Z([Koniec])\nC -->|Nie| F[Skontaktuj się z obsługą]\nF --> G[Błąd przetwarzania płatności]\nG --> H[Skontaktuj się z obsługą]\nH --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Klient dokonuje zakupu] --> B{Czy produkt cyfrowy jest dostępny?}\n    B -- Tak --> C[Pobieranie się rozpoczyna]\n    C --> D[Pobieranie się kończy]\n    D --> E[Zakończenie procesu]\n    B -- Nie --> F[Błąd przetwarzania płatności]\n    F --> G[Klient kontaktuje się z obsługą]\n    G --> H[Klient kontaktuje się z obsługą po raz drugi]\n    H --> I[Zakończenie procesu]",
+      "code": "flowchart TD\n    A[Klient dokonuje zakupu] --> B{Czy produkt cyfrowy jest dostępny?}\n    B -- Tak --> C[Pobieranie się rozpoczyna]\n    C --> D[Pobieranie się kończy]\n    D --> E[Zakończenie procesu]\n    B -- Nie --> F[Błąd przetwarzania płatności]\n    F --> G[Klient kontaktuje się z obsługą]\n    G --> H[Klient kontaktuje się z obsługą po raz drugi]\n    H --> I[Zakończenie procesu]",
+      "finish_reason": "stop",
+      "completion_tokens": 130,
+      "latency_s": 2.73,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.4444444444444444,
+          "recall": 0.4444444444444444,
+          "f1": 0.4444444444444444
+        },
+        "edge": {
+          "precision": 0.25,
+          "recall": 0.2222222222222222,
+          "f1": 0.23529411764705882
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0020",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Pobieramy dane logowania użytkownika i sprawdzamy, czy jest uwierzytelniony. Jeśli tak, weryfikujemy kwotę transakcji i sprawdzamy, czy transakcja mieści się w limitach. Jeśli tak, sprawdzamy historię oszustw i ustalamy, czy transakcja jest oznaczona do weryfikacji. Oznaczoną transakcję odrzucamy, a nieoznaczoną akceptujemy. W obu przypadkach proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Pobierz dane logowania użytkownika]\n B --> C{Czy użytkownik jest uwierzytelniony?}\n C -->|Tak| D[Zweryfikuj kwotę transakcji]\n D --> E{Czy transakcja mieści się w limitach?}\n E -->|Tak| F[Sprawdź historię oszustw]\n F --> G{Czy transakcja jest oznaczona do weryfikacji?}\n G -->|Tak| H[Odrzuć transakcję]\n G -->|Nie| I[Zaakceptuj transakcję]\n H --> Z([Koniec])\n I --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Pobieramy dane logowania użytkownika] --> B[Sprawdzamy, czy jest uwierzytelniony]\n    B -->|Tak| C[Weryfikujemy kwotę transakcji]\n    B -->|Nie| D[Proces się kończy]\n    C --> E[Sprawdzamy, czy transakcja mieści się w limitach]\n    E -->|Tak| F[Sprawdzamy historię oszustw]\n    E -->|Nie| D[Proces się kończy]\n    F --> G[Ustalamy, czy transakcja jest oznaczona do weryfikacji]\n    G -->|Tak| H[Odrzucamy transakcję]\n    G -->|Nie| I[Akceptujemy transakcję]\n    H --> J[Proces się kończy]\n    I --> J[Proces się kończy]",
+      "code": "flowchart TD\n    A[Pobieramy dane logowania użytkownika] --> B[Sprawdzamy, czy jest uwierzytelniony]\n    B -->|Tak| C[Weryfikujemy kwotę transakcji]\n    B -->|Nie| D[Proces się kończy]\n    C --> E[Sprawdzamy, czy transakcja mieści się w limitach]\n    E -->|Tak| F[Sprawdzamy historię oszustw]\n    E -->|Nie| D[Proces się kończy]\n    F --> G[Ustalamy, czy transakcja jest oznaczona do weryfikacji]\n    G -->|Tak| H[Odrzucamy transakcję]\n    G -->|Nie| I[Akceptujemy transakcję]\n    H --> J[Proces się kończy]\n    I --> J[Proces się kończy]",
+      "finish_reason": "stop",
+      "completion_tokens": 209,
+      "latency_s": 4.34,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0021",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Po starcie wysyłamy e-mail z linkiem do resetu i sprawdzamy, czy użytkownik jest zweryfikowany. Jeśli tak, oznaczamy go jako zweryfikowanego. Następnie sprawdzamy, czy użytkownik kliknął link. Jeśli kliknął, resetujemy hasło, wylogowujemy użytkownika i kończymy. Jeśli nie kliknął, wracamy na sam początek.",
+      "expected_mermaid": "flowchart TD\nA([Start])\nB[Wyślij e-mail z linkiem do resetu]\nC{Czy użytkownik jest zweryfikowany?}\nD[Oznacz użytkownika jako zweryfikowanego]\nE{Czy użytkownik kliknął link?}\nF[Zresetuj hasło]\nG[Wyloguj użytkownika]\nZ([Koniec])\n\n A --> B\n B --> C\n C -->|Tak| D\n D --> E\n E -->|Tak| F\n E -->|Nie| A\n F --> G\n G --> Z",
+      "raw_output": "flowchart TD\n    A[Po starcie wysyłamy e-mail z linkiem do resetu] --> B[Sprawdzamy, czy użytkownik jest zweryfikowany]\n    B -->|Tak| C[Oznaczamy go jako zweryfikowanego]\n    B -->|Nie| A\n    C --> D[Sprawdzamy, czy użytkownik kliknął link]\n    D -->|Tak| E[Resetujemy hasło]\n    E --> F[Wylogowujemy użytkownika]\n    F --> G[Kończymy]\n    D -->|Nie| A",
+      "code": "flowchart TD\n    A[Po starcie wysyłamy e-mail z linkiem do resetu] --> B[Sprawdzamy, czy użytkownik jest zweryfikowany]\n    B -->|Tak| C[Oznaczamy go jako zweryfikowanego]\n    B -->|Nie| A\n    C --> D[Sprawdzamy, czy użytkownik kliknął link]\n    D -->|Tak| E[Resetujemy hasło]\n    E --> F[Wylogowujemy użytkownika]\n    F --> G[Kończymy]\n    D -->|Nie| A",
+      "finish_reason": "stop",
+      "completion_tokens": 134,
+      "latency_s": 2.81,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0022",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Zbieramy dane i sprawdzamy, czy są czyste. Jeśli tak, przekształcamy je i sprawdzamy, czy są gotowe do załadowania. Jeśli tak, ładujemy dane do hurtowni i sprawdzamy, czy ładowanie się powiodło. Jeśli się powiodło, proces się kończy. Jeśli nie, zgłaszamy błąd i ponawiamy próbę, wracając do pytania, czy dane są czyste.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Zbierz dane]\n B --> C{Czy dane są czyste?}\n C -->|Tak| D[Przekształć dane]\n D --> E{Czy dane są gotowe do załadowania?}\n E -->|Tak| F[Załaduj dane do hurtowni]\n F --> G{Czy ładowanie się powiodło?}\n G -->|Tak| Z([Koniec])\n G -->|Nie| H[Zgłoś błąd i ponów próbę]\n H --> C",
+      "raw_output": "flowchart TD\n    A[Zbieramy dane] --> B[Sprawdzamy, czy są czyste]\n    B -->|Tak| C[Przekształcamy je]\n    B -->|Nie| D[Zgłoszamy błąd i ponawiamy próbę]\n    D --> B\n    C --> E[Sprawdzamy, czy są gotowe do załadowania]\n    E -->|Tak| F[Ładujemy dane do hurtowni]\n    E -->|Nie| D\n    F --> G[Sprawdzamy, czy ładowanie się powiodło]\n    G -->|Tak| H[Proces się kończy]\n    G -->|Nie| D",
+      "code": "flowchart TD\n    A[Zbieramy dane] --> B[Sprawdzamy, czy są czyste]\n    B -->|Tak| C[Przekształcamy je]\n    B -->|Nie| D[Zgłoszamy błąd i ponawiamy próbę]\n    D --> B\n    C --> E[Sprawdzamy, czy są gotowe do załadowania]\n    E -->|Tak| F[Ładujemy dane do hurtowni]\n    E -->|Nie| D\n    F --> G[Sprawdzamy, czy ładowanie się powiodło]\n    G -->|Tak| H[Proces się kończy]\n    G -->|Nie| D",
+      "finish_reason": "stop",
+      "completion_tokens": 158,
+      "latency_s": 3.29,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    }
+  ]
+}

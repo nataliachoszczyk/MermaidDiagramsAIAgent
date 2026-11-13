@@ -15,6 +15,7 @@ Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist ye
 - `data/golden/` – test set, JSONL in the `docs/design.md` §2.2 format *(planned)*
 - `data/synthetic/` – generated training and validation data *(planned)*
 - `prompts/system.txt` – system prompt shared by every model and stage
+- `prompts/describe.txt` – prompt for generating descriptions from diagrams (`uv run describe`)
 - `src/mermaiddiagramsaiagent/data/` – dataset definitions (`sources.py`), download, raw-data report, pilot builder, JSONL I/O
 - `src/mermaiddiagramsaiagent/eval/` – output normalization, rendering (`mmdc`), flowchart parser, metrics, evaluation runner
 - `src/mermaiddiagramsaiagent/synth/` – data synthesis: topics → diagram → filters → description → coverage check *(planned)*
@@ -29,13 +30,17 @@ Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist ye
   `<mermaid-cli install dir>/node_modules/puppeteer`. `report-raw` and `evaluate` check `mmdc` before running.
 - Copy `.env.example` to `.env` (inference server URL; the API key is a dummy for Ollama).
 - Base model: `ollama pull qwen3:4b-instruct-2507-q8_0`
+- Embedding model for node matching in `evaluate`: `ollama pull bge-m3`
 
 ## Commands
 - Run anything: `uv run <command>` (entry points defined in `pyproject.toml`)
 - `uv run download-raw` – download the raw datasets into `data/raw/`
 - `uv run report-raw` – record counts, fields, diagram types and `mmdc` render check → `data/raw/report.json`
 - `uv run build-pilot` – build `data/pilot/pilot_en.jsonl`
-- `uv run evaluate --model <name> --data <jsonl> [--limit N]` – evaluate a model, save the run to `results/`
+- `uv run describe --data <jsonl> --model <name> --language <lang> [--no-think]` – replace descriptions with
+  step-by-step ones generated from `expected_mermaid` → `<stem>_described.jsonl`; read every one afterwards
+- `uv run evaluate --model <name> --data <jsonl> [--limit N] [--matching exact]` – evaluate a model, save the run
+  to `results/`; nodes are matched by label embeddings unless `--matching exact`
 - `uv run pytest` – tests
 - Render a single diagram: `mmdc -i diagram.mmd -o out.svg`
 

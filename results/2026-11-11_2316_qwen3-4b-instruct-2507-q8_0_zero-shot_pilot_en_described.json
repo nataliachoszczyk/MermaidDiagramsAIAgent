@@ -1,0 +1,160 @@
+{
+  "config": {
+    "date": "2026-11-11T23:16:23",
+    "model": "qwen3:4b-instruct-2507-q8_0",
+    "model_digest": "aa7252f68dda4d25dfffa65b3760af6d2c3231a140c0060c78d444686d98a374",
+    "setting": "zero-shot",
+    "base_url": "http://localhost:11434/v1/",
+    "temperature": 0.0,
+    "seed": 0,
+    "max_tokens": 1024,
+    "limit": null,
+    "system_prompt": "You convert a description of a process into a Mermaid diagram.\n\nRules:\n- Use `flowchart TD` for processes with steps and decisions; use `sequenceDiagram` for interactions between participants.\n- Output only the Mermaid code: no code fences, no explanations, no text before or after the diagram.\n- Keywords are lowercase. Put labels with special characters in double quotes. Never use `end` as a node id.\n- Keep the labels in the language of the description.\n- If the text does not describe a process, answer exactly: BRAK_PROCESU\n",
+    "system_prompt_sha256": "814e2dbf8ce3b7a719c3103d732e2599f91cadb1bd496e5c857519169a30a1f8",
+    "data": "data/pilot/pilot_en_described.jsonl",
+    "data_sha256": "408fa1c51b54d4525814c9b7f42840a0f5329be4651e062fe9a36ed1f4b400a7",
+    "metrics": "exact label matching after normalization (no embeddings yet)",
+    "mmdc": "12.2.0",
+    "git_commit": "b32dd5beaa6bc95fd4ad3c0648cd6c745115a8d8-dirty"
+  },
+  "summary": {
+    "overall": {
+      "n": 3,
+      "mermaid_only": 1,
+      "render_rate": 1,
+      "type_acc": 1,
+      "node_f1": 0.25049289891395154,
+      "edge_f1": 0.07017543859649124,
+      "node_f1_rendering_only": 0.25049289891395154,
+      "edge_f1_rendering_only": 0.07017543859649124,
+      "truncated": 0
+    },
+    "by_diagram_type": {
+      "flowchart": {
+        "n": 3,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.25049289891395154,
+        "edge_f1": 0.07017543859649124,
+        "node_f1_rendering_only": 0.25049289891395154,
+        "edge_f1_rendering_only": 0.07017543859649124,
+        "truncated": 0
+      }
+    },
+    "by_difficulty": {
+      "medium": {
+        "n": 3,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.25049289891395154,
+        "edge_f1": 0.07017543859649124,
+        "node_f1_rendering_only": 0.25049289891395154,
+        "edge_f1_rendering_only": 0.07017543859649124,
+        "truncated": 0
+      }
+    }
+  },
+  "examples": [
+    {
+      "id": "pilot-flow-0001",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Start by entering your email address. The system checks if the email is valid, and if it is, it sends a password reset link to that email. You then check your inbox for the link, click on it, and enter a new password. After entering the new password, the system verifies it, and upon successful verification, the password reset is confirmed as successful, ending the process.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Enter your email]\n B --> C{Is email valid?}\n C -->|Yes| D[Send password reset link to email]\n D --> E[Check for link in inbox]\n E --> F[Click on the link]\n F --> G[Enter new password]\n G --> H[Verify new password]\n H --> I[Reset successful]\n I --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Enter email address] --> B{Is email valid?}\n    B -- No --> C[Invalid email]\n    B -- Yes --> D[Send password reset link to email]\n    D --> E[Check inbox for link]\n    E --> F[Click on password reset link]\n    F --> G[Enter new password]\n    G --> H{Verify new password}\n    H -- Failed --> I[Password verification failed]\n    H -- Successful --> J[Password reset confirmed]\n    J --> K[Process ends]",
+      "code": "flowchart TD\n    A[Enter email address] --> B{Is email valid?}\n    B -- No --> C[Invalid email]\n    B -- Yes --> D[Send password reset link to email]\n    D --> E[Check inbox for link]\n    E --> F[Click on password reset link]\n    F --> G[Enter new password]\n    G --> H{Verify new password}\n    H -- Failed --> I[Password verification failed]\n    H -- Successful --> J[Password reset confirmed]\n    J --> K[Process ends]",
+      "finish_reason": "stop",
+      "completion_tokens": 113,
+      "latency_s": 5.6,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.36363636363636365,
+          "recall": 0.4,
+          "f1": 0.380952380952381
+        },
+        "edge": {
+          "precision": 0.2,
+          "recall": 0.2222222222222222,
+          "f1": 0.2105263157894737
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0002",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Begin by cloning the repository. Next, check if the branch is protected. If the branch is protected, manual approval is required before ending the process. If the branch is not protected, bypass the protection and run unit tests. After passing unit tests, build the artifacts. Then deploy the artifacts to the staging environment. Check if the deployment to staging was successful. If successful, proceed to test the environment and end the process. If the deployment failed, rollback to the previous version and end the process.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Clone repository]\n B --> C{Is branch protected?}\n C -->|Yes| D[Manual approval required]\n D --> Z([End])\n C -->|No| E[Bypass protection]\n E --> F[Run unit tests]\n F --> G[Build artifacts]\n G --> H[Deploy to staging]\n H --> I{Is deployment successful?}\n I -->|Yes| J[Test environment]\n J --> Z([End])\n I -->|No| K[Rollback to previous version]\n K --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Clone the repository] --> B{Is the branch protected?}\n    B -- Yes --> C[Manual approval required]\n    C --> D[End the process]\n    B -- No --> E[Bypass protection and run unit tests]\n    E --> F{Did unit tests pass?}\n    F -- No --> G[End the process]\n    F -- Yes --> H[Build the artifacts]\n    H --> I[Deploy artifacts to staging]\n    I --> J{Was deployment successful?}\n    J -- Yes --> K[Test the environment]\n    K --> L[End the process]\n    J -- No --> M[Rollback to previous version]\n    M --> L[End the process]",
+      "code": "flowchart TD\n    A[Clone the repository] --> B{Is the branch protected?}\n    B -- Yes --> C[Manual approval required]\n    C --> D[End the process]\n    B -- No --> E[Bypass protection and run unit tests]\n    E --> F{Did unit tests pass?}\n    F -- No --> G[End the process]\n    F -- Yes --> H[Build the artifacts]\n    H --> I[Deploy artifacts to staging]\n    I --> J{Was deployment successful?}\n    J -- Yes --> K[Test the environment]\n    K --> L[End the process]\n    J -- No --> M[Rollback to previous version]\n    M --> L[End the process]",
+      "finish_reason": "stop",
+      "completion_tokens": 149,
+      "latency_s": 3.11,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.15384615384615385,
+          "recall": 0.16666666666666666,
+          "f1": 0.16
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0003",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "The check-in process begins when a passenger arrives at the counter. We then check if the passenger has luggage. If they have luggage, we prepare it and loop back to the start of the check-in process. If they don't have luggage, we require luggage check, after which the passenger picks up their luggage at the airport. They then proceed to the boarding area, go through baggage claim and receive their boarding pass, and finally the process ends with the passenger receiving their boarding pass.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Check-in process begins]\n B --> C{Passenger has luggage?}\n C -->|Yes| D[Prepare luggage]\n D --> B\n C -->|No| E[Luggage check required]\n E --> F[Pick up luggage at airport]\n F --> G[Proceed to boarding area]\n G --> H[Baggage claim and boarding pass]\n H --> I[Passenger receives boarding pass]\n I --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Passenger arrives at the counter] --> B{Does the passenger have luggage?}\n    B -- Yes --> C[Prepare luggage]\n    C --> A\n    B -- No --> D[Require luggage check]\n    D --> E[Passenger picks up luggage at the airport]\n    E --> F[Proceed to boarding area]\n    F --> G[Go through baggage claim]\n    G --> H[Receive boarding pass]\n    H --> I[Process ends]",
+      "code": "flowchart TD\n    A[Passenger arrives at the counter] --> B{Does the passenger have luggage?}\n    B -- Yes --> C[Prepare luggage]\n    C --> A\n    B -- No --> D[Require luggage check]\n    D --> E[Passenger picks up luggage at the airport]\n    E --> F[Proceed to boarding area]\n    F --> G[Go through baggage claim]\n    G --> H[Receive boarding pass]\n    H --> I[Process ends]",
+      "finish_reason": "stop",
+      "completion_tokens": 102,
+      "latency_s": 2.18,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.2222222222222222,
+          "recall": 0.2,
+          "f1": 0.2105263157894737
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    }
+  ]
+}

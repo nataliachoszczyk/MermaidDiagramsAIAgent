@@ -1,0 +1,798 @@
+{
+  "config": {
+    "date": "2026-11-12T23:07:07",
+    "model": "qwen3:4b-instruct-2507-q8_0",
+    "model_digest": "aa7252f68dda4d25dfffa65b3760af6d2c3231a140c0060c78d444686d98a374",
+    "setting": "zero-shot",
+    "base_url": "http://localhost:11434/v1/",
+    "temperature": 0.0,
+    "seed": 0,
+    "max_tokens": 1024,
+    "limit": null,
+    "system_prompt": "You convert a description of a process into a Mermaid diagram.\n\nRules:\n- Use `flowchart TD` for processes with steps and decisions; use `sequenceDiagram` for interactions between participants.\n- Output only the Mermaid code: no code fences, no explanations, no text before or after the diagram.\n- Keywords are lowercase. Put labels with special characters in double quotes. Never use `end` as a node id.\n- Keep the labels in the language of the description.\n- If the text does not describe a process, answer exactly: BRAK_PROCESU\n",
+    "system_prompt_sha256": "814e2dbf8ce3b7a719c3103d732e2599f91cadb1bd496e5c857519169a30a1f8",
+    "data": "data/pilot/pilot_en_described.jsonl",
+    "data_sha256": "0dd33d538122ddc8bbcbc6370d97dc7c3ba6c0078b55ca7c5651b9ec527394e5",
+    "metrics": "exact label matching after normalization (no embeddings yet)",
+    "mmdc": "12.2.0",
+    "git_commit": "b32dd5beaa6bc95fd4ad3c0648cd6c745115a8d8-dirty"
+  },
+  "summary": {
+    "overall": {
+      "n": 22,
+      "mermaid_only": 1,
+      "render_rate": 1,
+      "type_acc": 1,
+      "node_f1": 0.8803029706899982,
+      "edge_f1": 0.8090761932870867,
+      "node_f1_rendering_only": 0.8803029706899982,
+      "edge_f1_rendering_only": 0.8090761932870867,
+      "truncated": 0
+    },
+    "by_diagram_type": {
+      "flowchart": {
+        "n": 22,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.8803029706899982,
+        "edge_f1": 0.8090761932870867,
+        "node_f1_rendering_only": 0.8803029706899982,
+        "edge_f1_rendering_only": 0.8090761932870867,
+        "truncated": 0
+      }
+    },
+    "by_difficulty": {
+      "hard": {
+        "n": 6,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.854634417869712,
+        "edge_f1": 0.7607855107855108,
+        "node_f1_rendering_only": 0.854634417869712,
+        "edge_f1_rendering_only": 0.7607855107855108,
+        "truncated": 0
+      },
+      "medium": {
+        "n": 16,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.8899286779976056,
+        "edge_f1": 0.8271851992251777,
+        "node_f1_rendering_only": 0.8899286779976056,
+        "edge_f1_rendering_only": 0.8271851992251777,
+        "truncated": 0
+      }
+    }
+  },
+  "examples": [
+    {
+      "id": "pilot-flow-0001",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "The process starts when you enter your email. Then there is a check: is email valid? If yes, send password reset link to email. Next, check for link in inbox, click on the link, enter new password and verify new password. The outcome is: reset successful, and the process ends.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Enter your email]\n B --> C{Is email valid?}\n C -->|Yes| D[Send password reset link to email]\n D --> E[Check for link in inbox]\n E --> F[Click on the link]\n F --> G[Enter new password]\n G --> H[Verify new password]\n H --> I[Reset successful]\n I --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Enter email] --> B{Is email valid?}\n    B -- Yes --> C[Send password reset link to email]\n    B -- No --> D[Invalid email]\n    C --> E[Check for link in inbox]\n    E --> F[Click on the link]\n    F --> G[Enter new password]\n    G --> H[Verify new password]\n    H --> I[Reset successful]\n    I --> J[End]",
+      "code": "flowchart TD\n    A[Enter email] --> B{Is email valid?}\n    B -- Yes --> C[Send password reset link to email]\n    B -- No --> D[Invalid email]\n    C --> E[Check for link in inbox]\n    E --> F[Click on the link]\n    F --> G[Enter new password]\n    G --> H[Verify new password]\n    H --> I[Reset successful]\n    I --> J[End]",
+      "finish_reason": "stop",
+      "completion_tokens": 97,
+      "latency_s": 4.8,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8,
+          "recall": 0.8,
+          "f1": 0.8000000000000002
+        },
+        "edge": {
+          "precision": 0.7777777777777778,
+          "recall": 0.7777777777777778,
+          "f1": 0.7777777777777778
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0002",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "After the start, clone repository. Then decide: is branch protected? If yes, manual approval required, and the process ends there. If no, bypass protection, then run unit tests, build artifacts and deploy to staging. Next comes a second decision: is deployment successful? If yes, test environment and end. If no, rollback to previous version and end.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Clone repository]\n B --> C{Is branch protected?}\n C -->|Yes| D[Manual approval required]\n D --> Z([End])\n C -->|No| E[Bypass protection]\n E --> F[Run unit tests]\n F --> G[Build artifacts]\n G --> H[Deploy to staging]\n H --> I{Is deployment successful?}\n I -->|Yes| J[Test environment]\n J --> Z([End])\n I -->|No| K[Rollback to previous version]\n K --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Start] --> B[Clone repository]\n    B --> C{Is branch protected?}\n    C -- Yes --> D[Manual approval required]\n    C -- No --> E[Bypass protection]\n    E --> F[Run unit tests]\n    F --> G[Build artifacts]\n    G --> H[Deploy to staging]\n    H --> I{Is deployment successful?}\n    I -- Yes --> J[Test environment]\n    I -- No --> K[Rollback to previous version]\n    J --> L[End]\n    K --> L[End]",
+      "code": "flowchart TD\n    A[Start] --> B[Clone repository]\n    B --> C{Is branch protected?}\n    C -- Yes --> D[Manual approval required]\n    C -- No --> E[Bypass protection]\n    E --> F[Run unit tests]\n    F --> G[Build artifacts]\n    G --> H[Deploy to staging]\n    H --> I{Is deployment successful?}\n    I -- Yes --> J[Test environment]\n    I -- No --> K[Rollback to previous version]\n    J --> L[End]\n    K --> L[End]",
+      "finish_reason": "stop",
+      "completion_tokens": 119,
+      "latency_s": 2.45,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.9230769230769231,
+          "f1": 0.9600000000000001
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0003",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "First, check-in process begins. Then a question: passenger has luggage? If yes, prepare luggage and return to the step where check-in process begins. If no, luggage check required, after which comes pick up luggage at airport, then proceed to boarding area, then baggage claim and boarding pass. Finally passenger receives boarding pass and the process ends.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Check-in process begins]\n B --> C{Passenger has luggage?}\n C -->|Yes| D[Prepare luggage]\n D --> B\n C -->|No| E[Luggage check required]\n E --> F[Pick up luggage at airport]\n F --> G[Proceed to boarding area]\n G --> H[Baggage claim and boarding pass]\n H --> I[Passenger receives boarding pass]\n I --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Check-in process begins] --> B[Passenger has luggage?]\n    B -- Yes --> C[Prepare luggage]\n    C --> A\n    B -- No --> D[Luggage check required]\n    D --> E[Pick up luggage at airport]\n    E --> F[Proceed to boarding area]\n    F --> G[Baggage claim and boarding pass]\n    G --> H[Passenger receives boarding pass]\n    H --> I[Process ends]",
+      "code": "flowchart TD\n    A[Check-in process begins] --> B[Passenger has luggage?]\n    B -- Yes --> C[Prepare luggage]\n    C --> A\n    B -- No --> D[Luggage check required]\n    D --> E[Pick up luggage at airport]\n    E --> F[Proceed to boarding area]\n    F --> G[Baggage claim and boarding pass]\n    G --> H[Passenger receives boarding pass]\n    H --> I[Process ends]",
+      "finish_reason": "stop",
+      "completion_tokens": 100,
+      "latency_s": 2.09,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8888888888888888,
+          "recall": 0.8,
+          "f1": 0.8421052631578948
+        },
+        "edge": {
+          "precision": 0.8888888888888888,
+          "recall": 0.8,
+          "f1": 0.8421052631578948
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0004",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Start with load original image. Then check: is size limit exceeded? If yes, resize to fit limits, then generate thumbnail, and the process ends. If no, do nothing, then generate thumbnail as a separate step in this branch, save thumbnails, and end.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Load original image]\n B --> C{Is size limit exceeded?}\n C -->|Yes| D[Resize to fit limits]\n D --> E[Generate thumbnail]\n E --> Z([End])\n C -->|No| F[Do nothing]\n F --> G[Generate thumbnail]\n G --> H[Save thumbnails]\n H --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Load original image] --> B{Is size limit exceeded?}\n    B -- Yes --> C[Resize to fit limits]\n    C --> D[Generate thumbnail]\n    D --> E[End]\n    B -- No --> F[Generate thumbnail]\n    F --> G[Save thumbnails]\n    G --> E",
+      "code": "flowchart TD\n    A[Load original image] --> B{Is size limit exceeded?}\n    B -- Yes --> C[Resize to fit limits]\n    C --> D[Generate thumbnail]\n    D --> E[End]\n    B -- No --> F[Generate thumbnail]\n    F --> G[Save thumbnails]\n    G --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 70,
+      "latency_s": 1.51,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.7777777777777778,
+          "f1": 0.8750000000000001
+        },
+        "edge": {
+          "precision": 0.8571428571428571,
+          "recall": 0.6666666666666666,
+          "f1": 0.75
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0005",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "The process begins with collect ticket details. Then decide: is ticket priority high? If yes, high priority escalation follows and the process ends. If no, normal handling follows, then assign to team member, then close ticket, and the process ends.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Collect ticket details]\n B --> C{Is ticket priority high?}\n C -->|Yes| D[High priority escalation]\n D --> Z([End])\n C -->|No| E[Normal handling]\n E --> F[Assign to team member]\n F --> G[Close ticket]\n G --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Collect ticket details] --> B{Is ticket priority high?}\n    B -- Yes --> C[High priority escalation]\n    C --> End\n    B -- No --> D[Normal handling]\n    D --> E[Assign to team member]\n    E --> F[Close ticket]\n    F --> End\n\n    style End fill:#f9f,stroke:#333,stroke-width:2px",
+      "code": "flowchart TD\n    A[Collect ticket details] --> B{Is ticket priority high?}\n    B -- Yes --> C[High priority escalation]\n    C --> End\n    B -- No --> D[Normal handling]\n    D --> E[Assign to team member]\n    E --> F[Close ticket]\n    F --> End\n\n    style End fill:#f9f,stroke:#333,stroke-width:2px",
+      "finish_reason": "stop",
+      "completion_tokens": 90,
+      "latency_s": 1.87,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0006",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "At the start, contact customer. Then check: is appointment time available? If yes, book appointment, send confirmation email and end. If no, schedule another time and ask: is customer interested in reminder? If yes, set reminder, then confirm reminder set, send reminder email, mark appointment as completed, and end.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Contact customer]\nB --> C{Is appointment time available?}\nC -->|Yes| D[Book appointment]\nD --> E[Send confirmation email]\nE --> Z([End])\nC -->|No| F[Schedule another time]\nF --> G{Is customer interested in reminder?}\nG -->|Yes| H[Set reminder]\nH --> I[Confirm reminder set]\nI --> J[Send reminder email]\nJ --> K[Mark appointment as completed]\nK --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Contact customer] --> B{Is appointment time available?}\n    B -- Yes --> C[Book appointment]\n    C --> D[Send confirmation email]\n    D --> E[End]\n    B -- No --> F[Schedule another time]\n    F --> G{Is customer interested in reminder?}\n    G -- Yes --> H[Set reminder]\n    H --> I[Confirm reminder set]\n    I --> J[Send reminder email]\n    J --> K[Mark appointment as completed]\n    K --> E\n    G -- No --> E",
+      "code": "flowchart TD\n    A[Contact customer] --> B{Is appointment time available?}\n    B -- Yes --> C[Book appointment]\n    C --> D[Send confirmation email]\n    D --> E[End]\n    B -- No --> F[Schedule another time]\n    F --> G{Is customer interested in reminder?}\n    G -- Yes --> H[Set reminder]\n    H --> I[Confirm reminder set]\n    I --> J[Send reminder email]\n    J --> K[Mark appointment as completed]\n    K --> E\n    G -- No --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 118,
+      "latency_s": 2.44,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.9166666666666666,
+          "f1": 0.9565217391304348
+        },
+        "edge": {
+          "precision": 0.9166666666666666,
+          "recall": 0.9166666666666666,
+          "f1": 0.9166666666666666
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0007",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "The user starts with request taxi. Then one decision: is user in a hurry? If yes, assign fastest available driver. If no, select nearest driver with lowest fare. Both paths lead to the end.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Request Taxi]\n B --> C{Is user in a hurry?}\n C -->|Yes| D[Assign fastest available driver]\n C -->|No| E[Select nearest driver with lowest fare]\n D --> Z([End])\n E --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Request taxi] --> B{Is user in a hurry?}\n    B -- Yes --> C[Assign fastest available driver]\n    B -- No --> D[Select nearest driver with lowest fare]\n    C --> E[End]\n    D --> E[End]",
+      "code": "flowchart TD\n    A[Request taxi] --> B{Is user in a hurry?}\n    B -- Yes --> C[Assign fastest available driver]\n    B -- No --> D[Select nearest driver with lowest fare]\n    C --> E[End]\n    D --> E[End]",
+      "finish_reason": "stop",
+      "completion_tokens": 61,
+      "latency_s": 1.3,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0008",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "First, check user roles. Then decide: is role allowed? If yes, grant access. If no, deny access. In both cases the process then ends.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Check user roles]\n B --> C{Is role allowed?}\n C -->|Yes| D[Grant access]\n C -->|No| E[Deny access]\n D --> Z([End])\n E --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Check user roles] --> B{Is role allowed?}\n    B -- Yes --> C[Grant access]\n    B -- No --> D[Deny access]\n    C --> E[End]\n    D --> E[End]",
+      "code": "flowchart TD\n    A[Check user roles] --> B{Is role allowed?}\n    B -- Yes --> C[Grant access]\n    B -- No --> D[Deny access]\n    C --> E[End]\n    D --> E[End]",
+      "finish_reason": "stop",
+      "completion_tokens": 55,
+      "latency_s": 1.22,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0009",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Begin with initiate test run. Then ask: is automated? If yes, the next step is test automation successful, and the process ends. If no, there are two separate paths. On the first one, continue with manual testing, then manual testing passed, then end. On the second one, test automation failed, then manual testing needed, then another manual testing passed step, then end.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Initiate Test Run]\n B --> C{Is Automated?}\n C -->|Yes| D[Test Automation Successful]\n D --> Z([End])\n C -->|No| E[Continue with Manual Testing]\n E --> F[Manual Testing Passed]\n F --> Z([End])\n C -->|No| G[Test Automation Failed]\n G --> H[Manual Testing Needed]\n H --> I[Manual Testing Passed]\n I --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Initiate test run] --> B{Is automated?}\n    B -- Yes --> C[Test automation successful]\n    C --> End\n    B -- No --> D[Manual testing]\n    D --> E{Manual testing passed?}\n    E -- Yes --> F[End]\n    E -- No --> G[Test automation failed]\n    G --> H[Manual testing needed]\n    H --> E",
+      "code": "flowchart TD\n    A[Initiate test run] --> B{Is automated?}\n    B -- Yes --> C[Test automation successful]\n    C --> End\n    B -- No --> D[Manual testing]\n    D --> E{Manual testing passed?}\n    E -- Yes --> F[End]\n    E -- No --> G[Test automation failed]\n    G --> H[Manual testing needed]\n    H --> E",
+      "finish_reason": "stop",
+      "completion_tokens": 87,
+      "latency_s": 1.88,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.7777777777777778,
+          "recall": 0.7,
+          "f1": 0.7368421052631577
+        },
+        "edge": {
+          "precision": 0.4444444444444444,
+          "recall": 0.36363636363636365,
+          "f1": 0.39999999999999997
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0010",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "The process starts with input personal information. Then check: is policy valid? If yes, submit claim form, then review claim application, and decide: does claim meet requirements? If it does, accept claim, send approval email and end. If it does not, reject claim, provide denial explanation, send denial email and end. If the policy is not valid, the same three steps follow as a separate branch: reject claim, provide denial explanation, send denial email, and then the process ends.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Input personal information]\n B --> C{Is policy valid?}\n C -->|Yes| D[Submit claim form]\n D --> E[Review claim application]\n E --> F{Does claim meet requirements?}\n F -->|Yes| G[Accept claim]\n G --> H[Send approval email]\n H --> Z([End])\n F -->|No| I[Reject claim]\n I --> J[Provide denial explanation]\n J --> K[Send denial email]\n K --> Z([End])\n C -->|No| L[Reject claim]\n L --> M[Provide denial explanation]\n M --> N[Send denial email]\n N --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Input personal information] --> B{Is policy valid?}\n    B -- Yes --> C[Submit claim form]\n    B -- No --> D[Reject claim]\n    D --> E[Provide denial explanation]\n    D --> F[Send denial email]\n    F --> G[End]\n\n    C --> H[Review claim application]\n    H --> I{Does claim meet requirements?}\n    I -- Yes --> J[Accept claim]\n    J --> K[Send approval email]\n    K --> G\n\n    I -- No --> D\n    D --> E\n    D --> F\n    F --> G",
+      "code": "flowchart TD\n    A[Input personal information] --> B{Is policy valid?}\n    B -- Yes --> C[Submit claim form]\n    B -- No --> D[Reject claim]\n    D --> E[Provide denial explanation]\n    D --> F[Send denial email]\n    F --> G[End]\n\n    C --> H[Review claim application]\n    H --> I{Does claim meet requirements?}\n    I -- Yes --> J[Accept claim]\n    J --> K[Send approval email]\n    K --> G\n\n    I -- No --> D\n    D --> E\n    D --> F\n    F --> G",
+      "finish_reason": "stop",
+      "completion_tokens": 131,
+      "latency_s": 2.82,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.7333333333333333,
+          "f1": 0.846153846153846
+        },
+        "edge": {
+          "precision": 0.8333333333333334,
+          "recall": 0.625,
+          "f1": 0.7142857142857143
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0011",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "Start with read CSV file. Then check: is CSV data valid? If yes, process CSV data, store in database and end. If no, handle errors, log errors, display error rows to user, save bad rows, then review and correct bad rows, and finally retry import, which goes back to read CSV file.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Read CSV file]\n B --> C{Is CSV data valid?}\n C -->|Yes| D[Process CSV data]\n D --> E[Store in database]\n E --> Z([End])\n C -->|No| F[Handle errors]\n F --> G[Log errors]\n G --> H[Display error rows to user]\n H --> I[Save bad rows]\n I --> J[Review and correct bad rows]\n J --> K[Retry import]\n K --> B\nZ([End])",
+      "raw_output": "flowchart TD\n    A[Read CSV file] --> B{Is CSV data valid?}\n    B -- Yes --> C[Process CSV data]\n    C --> D[Store in database]\n    D --> E[End]\n    B -- No --> F[Handle errors]\n    F --> G[Log errors]\n    G --> H[Display error rows to user]\n    H --> I[Save bad rows]\n    I --> J[Review and correct bad rows]\n    J --> K[Retry import]\n    K --> A",
+      "code": "flowchart TD\n    A[Read CSV file] --> B{Is CSV data valid?}\n    B -- Yes --> C[Process CSV data]\n    C --> D[Store in database]\n    D --> E[End]\n    B -- No --> F[Handle errors]\n    F --> G[Log errors]\n    G --> H[Display error rows to user]\n    H --> I[Save bad rows]\n    I --> J[Review and correct bad rows]\n    J --> K[Retry import]\n    K --> A",
+      "finish_reason": "stop",
+      "completion_tokens": 109,
+      "latency_s": 2.29,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.9166666666666666,
+          "f1": 0.9565217391304348
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.9166666666666666,
+          "f1": 0.9565217391304348
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0012",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "First, collect details. Then decide: is priority high? If yes, create new issue and end. If no, triage issues and ask a second question: was assigned before? If yes, reassign issue. If no, assign to developer. Either way the process ends afterwards.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Collect details]\nB --> C{Is priority high?}\nC -->|Yes| D[Create new issue]\nD --> Z([End])\nC -->|No| E[Triage issues]\nE --> F{Was assigned before?}\nF -->|Yes| G[Reassign issue]\nG --> Z([End])\nF -->|No| H[Assign to developer]\nH --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Collect details] --> B{Is priority high?}\n    B -- Yes --> C[Create new issue]\n    B -- No --> D[Triage issues]\n    D --> E{Was assigned before?}\n    E -- Yes --> F[Reassign issue]\n    E -- No --> G[Assign to developer]\n    C --> H[End]\n    F --> H\n    G --> H",
+      "code": "flowchart TD\n    A[Collect details] --> B{Is priority high?}\n    B -- Yes --> C[Create new issue]\n    B -- No --> D[Triage issues]\n    D --> E{Was assigned before?}\n    E -- Yes --> F[Reassign issue]\n    E -- No --> G[Assign to developer]\n    C --> H[End]\n    F --> H\n    G --> H",
+      "finish_reason": "stop",
+      "completion_tokens": 88,
+      "latency_s": 1.85,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8888888888888888,
+          "f1": 0.9411764705882353
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.9,
+          "f1": 0.9473684210526316
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0013",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "The process begins with create download link. Then check: is user logged in? If yes, send download URL via email. If no, redirect to login page. After either step the process ends.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Create Download Link]\n B --> C{Is user logged in?}\n C -->|Yes| D[Send Download URL via Email]\n C -->|No| E[Redirect to login page]\n D --> Z([End])\n E --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Create download link] --> B{Is user logged in?}\n    B -- Yes --> C[Send download URL via email]\n    B -- No --> D[Redirect to login page]\n    C --> E[End]\n    D --> E[End]",
+      "code": "flowchart TD\n    A[Create download link] --> B{Is user logged in?}\n    B -- Yes --> C[Send download URL via email]\n    B -- No --> D[Redirect to login page]\n    C --> E[End]\n    D --> E[End]",
+      "finish_reason": "stop",
+      "completion_tokens": 60,
+      "latency_s": 1.3,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0014",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "At the start, check if refund amount exceeds limit. If yes, ask: is customer a VIP? If yes, the result is VIP refund request approved. If no, the result is non-VIP refund request approved. Both results end the process.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Check if refund amount exceeds limit]\nB -->|Yes| C{Is customer a VIP?}\nC -->|Yes| D[VIP Refund Request Approved]\nD --> Z([End])\nC -->|No| E[Non-VIP Refund Request Approved]\nE --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Start] --> B{Does refund amount exceed limit?}\n    B -- Yes --> C{Is customer a VIP?}\n    C -- Yes --> D[VIP refund request approved]\n    C -- No --> E[Non-VIP refund request approved]\n    B -- No --> F[Process ends]\n    D --> G[End]\n    E --> G\n    F --> G",
+      "code": "flowchart TD\n    A[Start] --> B{Does refund amount exceed limit?}\n    B -- Yes --> C{Is customer a VIP?}\n    C -- Yes --> D[VIP refund request approved]\n    C -- No --> E[Non-VIP refund request approved]\n    B -- No --> F[Process ends]\n    D --> G[End]\n    E --> G\n    F --> G",
+      "finish_reason": "stop",
+      "completion_tokens": 85,
+      "latency_s": 1.84,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.7142857142857143,
+          "recall": 0.8333333333333334,
+          "f1": 0.7692307692307692
+        },
+        "edge": {
+          "precision": 0.5,
+          "recall": 0.6666666666666666,
+          "f1": 0.5714285714285715
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0015",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Start with receive leave request. First question: is leave type approved? If yes, grant leave request and end. If no, ask: do you have a supervisor? If yes, ask: does your supervisor approve? If the supervisor approves, grant leave request and end. If not, ask: is the manager approved? If yes, grant leave request and end. If no, ask the last question: is there a higher-level department approval? If yes, grant leave request and end. If no, reject leave request and end. Each grant leave request is a separate step on its own branch.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Receive leave request]\n B --> C{Is leave type approved?}\n C -->|Yes| D[Grant leave request]\n D --> Z([End])\n C -->|No| E{Do you have a supervisor?}\n E -->|Yes| F{Does your supervisor approve?}\n F -->|Yes| G[Grant leave request]\n G --> Z([End])\n F -->|No| H{Is the manager approved?}\n H -->|Yes| I[Grant leave request]\n I --> Z([End])\n H -->|No| J{Is there a higher-level department approval?}\n J -->|Yes| K[Grant leave request]\n K --> Z([End])\n J -->|No| L[Reject leave request]\n L --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Receive leave request] --> B{Is leave type approved?}\n    B -- Yes --> C[Grant leave request]\n    B -- No --> D{Do you have a supervisor?}\n    D -- Yes --> E{Does your supervisor approve?}\n    E -- Yes --> C\n    E -- No --> F{Is the manager approved?}\n    F -- Yes --> C\n    F -- No --> G{Is there a higher-level department approval?}\n    G -- Yes --> C\n    G -- No --> H[Reject leave request]",
+      "code": "flowchart TD\n    A[Receive leave request] --> B{Is leave type approved?}\n    B -- Yes --> C[Grant leave request]\n    B -- No --> D{Do you have a supervisor?}\n    D -- Yes --> E{Does your supervisor approve?}\n    E -- Yes --> C\n    E -- No --> F{Is the manager approved?}\n    F -- Yes --> C\n    F -- No --> G{Is there a higher-level department approval?}\n    G -- Yes --> C\n    G -- No --> H[Reject leave request]",
+      "finish_reason": "stop",
+      "completion_tokens": 120,
+      "latency_s": 2.53,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.6153846153846154,
+          "f1": 0.761904761904762
+        },
+        "edge": {
+          "precision": 0.7,
+          "recall": 0.4375,
+          "f1": 0.5384615384615384
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0016",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Begin with review current plan. Then decide: is downgrade? If no, select new plan, update subscription details, then confirmation received, and ask: did you receive confirmation? If yes, the process ends. If no, contact support for assistance and go back to the question did you receive confirmation. If it is a downgrade, review downgrade terms, confirm downgrade, update subscription details as a separate step, and ask: did you confirm? If yes, the process ends. If no, contact support for assistance, again as a separate step, and go back to the question did you confirm.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Review current plan]\n B --> C{Is downgrade?}\n C -->|No| D[Select new plan]\n D --> E[Update subscription details]\n E --> F[Confirmation received]\n F --> G{Did you receive confirmation?}\n G -->|Yes| Z([End])\n G -->|No| H[Contact support for assistance]\n H --> G\n C -->|Yes| I[Review downgrade terms]\n I --> J[Confirm downgrade]\n J --> K[Update subscription details]\n K --> L{Did you confirm?}\n L -->|Yes| Z([End])\n L -->|No| M[Contact support for assistance]\n M --> L",
+      "raw_output": "flowchart TD\n    A[Begin with review current plan] --> B{Is downgrade?}\n    B -- No --> C[Select new plan]\n    C --> D[Update subscription details]\n    D --> E{Did you receive confirmation?}\n    E -- Yes --> F[End]\n    E -- No --> G[Contact support for assistance]\n    G --> E\n\n    B -- Yes --> H[Review downgrade terms]\n    H --> I{Did you confirm?}\n    I -- Yes --> F\n    I -- No --> J[Contact support for assistance]\n    J --> I",
+      "code": "flowchart TD\n    A[Begin with review current plan] --> B{Is downgrade?}\n    B -- No --> C[Select new plan]\n    C --> D[Update subscription details]\n    D --> E{Did you receive confirmation?}\n    E -- Yes --> F[End]\n    E -- No --> G[Contact support for assistance]\n    G --> E\n\n    B -- Yes --> H[Review downgrade terms]\n    H --> I{Did you confirm?}\n    I -- Yes --> F\n    I -- No --> J[Contact support for assistance]\n    J --> I",
+      "finish_reason": "stop",
+      "completion_tokens": 122,
+      "latency_s": 2.6,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.9,
+          "recall": 0.6428571428571429,
+          "f1": 0.75
+        },
+        "edge": {
+          "precision": 0.75,
+          "recall": 0.5625,
+          "f1": 0.6428571428571429
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0017",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "After the start, connect to database. Then check: is backup successful? If yes, perform verification, and if that says yes, move to the question: verification passed? If the backup was not successful, go straight to the same question: verification passed? If yes, the process ends.",
+      "expected_mermaid": "flowchart TD\nA([Start])\nB[Connect to Database]\nC{Is Backup Successful?}\nD[Perform Verification]\nE{Verification Passed?}\nZ([End])\n\n A --> B\n B --> C\n C -->|Yes| D\n C -->|No| E\n D -->|Yes| E\n E -->|Yes| Z",
+      "raw_output": "flowchart TD\n    A[Start] --> B[Connect to database]\n    B --> C{Is backup successful?}\n    C -- Yes --> D[Perform verification]\n    D --> E{Verification passed?}\n    C -- No --> E{Verification passed?}\n    E -- Yes --> F[End]\n    E -- No --> G[End]",
+      "code": "flowchart TD\n    A[Start] --> B[Connect to database]\n    B --> C{Is backup successful?}\n    C -- Yes --> D[Perform verification]\n    D --> E{Verification passed?}\n    C -- No --> E{Verification passed?}\n    E -- Yes --> F[End]\n    E -- No --> G[End]",
+      "finish_reason": "stop",
+      "completion_tokens": 75,
+      "latency_s": 1.62,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8571428571428571,
+          "recall": 1.0,
+          "f1": 0.923076923076923
+        },
+        "edge": {
+          "precision": 0.8571428571428571,
+          "recall": 1.0,
+          "f1": 0.923076923076923
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0018",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "The process starts with identify user request. Then check: is it a query? If yes, create search query, search database, fetch and process results, classify response type, generate email response, schedule email delivery and complete task. Then ask: is there a follow-up? If yes, set up follow-up, record follow-up details, then a step called End, and after it the process ends.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Identify user request]\n B --> C{Is it a query?}\n C -->|Yes| D[Create search query]\n D --> E[Search database]\n E --> F[Fetch and process results]\n F --> G[Classify response type]\n G --> H[Generate email response]\n H --> I[Schedule email delivery]\n I --> J[Complete task]\n J --> K{Is there a follow-up?}\n K -->|Yes| L[Set up follow-up]\n L --> M[Record follow-up details]\n M --> N[End]\n N --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Identify user request] --> B{Is it a query?}\n    B -- Yes --> C[Create search query]\n    C --> D[Search database]\n    D --> E[Fetch and process results]\n    E --> F[Classify response type]\n    F --> G[Generate email response]\n    G --> H[Schedule email delivery]\n    H --> I[Complete task]\n    I --> J{Is there a follow-up?}\n    J -- Yes --> K[Set up follow-up]\n    K --> L[Record follow-up details]\n    L --> M[End]",
+      "code": "flowchart TD\n    A[Identify user request] --> B{Is it a query?}\n    B -- Yes --> C[Create search query]\n    C --> D[Search database]\n    D --> E[Fetch and process results]\n    E --> F[Classify response type]\n    F --> G[Generate email response]\n    G --> H[Schedule email delivery]\n    H --> I[Complete task]\n    I --> J{Is there a follow-up?}\n    J -- Yes --> K[Set up follow-up]\n    K --> L[Record follow-up details]\n    L --> M[End]",
+      "finish_reason": "stop",
+      "completion_tokens": 128,
+      "latency_s": 2.7,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8666666666666667,
+          "f1": 0.9285714285714286
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.8571428571428571,
+          "f1": 0.923076923076923
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0019",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "It starts when customer purchases. If yes, check: digital product available? If yes, download starts, then download complete, and the process ends. If no, contact support, then payment processing error, then a second contact support step, and the process ends.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Customer purchases]\nB -->|Yes| C{Digital product available?}\nC -->|Yes| D[Download starts]\nD --> E[Download complete]\nE --> Z([End])\nC -->|No| F[Contact support]\nF --> G[Payment processing error]\nG --> H[Contact support]\nH --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Customer purchases] --> B{Digital product available?}\n    B -- Yes --> C[Download starts]\n    C --> D[Download complete]\n    D --> E[End]\n    B -- No --> F[Contact support]\n    F --> G[Payment processing error]\n    G --> H[Second contact support]\n    H --> I[End]",
+      "code": "flowchart TD\n    A[Customer purchases] --> B{Digital product available?}\n    B -- Yes --> C[Download starts]\n    C --> D[Download complete]\n    D --> E[End]\n    B -- No --> F[Contact support]\n    F --> G[Payment processing error]\n    G --> H[Second contact support]\n    H --> I[End]",
+      "finish_reason": "stop",
+      "completion_tokens": 79,
+      "latency_s": 1.68,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.7777777777777778,
+          "recall": 0.7777777777777778,
+          "f1": 0.7777777777777778
+        },
+        "edge": {
+          "precision": 0.75,
+          "recall": 0.6666666666666666,
+          "f1": 0.7058823529411765
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0020",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Start with collect user credentials. Then check: is user authenticated? If yes, verify transaction amount and ask: is transaction within limits? If yes, check fraud history and ask: is transaction flagged for review? If yes, reject transaction. If no, accept transaction. Both end the process.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Collect user credentials]\n B --> C{Is user authenticated?}\n C -->|Yes| D[Verify transaction amount]\n D --> E{Is transaction within limits?}\n E -->|Yes| F[Check fraud history]\n F --> G{Is transaction flagged for review?}\n G -->|Yes| H[Reject transaction]\n G -->|No| I[Accept transaction]\n H --> Z([End])\n I --> Z([End])",
+      "raw_output": "flowchart TD\n    A[Collect user credentials] --> B{Is user authenticated?}\n    B -- Yes --> C[Verify transaction amount]\n    C --> D{Is transaction within limits?}\n    D -- Yes --> E[Check fraud history]\n    E --> F{Is transaction flagged for review?}\n    F -- Yes --> G[Reject transaction]\n    F -- No --> H[Accept transaction]\n    B -- No --> I[Reject transaction]\n    G --> J[End]\n    H --> J\n    I --> J",
+      "code": "flowchart TD\n    A[Collect user credentials] --> B{Is user authenticated?}\n    B -- Yes --> C[Verify transaction amount]\n    C --> D{Is transaction within limits?}\n    D -- Yes --> E[Check fraud history]\n    E --> F{Is transaction flagged for review?}\n    F -- Yes --> G[Reject transaction]\n    F -- No --> H[Accept transaction]\n    B -- No --> I[Reject transaction]\n    G --> J[End]\n    H --> J\n    I --> J",
+      "finish_reason": "stop",
+      "completion_tokens": 111,
+      "latency_s": 2.33,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.9,
+          "recall": 0.9,
+          "f1": 0.9
+        },
+        "edge": {
+          "precision": 0.8181818181818182,
+          "recall": 0.9,
+          "f1": 0.8571428571428572
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0021",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description": "After the start, send email with reset link. Then check: is user verified? If yes, mark user as verified. Then ask: did user click on link? If yes, reset password, log out user and end. If no, go back to the start.",
+      "expected_mermaid": "flowchart TD\nA([Start])\nB[Send email with reset link]\nC{Is user verified?}\nD[Mark user as verified]\nE{Did user click on link?}\nF[Reset password]\nG[Log out user]\nZ([End])\n\n A --> B\n B --> C\n C -->|Yes| D\n D --> E\n E -->|Yes| F\n E -->|No| A\n F --> G\n G --> Z",
+      "raw_output": "flowchart TD\n    A[Start] --> B[Send email with reset link]\n    B --> C{Is user verified?}\n    C -- Yes --> D[Mark user as verified]\n    C -- No --> A\n    D --> E{Did user click on link?}\n    E -- Yes --> F[Reset password]\n    F --> G[Log out user]\n    G --> H[End]\n    E -- No --> B",
+      "code": "flowchart TD\n    A[Start] --> B[Send email with reset link]\n    B --> C{Is user verified?}\n    C -- Yes --> D[Mark user as verified]\n    C -- No --> A\n    D --> E{Did user click on link?}\n    E -- Yes --> F[Reset password]\n    F --> G[Log out user]\n    G --> H[End]\n    E -- No --> B",
+      "finish_reason": "stop",
+      "completion_tokens": 92,
+      "latency_s": 1.91,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "edge": {
+          "precision": 0.7777777777777778,
+          "recall": 0.875,
+          "f1": 0.823529411764706
+        }
+      }
+    },
+    {
+      "id": "pilot-flow-0022",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description": "Begin with collect data. Then check: is data clean? If yes, transform data and ask: is data ready for loading? If yes, load data into warehouse and ask: did the load succeed? If yes, the process ends. If no, fail and retry, which goes back to the question is data clean.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Collect data]\n B --> C{Is data clean?}\n C -->|Yes| D[Transform data]\n D --> E{Is data ready for loading?}\n E -->|Yes| F[Load data into warehouse]\n F --> G{Did the load succeed?}\n G -->|Yes| Z([End])\n G -->|No| H[Fail and retry]\n H --> C",
+      "raw_output": "flowchart TD\n    A[Collect data] --> B{Is data clean?}\n    B -- Yes --> C[Transform data]\n    C --> D{Is data ready for loading?}\n    D -- Yes --> E[Load data into warehouse]\n    E --> F{Did the load succeed?}\n    F -- Yes --> G[End]\n    F -- No --> H[Fail and retry]\n    H --> B\n    B -- No --> H",
+      "code": "flowchart TD\n    A[Collect data] --> B{Is data clean?}\n    B -- Yes --> C[Transform data]\n    C --> D{Is data ready for loading?}\n    D -- Yes --> E[Load data into warehouse]\n    E --> F{Did the load succeed?}\n    F -- Yes --> G[End]\n    F -- No --> H[Fail and retry]\n    H --> B\n    B -- No --> H",
+      "finish_reason": "stop",
+      "completion_tokens": 95,
+      "latency_s": 2.0,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8888888888888888,
+          "f1": 0.9411764705882353
+        },
+        "edge": {
+          "precision": 0.8888888888888888,
+          "recall": 0.8888888888888888,
+          "f1": 0.8888888888888888
+        }
+      }
+    }
+  ]
+}
