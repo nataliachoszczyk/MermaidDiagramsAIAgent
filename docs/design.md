@@ -22,12 +22,33 @@ proposed default. When a decision is made, update this file and the decision log
 | train | 1,000–3,000 | local synthesis (§3) | training |
 | val | 100–200 | held-out part of synthesis | checkpoint and hyperparameter selection, few-shot examples |
 | golden | ~150 | public datasets + hand-written, all human-verified (§2.3) | final before/after numbers only |
-| pilot | 22 | RonnieAllen `test` split, English, unverified (`uv run build-pilot`) | smoke test of the evaluation pipeline only; numbers are not reported (see below) |
+| pilot | 22 | RonnieAllen `test` split, unverified (`data/pilot/`, three files, see below) | checking the evaluation pipeline and metrics; numbers are not reported |
 
-The pilot descriptions are the original one-line prompts ("Create a flowchart for: password reset via email
-link"). The model has to guess the steps and their names, so `node_f1` / `edge_f1` on the pilot measure guessing,
-not description → diagram conversion. Only `mermaid_only`, `render_rate` and `type_acc` are meaningful on it.
-Fix: see the status in §2.3.
+Pilot files (all with the same 22 diagrams; details in `data/README.md`):
+
+- `pilot_en.jsonl` (`uv run build-pilot`): descriptions are the original one-line prompts ("Create a flowchart
+  for: password reset via email link"). The model has to guess the steps and their names, so `node_f1` /
+  `edge_f1` measure guessing; only `mermaid_only`, `render_rate` and `type_acc` are meaningful.
+- `pilot_en_described.jsonl`: English step-by-step descriptions that keep the label wording.
+- `pilot_pl.jsonl`: labels translated to Polish (structure unchanged, every diagram renders), Polish descriptions
+  in own words, closer to the target task. The main pilot until the golden set exists.
+
+The descriptions of the last two were written by Claude, not by a local model, and are committed as the source
+of truth (the script is not in the repository). Allowed because the pilot is never used for training.
+
+Base model results (2026-11-13, zero-shot, embedding matching, τ = 0.7):
+
+| File | render_rate | mermaid_only | node_f1 | edge_f1 | shape_acc |
+|---|---|---|---|---|---|
+| `pilot_en.jsonl` (exact matching, 2026-11-11) | 0.82 | 0.00 | 0.03 | 0.00 | – |
+| `pilot_en_described.jsonl` | 1.00 | 1.00 | 0.91 | 0.85 | 0.84 |
+| `pilot_pl.jsonl` | 1.00 | 1.00 | 0.87 | 0.75 | 0.73 |
+
+The pilot descriptions are short, ordered like the diagram and state every branch explicitly, so these numbers
+are an upper bound for the target task. Errors seen in the Polish run: sentences copied into labels
+(`Najpierw klonujemy repozytorium`), decisions drawn as rectangles, no `Start` node, several end nodes.
+**[OPEN]** how much harder the golden descriptions must be (chaotic, casual, longer) for fine-tuning to show a
+clear effect; next step: a chaotic-description variant of `pilot_pl.jsonl`.
 
 The golden set never feeds training, validation or few-shot prompts. Train/val are deduplicated against it
 (embedding cosine similarity of descriptions ≥ 0.9 → drop). **[OPEN]** threshold.
@@ -59,16 +80,15 @@ Out-of-scope examples use `diagram_type: "none"` and `expected_mermaid: "BRAK_PR
 | sequenceDiagram | `ibm-research/MermaidSeqBench` (Apache-2.0) | ~30 | one variant per scenario (the set is ~30 scenarios augmented ~4×); translate; human check |
 | handwritten | team | 20–30 | written "in user words", includes ~5 out-of-scope texts |
 
-**Status: not built yet — open task.** Needs a script that generates the step-by-step Polish descriptions and
-translated labels with a local model, an `mmdc` check of every diagram, and a human pass over every record.
-Until then the evaluation pipeline runs on the English pilot (§2.1).
+**Status: not built yet — open task.** Needs Polish descriptions and translated labels, an `mmdc` check of
+every diagram, and a human pass over every record. Until then the evaluation pipeline runs on the pilot (§2.1).
 
 Description generator: `uv run describe` (`data/describe.py`, prompt `prompts/describe.txt`), output language
 as a parameter, temperature 0. For each record it prints the share of node labels found verbatim in the
-description, as a hint for which descriptions to read first. Plan: run it in English on the pilot first,
-replacing its one-line prompts, so that F1 on the pilot becomes meaningful; then use it for the Polish golden
-descriptions. Label translation for golden is not implemented yet. **[OPEN]** generator model (default
-`qwen3:30b-a3b` without thinking).
+description, as a hint for which descriptions to read first. Results are written after every record. Tried on
+3 pilot records only (`qwen3:30b-a3b`, `--no-think`): descriptions were faithful but paraphrased most labels;
+the pilot descriptions were then written by Claude instead (§2.1). Not implemented yet: label translation and a
+description style parameter (§3 step 4). **[OPEN]** generator model (default `qwen3:30b-a3b` without thinking).
 
 Difficulty (flowchart, as implemented in `data/pilot.py`): `easy` ≤ 6 nodes and no decision; `medium`
 ≤ 12 nodes and ≤ 2 decisions; `hard` otherwise. **[OPEN]** thresholds; whether loops, parallel paths and
@@ -177,6 +197,23 @@ scores) and aggregated metrics. Few-shot is not implemented until `val` exists.
 - E2: fine-tuned model; data size 500 / 1,000 / 3,000; data source ablations.
 - E3: self-repair loop — on render failure the model gets the `mmdc` error and retries (max 3); compare with E2.
 
+Ideas, not decided (**[OPEN]**):
+
+- **Description difficulty.** The pilot descriptions follow the diagram step by step, so the base model mostly
+  copies sentences into nodes (§2.1). Measure how much the base model drops on the same 22 diagrams with
+  descriptions written the way people talk:
+  - steps told out of order ("a, zanim to zrobimy, trzeba jeszcze…");
+  - decisions hidden inside a sentence ("chyba że gałąź jest chroniona, wtedy czekamy na akceptację");
+  - several steps in one sentence, pronouns instead of names ("potem to wysyłamy");
+  - digressions that are not steps ("u nas to zwykle trwa dzień");
+  - no "start" / "koniec", casual style, typos, bullet lists, long rambling text.
+  If the drop is large, the golden set and the §3 style parameter use these styles; the `describe` prompt gets a
+  style parameter.
+- **Smaller base model.** If the 4B model stays high on harder descriptions, compare a ~1–2B model as a second
+  base, so fine-tuning has more room to show an effect. Candidates to check for license, a non-thinking instruct
+  variant in Ollama and HF weights for MLX/PEFT: Qwen3 1.7B / 0.6B, Gemma 3 1B. Keep the 4B model as the main
+  one unless the course allows changing it.
+
 ## 7. Decision log
 
 | Date | Decision | Reason |
@@ -190,3 +227,4 @@ scores) and aggregated metrics. Few-shot is not implemented until `val` exists.
 | 2026-11-13 | Node matching with embeddings is the default in `evaluate` | On the Polish pilot exact matching gave node F1 0.10 for structurally correct diagrams: Polish inflection changes almost every label |
 | 2026-11-13 | τ = 0.7 for embedding matching (preliminary) | At 0.8 about 45 correct Polish pairs were rejected; wrong pairs start at 0.677 |
 | 2026-11-13 | Added `shape_acc` | Embedding matching forgives a decision drawn as a rectangle, a frequent base-model error that F1 does not see |
+| 2026-11-13 | Pilot descriptions written by Claude; Polish pilot `pilot_pl.jsonl` added | Test the metrics on meaningful descriptions now; allowed because the pilot is never used for training; the local generator was tried on 3 records only |

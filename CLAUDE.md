@@ -9,9 +9,12 @@ changing data, evaluation or training code, and update it when a decision change
 
 ## Repository layout
 Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist yet.
+- `data/README.md` – sources, licenses, attribution and how each data file was made
 - `data/raw/` – public source datasets, downloaded at pinned revisions (gitignored)
-- `data/pilot/` – English smoke-test set from the RonnieAllen `test` split. Descriptions are one-line prompts, so
-  node/edge F1 on it is meaningless (only `mermaid_only`, `render_rate`, `type_acc` are); not for reported numbers
+- `data/pilot/` – 22 diagrams from the RonnieAllen `test` split for checking the pipeline; not for reported numbers:
+  - `pilot_en.jsonl` – one-line prompts as descriptions, so node/edge F1 on it is meaningless
+  - `pilot_en_described.jsonl` – English step-by-step descriptions
+  - `pilot_pl.jsonl` – Polish labels and descriptions; the main pilot until the golden set exists
 - `data/golden/` – test set, JSONL in the `docs/design.md` §2.2 format *(planned)*
 - `data/synthetic/` – generated training and validation data *(planned)*
 - `prompts/system.txt` – system prompt shared by every model and stage
@@ -61,8 +64,8 @@ Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist ye
 - Inference goes through the OpenAI-compatible API (Ollama locally, `base_url` from `.env`), never a vendor-specific SDK in core code.
 - Training backend is selectable in config: MLX (`mlx-lm`) on Apple Silicon, PEFT/Unsloth on NVIDIA GPUs (e.g. Colab).
   Shared code (data loading, formatting, evaluation) must not depend on either backend.
-- Code, comments and docs in English; data content (descriptions, diagram labels) in Polish. The only exception
-  is the English pilot in `data/pilot/`.
+- Code, comments and docs in English; data content (descriptions, diagram labels) in Polish. The only exceptions
+  are the English pilot files in `data/pilot/`.
 
 ## Mermaid conventions
 - Model output must be bare Mermaid code. If it arrives wrapped in ```mermaid fences, strip them and record it
