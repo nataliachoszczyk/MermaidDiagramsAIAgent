@@ -164,8 +164,8 @@ Every generated record keeps the generator model name and the generation paramet
 | `mermaid_only` | share of outputs with `fenced = false` and `extra_text = false` |
 | `type_acc` | predicted diagram type equals reference type |
 | `node_f1` | P = matched / predicted nodes, R = matched / reference nodes, F1 = 2PR / (P + R) |
-| `edge_f1` | a predicted edge counts if (match(src), match(dst)) is a reference edge; P, R, F1 as above; edge labels ignored |
-| `shape_acc` | share of matched nodes whose shape equals the reference shape (e.g. decision drawn as a rhombus); examples with no matched node are left out of the average |
+| `edge_f1` | flowchart: a predicted edge counts if (match(src), match(dst)) is a reference edge; P, R, F1 as above; edge labels ignored. sequenceDiagram: see below |
+| `shape_acc` | flowcharts only: share of matched nodes whose shape equals the reference shape (e.g. decision drawn as a rhombus); examples with no matched node are left out of the average |
 | `refusal_acc` | out-of-scope examples only: output equals the refusal string (surrounding whitespace ignored; fences or any other text make it wrong) |
 | `judge_score` | optional: LLM judge, rubric 1–5 for logic, completeness, extra elements |
 
@@ -176,9 +176,18 @@ Every generated record keeps the generator model name and the generation paramet
 - Out-of-scope examples (reference = refusal string) are not rendered or parsed and count only in `refusal_acc`;
   all other metrics are averaged over the examples with a diagram reference. A refusal given for a process
   description is a normal failure: it does not render, so `node_f1 = edge_f1 = 0`.
-- **[OPEN]** sequence diagrams: whether message order and `alt`/`loop` blocks count in v1 (default: no).
-- **Status:** implemented for flowcharts: `render_rate`, `mermaid_only`, `type_acc`, `node_f1`, `edge_f1`, `shape_acc`;
-  `refusal_acc`; grouping per `description_style`. Not yet: scoring sequence diagrams, `judge_score`.
+- Sequence diagrams: `node_f1` is computed on participants, matched by label as in §4.2 step 4. For `edge_f1`
+  a predicted message counts if its sender and receiver are matched participants and its text matches the text
+  of a reference message between the same two participants in the same direction (exact after normalization,
+  then embeddings with the same τ, one-to-one). Every message counts once, so P = matched / predicted messages
+  and R = matched / reference messages. The text is part of the match because (sender, receiver) pairs alone
+  barely tell diagrams apart: with 3–4 participants almost every diagram has the same pairs. The arrow type is
+  not scored. Message pairs are saved with their similarity in `score.message_pairs`.
+- **[OPEN]** sequence diagrams: whether message order and `alt`/`loop` blocks count in v1 (default: no, and
+  not implemented).
+- **Status:** implemented: `render_rate`, `mermaid_only`, `type_acc`, `node_f1`, `edge_f1` for flowcharts and
+  sequence diagrams, `shape_acc`, `refusal_acc`; grouping per `description_style`. Not yet: `judge_score`.
+  Sequence scoring is tested with unit tests only; τ = 0.7 was never checked on message texts (no model run yet).
 
 ### 4.4 Run record
 
@@ -220,3 +229,4 @@ scores) and aggregated metrics. Few-shot is not implemented until `val` exists.
 | 2026-11-13 | Added `shape_acc` | Embedding matching forgives a decision drawn as a rectangle, a frequent base-model error that F1 does not see |
 | 2026-11-13 | Three description styles in golden (`structured`, `natural`, `brief`), stored in `description_style`, results reported per style | The base model already scores high on step-by-step descriptions (PL pilot node F1 0.87); the harder styles are closer to real use and are where fine-tuning can show a gain |
 | 2026-11-13 | System prompt stays unchanged | Team decision; the prompt is shared by all stages, so it is fixed before the first golden run |
+| 2026-11-13 | Sequence diagrams: participants are nodes, messages are edges; a message matches by sender, receiver and text | (sender, receiver) pairs alone are nearly the same for any diagram with 3–4 participants; order and blocks stay unscored in v1 |
