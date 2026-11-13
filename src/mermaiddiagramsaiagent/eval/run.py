@@ -8,7 +8,6 @@ Inference goes through the OpenAI-compatible API; the server is configured in .e
 import argparse
 import hashlib
 import json
-import os
 import re
 import subprocess
 import tempfile
@@ -20,19 +19,20 @@ from pathlib import Path
 from statistics import mean
 from typing import Any
 
-from dotenv import load_dotenv
 from openai import OpenAI
 
 from mermaiddiagramsaiagent.data.jsonl import read_jsonl
-from mermaiddiagramsaiagent.eval.metrics import score_example
+from mermaiddiagramsaiagent.eval.metrics import DEFAULT_THRESHOLD, Embedder, score_example
 from mermaiddiagramsaiagent.eval.output import normalize_output
 from mermaiddiagramsaiagent.eval.render import check_mmdc_works, mmdc_version, render
+from mermaiddiagramsaiagent.llm import check_model_available, make_client
 
 SYSTEM_PROMPT_PATH = Path("prompts/system.txt")
 RESULTS_DIR = Path("results")
 TEMPERATURE = 0.0
 SEED = 0
 DEFAULT_MAX_TOKENS = 1024
+DEFAULT_EMBEDDING_MODEL = "bge-m3:latest"
 
 
 def parse_args() -> argparse.Namespace:
@@ -41,6 +41,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--data", type=Path, required=True, help="evaluation JSONL")
     parser.add_argument("--setting", default="zero-shot", choices=["zero-shot"], help="few-shot needs a val split")
     parser.add_argument("--max-tokens", type=int, default=DEFAULT_MAX_TOKENS)
+    parser.add_argument("--matching", default="embedding", choices=["embedding", "exact"], help="node matching")
+    parser.add_argument("--embedding-model", default=DEFAULT_EMBEDDING_MODEL, help="used with --matching embedding")
+    parser.add_argument("--threshold", type=float, default=DEFAULT_THRESHOLD, help="min cosine similarity for a match")
     parser.add_argument("--limit", type=int, help="only the first N examples (for quick checks)")
     return parser.parse_args()
 
@@ -49,6 +52,10 @@ def main() -> None:
     args = parse_args()
     client = make_client()
     check_model_available(client, args.model)
+    embed = None
+    if args.matching == "embedding":
+        check_model_available(client, args.embedding_model)
+        embed = make_embedder(client, args.embedding_model)
     check_mmdc_works()
     system_prompt = SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
     records = read_jsonl(args.data)[: args.limit]
@@ -56,7 +63,9 @@ def main() -> None:
     examples = []
     with tempfile.TemporaryDirectory() as tmp:
         for i, record in enumerate(records, start=1):
-            example = evaluate_record(client, args.model, system_prompt, args.max_tokens, record, Path(tmp))
+            example = evaluate_record(
+                client, args.model, system_prompt, args.max_tokens, record, Path(tmp), embed, args.threshold
+            )
             examples.append(example)
             print_progress(i, len(records), example)
 
@@ -70,21 +79,29 @@ def main() -> None:
     print(f"\nSaved to {path}")
 
 
-def make_client() -> OpenAI:
-    load_dotenv()
-    if not os.environ.get("OPENAI_BASE_URL"):
-        raise SystemExit("OPENAI_BASE_URL is not set; copy .env.example to .env")
-    return OpenAI()
+def make_embedder(client: OpenAI, model: str) -> Embedder:
+    """Texts -> vectors through the embeddings endpoint; each distinct text is embedded once per run."""
+    cache: dict[str, list[float]] = {}
 
+    def embed(texts: list[str]) -> list[list[float]]:
+        missing = [text for text in dict.fromkeys(texts) if text not in cache]
+        if missing:
+            response = client.embeddings.create(model=model, input=missing, encoding_format="float")
+            cache.update(zip(missing, (item.embedding for item in response.data)))
+        return [cache[text] for text in texts]
 
-def check_model_available(client: OpenAI, model: str) -> None:
-    available = {m.id for m in client.models.list()}
-    if model not in available:
-        raise SystemExit(f"model {model!r} not available on the server; for Ollama run: ollama pull {model}")
+    return embed
 
 
 def evaluate_record(
-    client: OpenAI, model: str, system_prompt: str, max_tokens: int, record: dict[str, Any], work_dir: Path
+    client: OpenAI,
+    model: str,
+    system_prompt: str,
+    max_tokens: int,
+    record: dict[str, Any],
+    work_dir: Path,
+    embed: Embedder | None,
+    threshold: float,
 ) -> dict[str, Any]:
     started = time.perf_counter()
     response = client.chat.completions.create(
@@ -102,7 +119,7 @@ def evaluate_record(
     raw_output = choice.message.content or ""
     output = normalize_output(raw_output)
     rendered = render(output.code, work_dir, record["id"])
-    score = score_example(output, rendered.ok, record["expected_mermaid"])
+    score = score_example(output, rendered.ok, record["expected_mermaid"], embed, threshold)
     return {
         "id": record["id"],
         "diagram_type": record["diagram_type"],
@@ -133,6 +150,7 @@ def summarize(examples: list[dict[str, Any]]) -> dict[str, Any]:
 def aggregate(examples: list[dict[str, Any]]) -> dict[str, Any]:
     scores = [example["score"] for example in examples]
     rendering = [s for s in scores if s["renders"]]
+    shapes = [s["shape_acc"] for s in scores if s["shape_acc"] is not None]
     return {
         "n": len(scores),
         "mermaid_only": mean(s["mermaid_only"] for s in scores),
@@ -140,6 +158,7 @@ def aggregate(examples: list[dict[str, Any]]) -> dict[str, Any]:
         "type_acc": mean(s["type_ok"] for s in scores),
         "node_f1": mean(s["node"]["f1"] for s in scores),
         "edge_f1": mean(s["edge"]["f1"] for s in scores),
+        "shape_acc": mean(shapes) if shapes else None,
         "node_f1_rendering_only": mean(s["node"]["f1"] for s in rendering) if rendering else None,
         "edge_f1_rendering_only": mean(s["edge"]["f1"] for s in rendering) if rendering else None,
         "truncated": sum(example["finish_reason"] == "length" for example in examples),
@@ -147,6 +166,7 @@ def aggregate(examples: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def run_config(args: argparse.Namespace, client: OpenAI, system_prompt: str) -> dict[str, Any]:
+    embedding = args.matching == "embedding"
     return {
         "date": datetime.now().isoformat(timespec="seconds"),
         "model": args.model,
@@ -161,7 +181,10 @@ def run_config(args: argparse.Namespace, client: OpenAI, system_prompt: str) -> 
         "system_prompt_sha256": sha256(system_prompt.encode("utf-8")),
         "data": args.data.as_posix(),
         "data_sha256": sha256(args.data.read_bytes()),
-        "metrics": "exact label matching after normalization (no embeddings yet)",
+        "matching": args.matching,
+        "embedding_model": args.embedding_model if embedding else None,
+        "embedding_model_digest": ollama_digest(str(client.base_url), args.embedding_model) if embedding else None,
+        "threshold": args.threshold if embedding else None,
         "mmdc": mmdc_version(),
         "git_commit": git_commit(),
     }
@@ -194,7 +217,7 @@ def sha256(data: bytes) -> str:
 def save_result(result: dict[str, Any], args: argparse.Namespace) -> Path:
     stamp = datetime.now().strftime("%Y-%m-%d_%H%M")
     model = re.sub(r"[^\w.-]+", "-", args.model)
-    path = RESULTS_DIR / f"{stamp}_{model}_{args.setting}_{args.data.stem}.json"
+    path = RESULTS_DIR / f"{stamp}_{model}_{args.setting}_{args.data.stem}_{args.matching}.json"
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     return path
@@ -218,11 +241,16 @@ def print_summary(summary: dict[str, Any]) -> None:
 
 
 def format_row(name: str, values: dict[str, Any] | None) -> str:
-    columns = ("n", "mermaid_only", "render_rate", "type_acc", "node_f1", "edge_f1")
+    columns = ("n", "mermaid_only", "render_rate", "type_acc", "node_f1", "edge_f1", "shape_acc")
     if values is None:
         return f"{name:<14}" + "".join(f"{c:>14}" for c in columns)
-    cells = [f"{values[c]:>14}" if c == "n" else f"{values[c]:>14.3f}" for c in columns]
-    return f"{name:<14}" + "".join(cells)
+    return f"{name:<14}" + "".join(format_cell(column, values[column]) for column in columns)
+
+
+def format_cell(column: str, value: float | None) -> str:
+    if value is None:
+        return f"{'-':>14}"
+    return f"{value:>14}" if column == "n" else f"{value:>14.3f}"
 
 
 if __name__ == "__main__":

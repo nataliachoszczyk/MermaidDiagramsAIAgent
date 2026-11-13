@@ -63,9 +63,12 @@ Out-of-scope examples use `diagram_type: "none"` and `expected_mermaid: "BRAK_PR
 translated labels with a local model, an `mmdc` check of every diagram, and a human pass over every record.
 Until then the evaluation pipeline runs on the English pilot (§2.1).
 
-Plan: write the description generator with the output language as a parameter. First run it in English on the
-pilot, replacing its one-line prompts, so that F1 on the pilot becomes meaningful; then use the same script for
-the Polish golden descriptions.
+Description generator: `uv run describe` (`data/describe.py`, prompt `prompts/describe.txt`), output language
+as a parameter, temperature 0. For each record it prints the share of node labels found verbatim in the
+description, as a hint for which descriptions to read first. Plan: run it in English on the pilot first,
+replacing its one-line prompts, so that F1 on the pilot becomes meaningful; then use it for the Polish golden
+descriptions. Label translation for golden is not implemented yet. **[OPEN]** generator model (default
+`qwen3:30b-a3b` without thinking).
 
 Difficulty (flowchart, as implemented in `data/pilot.py`): `easy` ≤ 6 nodes and no decision; `medium`
 ≤ 12 nodes and ≤ 2 decisions; `hard` otherwise. **[OPEN]** thresholds; whether loops, parallel paths and
@@ -115,9 +118,18 @@ Every generated record keeps the generator model name and the generation paramet
 4. **Match nodes** between prediction and reference:
    - exact match after normalization (lowercase, strip punctuation and whitespace) first;
    - remaining labels: embedding cosine similarity matrix (bge-m3), one-to-one assignment with the Hungarian
-     algorithm (`scipy.optimize.linear_sum_assignment`), keep pairs with similarity ≥ τ. **[OPEN]** τ = 0.8,
-     calibrated on ~20 manually judged examples in E1.
-   - **Status:** only exact matching is implemented.
+     algorithm (`scipy.optimize.linear_sum_assignment`), keep pairs with similarity ≥ τ. **[OPEN]** τ = 0.7
+     (preliminary, see status); to be calibrated on ~20 manually judged examples in E1.
+   - **Status:** implemented (`--matching embedding`, the default; `--matching exact` skips the embedding step).
+     Embeddings come from the same OpenAI-compatible server (`bge-m3:latest` in Ollama). Every assigned pair is
+     saved with its similarity in the run file (`score.node_pairs`), also below τ, so τ can be calibrated
+     without rerunning the model.
+   - **τ = 0.7, preliminary** (2026-11-13, base model on the two pilots, pairs read by hand). Polish: all pairs
+     ≥ 0.8 were correct, about 45 correct pairs fell in 0.70–0.80 (`Zapisujemy miniatury` / `Zapisz miniatury`
+     0.797, `Kończymy` / `Koniec` 0.751), wrong pairs started at 0.677 (`End` / `Start`); two correct pairs were
+     below 0.70. Node / edge F1 at τ = 0.8, 0.75, 0.7, 0.65: PL 0.64 / 0.44, 0.76 / 0.60, 0.87 / 0.75, 0.89 / 0.77;
+     EN 0.90 / 0.84, 0.91 / 0.84, 0.91 / 0.85, 0.92 / 0.85. Chosen on the same 22 records it was judged on, with
+     descriptions not written by users: repeat on the golden set.
 5. **Score.**
 
 ### 4.3 Metrics
@@ -129,6 +141,7 @@ Every generated record keeps the generator model name and the generation paramet
 | `type_acc` | predicted diagram type equals reference type |
 | `node_f1` | P = matched / predicted nodes, R = matched / reference nodes, F1 = 2PR / (P + R) |
 | `edge_f1` | a predicted edge counts if (match(src), match(dst)) is a reference edge; P, R, F1 as above; edge labels ignored |
+| `shape_acc` | share of matched nodes whose shape equals the reference shape (e.g. decision drawn as a rhombus); examples with no matched node are left out of the average |
 | `refusal_acc` | out-of-scope examples only: output equals the refusal string |
 | `judge_score` | optional: LLM judge, rubric 1–5 for logic, completeness, extra elements |
 
@@ -136,15 +149,15 @@ Every generated record keeps the generator model name and the generation paramet
   rendering outputs only.
 - Aggregation: macro average over examples, reported overall and per `diagram_type` and `difficulty`.
 - **[OPEN]** sequence diagrams: whether message order and `alt`/`loop` blocks count in v1 (default: no).
-- **Status:** implemented for flowcharts: `render_rate`, `mermaid_only`, `type_acc`, `node_f1`, `edge_f1`.
+- **Status:** implemented for flowcharts: `render_rate`, `mermaid_only`, `type_acc`, `node_f1`, `edge_f1`, `shape_acc`.
   Not yet: scoring sequence diagrams, `refusal_acc`, `judge_score`.
 
 ### 4.4 Run record
 
 Each run (`uv run evaluate --model <name> --data <jsonl>`) writes
-`results/<date>_<time>_<model>_<setting>_<data>.json` with: model name and Ollama digest, setting
+`results/<date>_<time>_<model>_<setting>_<data>_<matching>.json` with: model name and Ollama digest, setting
 (zero-shot / few-shot / fine-tuned checkpoint), system prompt text and hash, temperature, seed, max tokens,
-data file hash, matching method / τ, mmdc version, git commit, per-example results (raw output, render error,
+data file hash, matching method, embedding model and digest, τ, mmdc version, git commit, per-example results (raw output, render error,
 scores) and aggregated metrics. Few-shot is not implemented until `val` exists.
 
 ## 5. Training
@@ -174,3 +187,6 @@ scores) and aggregated metrics. Few-shot is not implemented until `val` exists.
 | 2026-11-11 | Base model Qwen3-4B-Instruct-2507, q8_0 in Ollama | Apache-2.0; instruct (non-thinking) variant outputs code directly — plain `qwen3:4b` in Ollama is the thinking variant; same weights on HF for MLX/PEFT; q8_0 is close to the weights we fine-tune, and the fine-tuned model is exported with the same quantization |
 | 2026-11-11 | English pilot from RonnieAllen `test` before the Polish golden set | Run the pipeline end to end now; Polish descriptions are an open task |
 | 2026-11-11 | Own Python parser for flowchart / sequenceDiagram instead of Mermaid's JS parser | Small subset, no Node dependency in eval, easy to test; existing Python wrappers (`mermaid-parser-py`) are immature and rely on a deprecated Mermaid API |
+| 2026-11-13 | Node matching with embeddings is the default in `evaluate` | On the Polish pilot exact matching gave node F1 0.10 for structurally correct diagrams: Polish inflection changes almost every label |
+| 2026-11-13 | τ = 0.7 for embedding matching (preliminary) | At 0.8 about 45 correct Polish pairs were rejected; wrong pairs start at 0.677 |
+| 2026-11-13 | Added `shape_acc` | Embedding matching forgives a decision drawn as a rectangle, a frequent base-model error that F1 does not see |
