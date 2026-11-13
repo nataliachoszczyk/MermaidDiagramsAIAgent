@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 
 
 class ParseError(ValueError):
-    """The code is not a flowchart (empty, or missing / wrong header)."""
+    """The code is not a diagram of the expected type (empty, or missing / wrong header)."""
 
 
 @dataclass(frozen=True)

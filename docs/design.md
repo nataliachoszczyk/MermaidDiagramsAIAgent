@@ -134,7 +134,11 @@ Every generated record keeps the generator model name and the generation paramet
      reported as warnings instead of failing the parse; parsing fails only when the header is missing or wrong.
      Validity is still decided by `mmdc` (step 2).
    - **Status:** flowchart parser implemented; checked once against what Mermaid itself draws, on the
-     flowchart examples from the Mermaid docs. sequenceDiagram parser not implemented yet.
+     flowchart examples from the Mermaid docs. sequenceDiagram parser implemented (`eval/sequence.py`); checked
+     once (2026-11-13, mermaid 12.3.0) against the participant labels and message texts that `mmdc` draws, on the
+     38 sequence examples from the Mermaid docs and all 132 MermaidSeqBench diagrams. A participant named only in
+     a note counts as a participant, as in Mermaid: `Note over User` after `participant U as User` adds a second
+     lifeline. Notes, activations and blocks (`alt`, `loop`, ...) are skipped; messages inside blocks are kept.
 4. **Match nodes** between prediction and reference:
    - exact match after normalization (lowercase, strip punctuation and whitespace) first;
    - remaining labels: embedding cosine similarity matrix (bge-m3), one-to-one assignment with the Hungarian
