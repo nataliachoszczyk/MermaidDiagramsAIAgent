@@ -44,12 +44,32 @@ The golden set never feeds training, validation or few-shot prompts. Train/val a
   "diagram_type": "flowchart | sequenceDiagram | none",
   "difficulty": "easy | medium | hard",
   "description": "Polish description",
+  "description_style": "structured | natural | brief | null",
   "expected_mermaid": "flowchart TD\n    A[...] --> B[...]",
   "notes": "free text, e.g. what was fixed during verification"
 }
 ```
 
-Out-of-scope examples use `diagram_type: "none"` and `expected_mermaid: "BRAK_PROCESU"`.
+Out-of-scope examples use `diagram_type: "none"`, `expected_mermaid: "BRAK_PROCESU"` and
+`description_style: null`.
+
+### 2.2.1 Description styles (golden)
+
+Every golden record with a diagram has one description, written in one of three styles. The style is stored in
+`description_style`, and the styles are spread evenly over the records (about a third each, within every
+`diagram_type`).
+
+| Style | What the description looks like |
+|---|---|
+| `structured` | Step by step, in the order of the diagram, with wording close to the labels. |
+| `natural` | The way a user would say it: casual wording, steps in another order, digressions. |
+| `brief` | Short, but every step and every branch can still be read from it. |
+
+In every style the description must contain all steps and all branches of the reference diagram. A
+description that only names the process ("draw the complaint process") is not allowed, because the model would
+have to guess the steps (the problem of the English pilot, §2.1). Hand-written records (§2.3) use `natural`.
+Records outside golden (pilot, train, val) may leave the field out; the styles of synthetic descriptions are
+defined in §3.
 
 ### 2.3 Golden set sources
 
@@ -142,15 +162,19 @@ Every generated record keeps the generator model name and the generation paramet
 | `node_f1` | P = matched / predicted nodes, R = matched / reference nodes, F1 = 2PR / (P + R) |
 | `edge_f1` | a predicted edge counts if (match(src), match(dst)) is a reference edge; P, R, F1 as above; edge labels ignored |
 | `shape_acc` | share of matched nodes whose shape equals the reference shape (e.g. decision drawn as a rhombus); examples with no matched node are left out of the average |
-| `refusal_acc` | out-of-scope examples only: output equals the refusal string |
+| `refusal_acc` | out-of-scope examples only: output equals the refusal string (surrounding whitespace ignored; fences or any other text make it wrong) |
 | `judge_score` | optional: LLM judge, rubric 1–5 for logic, completeness, extra elements |
 
 - Output that does not render or does not parse gets `node_f1 = edge_f1 = 0`. Also report F1 averaged over
   rendering outputs only.
-- Aggregation: macro average over examples, reported overall and per `diagram_type` and `difficulty`.
+- Aggregation: macro average over examples, reported overall and per `diagram_type`, `difficulty` and
+  `description_style` (§2.2.1). An example without a value for a grouping key is left out of that grouping.
+- Out-of-scope examples (reference = refusal string) are not rendered or parsed and count only in `refusal_acc`;
+  all other metrics are averaged over the examples with a diagram reference. A refusal given for a process
+  description is a normal failure: it does not render, so `node_f1 = edge_f1 = 0`.
 - **[OPEN]** sequence diagrams: whether message order and `alt`/`loop` blocks count in v1 (default: no).
-- **Status:** implemented for flowcharts: `render_rate`, `mermaid_only`, `type_acc`, `node_f1`, `edge_f1`, `shape_acc`.
-  Not yet: scoring sequence diagrams, `refusal_acc`, `judge_score`.
+- **Status:** implemented for flowcharts: `render_rate`, `mermaid_only`, `type_acc`, `node_f1`, `edge_f1`, `shape_acc`;
+  `refusal_acc`; grouping per `description_style`. Not yet: scoring sequence diagrams, `judge_score`.
 
 ### 4.4 Run record
 
@@ -190,3 +214,5 @@ scores) and aggregated metrics. Few-shot is not implemented until `val` exists.
 | 2026-11-13 | Node matching with embeddings is the default in `evaluate` | On the Polish pilot exact matching gave node F1 0.10 for structurally correct diagrams: Polish inflection changes almost every label |
 | 2026-11-13 | τ = 0.7 for embedding matching (preliminary) | At 0.8 about 45 correct Polish pairs were rejected; wrong pairs start at 0.677 |
 | 2026-11-13 | Added `shape_acc` | Embedding matching forgives a decision drawn as a rectangle, a frequent base-model error that F1 does not see |
+| 2026-11-13 | Three description styles in golden (`structured`, `natural`, `brief`), stored in `description_style`, results reported per style | The base model already scores high on step-by-step descriptions (PL pilot node F1 0.87); the harder styles are closer to real use and are where fine-tuning can show a gain |
+| 2026-11-13 | System prompt stays unchanged | Team decision; the prompt is shared by all stages, so it is fixed before the first golden run |

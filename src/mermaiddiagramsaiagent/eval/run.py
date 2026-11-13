@@ -13,6 +13,7 @@ import subprocess
 import tempfile
 import time
 import urllib.request
+from collections.abc import Iterable
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
@@ -23,8 +24,8 @@ from openai import OpenAI
 
 from mermaiddiagramsaiagent.data.jsonl import read_jsonl
 from mermaiddiagramsaiagent.eval.metrics import DEFAULT_THRESHOLD, Embedder, score_example
-from mermaiddiagramsaiagent.eval.output import normalize_output
-from mermaiddiagramsaiagent.eval.render import check_mmdc_works, mmdc_version, render
+from mermaiddiagramsaiagent.eval.output import is_refusal, normalize_output
+from mermaiddiagramsaiagent.eval.render import RenderResult, check_mmdc_works, mmdc_version, render
 from mermaiddiagramsaiagent.llm import check_model_available, make_client
 
 SYSTEM_PROMPT_PATH = Path("prompts/system.txt")
@@ -33,6 +34,7 @@ TEMPERATURE = 0.0
 SEED = 0
 DEFAULT_MAX_TOKENS = 1024
 DEFAULT_EMBEDDING_MODEL = "bge-m3:latest"
+GROUP_KEYS = ("diagram_type", "difficulty", "description_style")
 
 
 def parse_args() -> argparse.Namespace:
@@ -118,12 +120,16 @@ def evaluate_record(
     choice = response.choices[0]
     raw_output = choice.message.content or ""
     output = normalize_output(raw_output)
-    rendered = render(output.code, work_dir, record["id"])
+    if is_refusal(record["expected_mermaid"]) or is_refusal(output.code):
+        rendered = RenderResult(False, "")  # a refusal is not a diagram: nothing to render
+    else:
+        rendered = render(output.code, work_dir, record["id"])
     score = score_example(output, rendered.ok, record["expected_mermaid"], embed, threshold)
     return {
         "id": record["id"],
         "diagram_type": record["diagram_type"],
-        "difficulty": record["difficulty"],
+        "difficulty": record.get("difficulty"),
+        "description_style": record.get("description_style"),
         "description": record["description"],
         "expected_mermaid": record["expected_mermaid"],
         "raw_output": raw_output,
@@ -137,32 +143,45 @@ def evaluate_record(
 
 
 def summarize(examples: list[dict[str, Any]]) -> dict[str, Any]:
-    """Macro averages overall, per diagram type and per difficulty (design.md §4.3)."""
+    """Macro averages overall and per diagram type, difficulty and description style (design.md §4.3).
+
+    An example without a value for a key (e.g. no `description_style` in the pilot) is left out of that grouping.
+    """
     summary: dict[str, Any] = {"overall": aggregate(examples)}
-    for key in ("diagram_type", "difficulty"):
+    for key in GROUP_KEYS:
         groups: dict[str, list[dict[str, Any]]] = {}
         for example in examples:
-            groups.setdefault(example[key], []).append(example)
+            if example.get(key) is not None:
+                groups.setdefault(example[key], []).append(example)
         summary[f"by_{key}"] = {name: aggregate(group) for name, group in sorted(groups.items())}
     return summary
 
 
 def aggregate(examples: list[dict[str, Any]]) -> dict[str, Any]:
+    """Diagram metrics are averaged over examples with a diagram reference, `refusal_acc` over the others."""
     scores = [example["score"] for example in examples]
-    rendering = [s for s in scores if s["renders"]]
-    shapes = [s["shape_acc"] for s in scores if s["shape_acc"] is not None]
+    diagrams = [s for s in scores if s["refusal_ok"] is None]
+    refusals = [s["refusal_ok"] for s in scores if s["refusal_ok"] is not None]
+    rendering = [s for s in diagrams if s["renders"]]
     return {
         "n": len(scores),
-        "mermaid_only": mean(s["mermaid_only"] for s in scores),
-        "render_rate": mean(s["renders"] for s in scores),
-        "type_acc": mean(s["type_ok"] for s in scores),
-        "node_f1": mean(s["node"]["f1"] for s in scores),
-        "edge_f1": mean(s["edge"]["f1"] for s in scores),
-        "shape_acc": mean(shapes) if shapes else None,
-        "node_f1_rendering_only": mean(s["node"]["f1"] for s in rendering) if rendering else None,
-        "edge_f1_rendering_only": mean(s["edge"]["f1"] for s in rendering) if rendering else None,
+        "n_refusal": len(refusals),
+        "mermaid_only": mean_or_none(s["mermaid_only"] for s in diagrams),
+        "render_rate": mean_or_none(s["renders"] for s in diagrams),
+        "type_acc": mean_or_none(s["type_ok"] for s in diagrams),
+        "node_f1": mean_or_none(s["node"]["f1"] for s in diagrams),
+        "edge_f1": mean_or_none(s["edge"]["f1"] for s in diagrams),
+        "shape_acc": mean_or_none(s["shape_acc"] for s in diagrams if s["shape_acc"] is not None),
+        "node_f1_rendering_only": mean_or_none(s["node"]["f1"] for s in rendering),
+        "edge_f1_rendering_only": mean_or_none(s["edge"]["f1"] for s in rendering),
+        "refusal_acc": mean_or_none(refusals),
         "truncated": sum(example["finish_reason"] == "length" for example in examples),
     }
+
+
+def mean_or_none(values: Iterable[float]) -> float | None:
+    items = list(values)
+    return mean(items) if items else None
 
 
 def run_config(args: argparse.Namespace, client: OpenAI, system_prompt: str) -> dict[str, Any]:
@@ -226,25 +245,26 @@ def save_result(result: dict[str, Any], args: argparse.Namespace) -> Path:
 def print_progress(i: int, total: int, example: dict[str, Any]) -> None:
     s = example["score"]
     flags = "".join(flag for flag, on in (("F", s["fenced"]), ("T", s["extra_text"])) if on) or "-"
-    print(
-        f"[{i:>3}/{total}] {example['id']:<18} render={'ok ' if s['renders'] else 'ERR'} "
-        f"node_f1={s['node']['f1']:.2f} edge_f1={s['edge']['f1']:.2f} flags={flags} {example['latency_s']}s"
-    )
+    if s["refusal_ok"] is not None:
+        result = f"refusal={'ok ' if s['refusal_ok'] else 'NO '}"
+    else:
+        result = f"render={'ok ' if s['renders'] else 'ERR'} node_f1={s['node']['f1']:.2f} edge_f1={s['edge']['f1']:.2f}"
+    print(f"[{i:>3}/{total}] {example['id']:<18} {result} flags={flags} {example['latency_s']}s")
 
 
 def print_summary(summary: dict[str, Any]) -> None:
     print("\n" + format_row("group", None))
     print(format_row("overall", summary["overall"]))
-    for key in ("by_diagram_type", "by_difficulty"):
-        for name, values in summary[key].items():
+    for key in GROUP_KEYS:
+        for name, values in summary[f"by_{key}"].items():
             print(format_row(f"  {name}", values))
 
 
 def format_row(name: str, values: dict[str, Any] | None) -> str:
-    columns = ("n", "mermaid_only", "render_rate", "type_acc", "node_f1", "edge_f1", "shape_acc")
+    columns = ("n", "mermaid_only", "render_rate", "type_acc", "node_f1", "edge_f1", "shape_acc", "refusal_acc")
     if values is None:
-        return f"{name:<14}" + "".join(f"{c:>14}" for c in columns)
-    return f"{name:<14}" + "".join(format_cell(column, values[column]) for column in columns)
+        return f"{name:<18}" + "".join(f"{c:>14}" for c in columns)
+    return f"{name:<18}" + "".join(format_cell(column, values[column]) for column in columns)
 
 
 def format_cell(column: str, value: float | None) -> str:

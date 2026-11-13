@@ -1,4 +1,4 @@
-"""Per-example metrics from design.md §4.3: mermaid_only, render, type_acc, node_f1, edge_f1, shape_acc.
+"""Per-example metrics from design.md §4.3: mermaid_only, render, type_acc, node_f1, edge_f1, shape_acc, refusal.
 
 Nodes are matched one-to-one (design.md §4.2 step 4): first by exact label after normalization, then, if an
 embedder is given, the remaining labels by embedding cosine similarity with the Hungarian algorithm.
@@ -13,7 +13,7 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 
 from mermaiddiagramsaiagent.eval.flowchart import Flowchart, Node, ParseError, parse_flowchart
-from mermaiddiagramsaiagent.eval.output import NormalizedOutput, diagram_type
+from mermaiddiagramsaiagent.eval.output import NormalizedOutput, diagram_type, is_refusal
 
 PUNCTUATION_RE = re.compile(r"[^\w\s]")
 DEFAULT_THRESHOLD = 0.7  # preliminary, see design.md §4.2
@@ -58,6 +58,7 @@ class ExampleScore:
     edge: PRF = ZERO
     shape_acc: float | None = None  # None when no node was matched
     node_pairs: list[NodePair] = field(default_factory=list)
+    refusal_ok: bool | None = None  # out-of-scope references only: the output is exactly the refusal string
 
 
 def normalize_label(label: str) -> str:
@@ -156,8 +157,11 @@ def score_example(
 ) -> ExampleScore:
     """Score one model output. Output that does not render, has the wrong type or does not parse gets F1 = 0.
 
-    Without `embed`, nodes are matched by exact normalized label only.
+    Without `embed`, nodes are matched by exact normalized label only. For an out-of-scope reference (the
+    refusal string) only `refusal_ok` is meaningful; the caller keeps such examples out of the diagram metrics.
     """
+    if is_refusal(reference_code):
+        return score_refusal(output)
     reference_type = diagram_type(reference_code)
     if reference_type != "flowchart":
         raise NotImplementedError(f"scoring {reference_type} is not implemented yet")
@@ -185,3 +189,17 @@ def score_example(
     score.edge = edge_prf(predicted, reference, matches)
     score.shape_acc = shape_accuracy(predicted, reference, matches)
     return score
+
+
+def score_refusal(output: NormalizedOutput) -> ExampleScore:
+    """Score the answer to an out-of-scope text: correct only if it is the bare refusal string."""
+    refused = is_refusal(output.code) and not output.fenced and not output.extra_text
+    return ExampleScore(
+        mermaid_only=False,
+        fenced=output.fenced,
+        extra_text=output.extra_text,
+        renders=False,
+        predicted_type="none" if is_refusal(output.code) else diagram_type(output.code),
+        type_ok=refused,
+        refusal_ok=refused,
+    )
