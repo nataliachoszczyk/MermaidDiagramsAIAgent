@@ -1,4 +1,4 @@
-"""Smoke test of the golden baseline: the 4B base model, zero-shot, on 10 golden records of every diagram type."""
+"""Smoke test of the golden baseline on the CPU: the 4B base model, zero-shot, 10 golden records."""
 
 import subprocess
 import sys
@@ -6,10 +6,10 @@ import sys
 REPO = "https://github.com/nataliachoszczyk/MermaidDiagramsAIAgent.git"
 BRANCH = "e1-baseline"
 CLONE = "/tmp/repo"
-CODENAME = "eval-smoke"
+CODENAME = "eval-smoke-cpu"
 MODEL = "qwen3:4b-instruct-2507-q8_0"
 DATA = "data/golden/golden.jsonl"
-KAGGLE_EVAL_ARGS = []
+KAGGLE_EVAL_ARGS = ["--allow-cpu"]
 EVALUATE_ARGS = ["--sample", "10"]
 
 subprocess.run(["git", "clone", "--depth", "1", "--branch", BRANCH, REPO, CLONE], check=True)
