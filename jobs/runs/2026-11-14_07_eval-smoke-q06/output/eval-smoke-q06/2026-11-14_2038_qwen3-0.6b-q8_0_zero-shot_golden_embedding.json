@@ -1,0 +1,817 @@
+{
+  "config": {
+    "date": "2026-11-14T20:38:26",
+    "model": "qwen3:0.6b-q8_0",
+    "model_digest": "f6358994266d548dc070c564d49588fa3a6fac0cccd196bef38128aaa6ed22f3",
+    "setting": "zero-shot",
+    "base_url": "http://127.0.0.1:11434/v1/",
+    "temperature": 0.0,
+    "seed": 0,
+    "max_tokens": 1024,
+    "no_think": true,
+    "limit": null,
+    "sample": null,
+    "ids": "golden-flow-0006,golden-flow-0034,golden-flow-0050,golden-flow-0054,golden-flow-0063,golden-flow-0066,golden-seq-0020,golden-seq-0026,golden-seq-0031,golden-none-0003,golden-seq-0003,golden-seq-0011,golden-seq-0019,golden-seq-0021,golden-seq-0034",
+    "system_prompt": "You convert a description of a process into a Mermaid diagram.\n\nRules:\n- Choose the diagram type by who acts in the description:\n  - one person or team, or nobody named (steps, conditions, going back to an earlier step): `flowchart TD`;\n  - several named participants such as a user, an app, a service or a database that send or return things to one another, also when there are conditions: `sequenceDiagram`, one line per message in the form A->>B: text.\n- Output only the Mermaid code: no code fences, no explanations, no text before or after the diagram.\n- Keywords are lowercase. Put labels with special characters in double quotes. Never use `end` as a node id.\n- Keep the labels in the language of the description.\n- If the text does not describe a process, answer exactly: BRAK_PROCESU\n",
+    "system_prompt_sha256": "45e98198b8a14f0426f63a28a1662cf9b80f39f5744281bb94bb701cc71b189d",
+    "data": "data/golden/golden.jsonl",
+    "data_sha256": "5a412bd9287f81315ce7b9844224d91d131db249f0d1fbf4b8e114560d41bdbb",
+    "matching": "embedding",
+    "embedding_model": "bge-m3:latest",
+    "embedding_model_digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+    "threshold": 0.7,
+    "mmdc": "12.2.0",
+    "git_commit": "940f2ca9efb02efbd575304cbcea797b0f8b2888"
+  },
+  "summary": {
+    "overall": {
+      "n": 15,
+      "n_refusal": 1,
+      "mermaid_only": 0.9285714285714286,
+      "render_rate": 0.07142857142857142,
+      "type_acc": 0.21428571428571427,
+      "node_f1": 0.061224489795918366,
+      "edge_f1": 0.03571428571428571,
+      "shape_acc": null,
+      "node_f1_rendering_only": 0.8571428571428571,
+      "edge_f1_rendering_only": 0.5,
+      "refusal_acc": 0,
+      "truncated": 1
+    },
+    "by_diagram_type": {
+      "flowchart": {
+        "n": 6,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 0,
+        "type_acc": 0,
+        "node_f1": 0.0,
+        "edge_f1": 0.0,
+        "shape_acc": null,
+        "node_f1_rendering_only": null,
+        "edge_f1_rendering_only": null,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "none": {
+        "n": 1,
+        "n_refusal": 1,
+        "mermaid_only": null,
+        "render_rate": null,
+        "type_acc": null,
+        "node_f1": null,
+        "edge_f1": null,
+        "shape_acc": null,
+        "node_f1_rendering_only": null,
+        "edge_f1_rendering_only": null,
+        "refusal_acc": 0,
+        "truncated": 0
+      },
+      "sequenceDiagram": {
+        "n": 8,
+        "n_refusal": 0,
+        "mermaid_only": 0.875,
+        "render_rate": 0.125,
+        "type_acc": 0.375,
+        "node_f1": 0.10714285714285714,
+        "edge_f1": 0.0625,
+        "shape_acc": null,
+        "node_f1_rendering_only": 0.8571428571428571,
+        "edge_f1_rendering_only": 0.5,
+        "refusal_acc": null,
+        "truncated": 1
+      }
+    },
+    "by_difficulty": {
+      "easy": {
+        "n": 2,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 0.5,
+        "type_acc": 1,
+        "node_f1": 0.42857142857142855,
+        "edge_f1": 0.25,
+        "shape_acc": null,
+        "node_f1_rendering_only": 0.8571428571428571,
+        "edge_f1_rendering_only": 0.5,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "hard": {
+        "n": 3,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 0,
+        "type_acc": 0,
+        "node_f1": 0.0,
+        "edge_f1": 0.0,
+        "shape_acc": null,
+        "node_f1_rendering_only": null,
+        "edge_f1_rendering_only": null,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "medium": {
+        "n": 9,
+        "n_refusal": 0,
+        "mermaid_only": 0.8888888888888888,
+        "render_rate": 0,
+        "type_acc": 0.1111111111111111,
+        "node_f1": 0.0,
+        "edge_f1": 0.0,
+        "shape_acc": null,
+        "node_f1_rendering_only": null,
+        "edge_f1_rendering_only": null,
+        "refusal_acc": null,
+        "truncated": 1
+      }
+    },
+    "by_description_style": {
+      "brief": {
+        "n": 6,
+        "n_refusal": 0,
+        "mermaid_only": 0.8333333333333334,
+        "render_rate": 0,
+        "type_acc": 0.16666666666666666,
+        "node_f1": 0.0,
+        "edge_f1": 0.0,
+        "shape_acc": null,
+        "node_f1_rendering_only": null,
+        "edge_f1_rendering_only": null,
+        "refusal_acc": null,
+        "truncated": 1
+      },
+      "natural": {
+        "n": 4,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 0,
+        "type_acc": 0,
+        "node_f1": 0.0,
+        "edge_f1": 0.0,
+        "shape_acc": null,
+        "node_f1_rendering_only": null,
+        "edge_f1_rendering_only": null,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "structured": {
+        "n": 4,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 0.25,
+        "type_acc": 0.5,
+        "node_f1": 0.21428571428571427,
+        "edge_f1": 0.125,
+        "shape_acc": null,
+        "node_f1_rendering_only": 0.8571428571428571,
+        "edge_f1_rendering_only": 0.5,
+        "refusal_acc": null,
+        "truncated": 0
+      }
+    }
+  },
+  "examples": [
+    {
+      "id": "golden-flow-0006",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Logowanie przez Google, sprawdzenie czy zalogowano: tak - przejście do panelu i koniec; nie - zalogowanie się przez Google i powrót do logowania przez Google.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Logowanie przez Google]\nB --> C{Czy zalogowano?}\nC -->|Tak| D[Przejdź do panelu]\nD --> Z([Koniec])\nC -->|Nie| E[Zaloguj się przez Google]\nE --> B",
+      "raw_output": "sequenceDiagram\n  flowchart TD\n  A->>B: Logowanie przez Google\n  B->>C: Tak - przejście do panelu i koniec\n  C->>D: Nie - zalogowanie się przez Google i powrót do logowania przez Google",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\n  flowchart TD\n  A->>B: Logowanie przez Google\n  B->>C: Tak - przejście do panelu i koniec\n  C->>D: Nie - zalogowanie się przez Google i powrót do logowania przez Google",
+      "finish_reason": "stop",
+      "completion_tokens": 61,
+      "latency_s": 15.24,
+      "render_error": "Error: Parse error on line 2:\n...agram  flowchart TD  A->>B: Logowanie \n----------------------^\nExpecting '()', 'SOLID_OPEN_ARROW', 'DOTTED_OPEN_ARROW', 'SOLID_ARROW', 'SOLID_ARROW_TOP', 'SOLID_ARROW_BOTTOM', 'STICK_ARROW_TOP', 'STICK_ARROW_BOTTOM', 'SOLID_ARROW_TOP_DOTTED', 'SOLID_ARROW_BOTTOM_DOTTED', 'STICK_ARROW_TOP_DOTTED', 'STICK_ARROW_BOTTOM_DOTTED', 'SOLID_ARROW_TOP_REVERSE', 'SOLID_ARROW_BOTTOM_REVERSE', 'STICK_ARROW_TOP_REVERSE', 'STICK_ARROW_BOTTOM_REVERSE', 'SOLID_ARROW_TOP_REVERSE_DOTTED', 'SOLID_ARROW_BOTTOM_REVERSE_DOTTED', 'STICK_ARROW_TOP_REVERSE_DOTTED', 'STICK_ARROW_BOTTOM_REVERSE_DOTTED', 'BIDIRECTIONAL_SOLID_ARROW', 'DOTTED_ARROW', 'BIDIRECTIONAL_DOTTED_ARROW', 'SOLID_CROSS', 'DOTTED_CROSS', 'SOLID_POINT', 'DOTTED_POINT', got 'NEWLINE'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0034",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description_style": "structured",
+      "description": "Proces zaczyna się od odebrania zgłoszenia. Następnie sprawdzam, czy problem jest pilny. Jeśli tak, zgłoszenie jest przekazywane do pilnego wsparcia i proces się kończy. Jeśli nie, przechodzę do rozwiązania problemu. Potem sprawdzam, czy problem został rozwiązany. Jeśli nie, zgłoszenie jest przekazywane do dalszej analizy i proces się kończy. Jeśli tak, sprawdzam, czy klient jest zadowolony z rozwiązania. Jeśli klient jest zadowolony, zgłoszenie zostaje zamknięte i proces się kończy. Jeśli nie jest zadowolony, zgłoszenie jest przekierowywane do zespołu wsparcia, a następnie następuje kontakt z klientem w celu udzielenia dalszej pomocy, po czym proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Odbierz zgłoszenie]\n B --> C{Czy problem jest pilny?}\n C -->|Tak| D[Przekaż do pilnego wsparcia]\n D --> Z([Koniec])\n C -->|Nie| E[Rozwiąż problem]\n E --> F{Czy problem został rozwiązany?}\n F -->|Nie| G[Przekaż do dalszej analizy]\n G --> Z([Koniec])\n F -->|Tak| H{Czy klient jest zadowolony z rozwiązania?}\n H -->|Tak| I[Zamknij zgłoszenie]\n I --> Z([Koniec])\n H -->|Nie| J[Przekieruj do zespołu wsparcia]\n J --> K[Skontaktuj się z klientem w celu dalszej pomocy]\n K --> Z([Koniec])",
+      "raw_output": "sequenceDiagram:process\n  A --> B \"Odebranie zgłoszenia\"\n  B --> C \"Sprawdzam, czy problem jest pilny\"\n  C --> D \"Zgłoszenie przekazywane do pilnego wsparcia\"\n  D --> E \"Proces się kończy\"\n  E --> F \"Przechodzę do rozwiązania problemu\"\n  F --> G \"Sprawdzam, czy problem został rozwiązany\"\n  G --> H \"Zgłoszenie przekazywane do dalszej analizy\"\n  H --> I \"Proces się kończy\"\n  I --> J \"Sprawdzam, czy klient jest zadowolony z rozwiązania\"\n  J --> K \"Zgłoszenie zostaje zamknięte\"\n  K --> L \"Zgłoszenie jest przekierowane do zespołu wsparcia\"\n  L --> M \"Poniżej kontakt z klientem w celu udzielenia dalszej pomocy\"\n  M --> N \"Proces się kończy\"",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram:process\n  A --> B \"Odebranie zgłoszenia\"\n  B --> C \"Sprawdzam, czy problem jest pilny\"\n  C --> D \"Zgłoszenie przekazywane do pilnego wsparcia\"\n  D --> E \"Proces się kończy\"\n  E --> F \"Przechodzę do rozwiązania problemu\"\n  F --> G \"Sprawdzam, czy problem został rozwiązany\"\n  G --> H \"Zgłoszenie przekazywane do dalszej analizy\"\n  H --> I \"Proces się kończy\"\n  I --> J \"Sprawdzam, czy klient jest zadowolony z rozwiązania\"\n  J --> K \"Zgłoszenie zostaje zamknięte\"\n  K --> L \"Zgłoszenie jest przekierowane do zespołu wsparcia\"\n  L --> M \"Poniżej kontakt z klientem w celu udzielenia dalszej pomocy\"\n  M --> N \"Proces się kończy\"",
+      "finish_reason": "stop",
+      "completion_tokens": 221,
+      "latency_s": 25.24,
+      "render_error": "Error: Parse error on line 1:\nsequenceDiagram:process  A --> B \"\n---------------^\nExpecting 'SPACE', 'NEWLINE', 'INVALID', 'create', 'box', 'autonumber', 'activate', 'deactivate', 'title', 'legacy_title', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'loop', 'rect', 'opt', 'alt', 'par', 'par_over', 'critical', 'break', 'participant', 'participant_actor', 'destroy', 'note', 'links', 'link', 'properties', 'details', 'ACTOR', got 'TXT'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:344:20)\n    at async CdpElementHandle.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:498:24)",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram:process",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0050",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "natural",
+      "description": "Zaczynam od tego, że identyfikuję zgłoszony problem, czyli po prostu ustalam, z czym mam do czynienia. Potem patrzę, czy sprawa jest poważna - jeśli waga problemu jest wysoka, od razu przekazuję to dalej do zespołu wsparcia, żeby się tym zajęli. Jeśli jednak nie jest to nic poważnego, to sam załatwiam sprawę na czacie z użytkownikiem. W obu przypadkach, czy to po przekazaniu do wsparcia, czy po rozwiązaniu na czacie, proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Zidentyfikuj problem]\n B --> C{Czy waga problemu jest wysoka?}\n C -->|Tak| D[Przypisz do zespołu wsparcia]\n C -->|Nie| E[Rozwiąż problem przez czat]\n E --> Z([Koniec])\n D --> Z([Koniec])",
+      "raw_output": "sequenceDiagram:process\n  A --> B \"Zaczynam od tego, że identyfikuję zgłoszony problem\"\n  B --> C \"Pojedynczy problem, czy to poważny\"\n  C --> D \"Jeśli waga problemu jest wysoka, od razu przekazuję to dalej do zespołu wsparcia\"\n  D --> E \"Zoś do zespołu wsparcia\"\n  E --> F \"Jeśli nie jest to nic poważnego, to sam załatwiam sprawę na czacie z użytkownikiem\"\n  F --> G \"Proces się kończy\"",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram:process\n  A --> B \"Zaczynam od tego, że identyfikuję zgłoszony problem\"\n  B --> C \"Pojedynczy problem, czy to poważny\"\n  C --> D \"Jeśli waga problemu jest wysoka, od razu przekazuję to dalej do zespołu wsparcia\"\n  D --> E \"Zoś do zespołu wsparcia\"\n  E --> F \"Jeśli nie jest to nic poważnego, to sam załatwiam sprawę na czacie z użytkownikiem\"\n  F --> G \"Proces się kończy\"",
+      "finish_reason": "stop",
+      "completion_tokens": 138,
+      "latency_s": 15.21,
+      "render_error": "Error: Parse error on line 1:\nsequenceDiagram:process  A --> B \"\n---------------^\nExpecting 'SPACE', 'NEWLINE', 'INVALID', 'create', 'box', 'autonumber', 'activate', 'deactivate', 'title', 'legacy_title', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'loop', 'rect', 'opt', 'alt', 'par', 'par_over', 'critical', 'break', 'participant', 'participant_actor', 'destroy', 'note', 'links', 'link', 'properties', 'details', 'ACTOR', got 'TXT'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:344:20)\n    at async CdpElementHandle.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:498:24)",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram:process",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0054",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Autoryzuję płatność, potem sprawdzam, czy kontrola oszustw jest włączona: jeśli tak, wykonuję sprawdzenie pod kątem oszustw i kończę, jeśli nie, płatność uznaję za opłaconą bez kontroli oszustw i kończę.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Autoryzuj płatność]\nB --> C{Czy kontrola oszustw jest włączona?}\nC -->|Tak| D[Sprawdź pod kątem oszustw]\nD --> Z([Koniec])\nC -->|Nie| E[Opłacono bez kontroli oszustw]\nE --> Z([Koniec])",
+      "raw_output": "sequenceDiagram autoryzacjaTo\n  autoryzuję płatność\n  sprawdzam, czy kontrola oszustw jest włączona\n  if (kontrola oszustw jest włączona)\n    sprawdzenie pod kątem oszustw\n    kończę\n  else\n    płatność uznaję za opłaconą bez kontroli oszustw\n    kończę",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram autoryzacjaTo\n  autoryzuję płatność\n  sprawdzam, czy kontrola oszustw jest włączona\n  if (kontrola oszustw jest włączona)\n    sprawdzenie pod kątem oszustw\n    kończę\n  else\n    płatność uznaję za opłaconą bez kontroli oszustw\n    kończę",
+      "finish_reason": "stop",
+      "completion_tokens": 95,
+      "latency_s": 10.11,
+      "render_error": "Error: Parse error on line 1:\n...iagram autoryzacjaTo  autoryzuję płatno\n-----------------------^\nExpecting '()', 'SOLID_OPEN_ARROW', 'DOTTED_OPEN_ARROW', 'SOLID_ARROW', 'SOLID_ARROW_TOP', 'SOLID_ARROW_BOTTOM', 'STICK_ARROW_TOP', 'STICK_ARROW_BOTTOM', 'SOLID_ARROW_TOP_DOTTED', 'SOLID_ARROW_BOTTOM_DOTTED', 'STICK_ARROW_TOP_DOTTED', 'STICK_ARROW_BOTTOM_DOTTED', 'SOLID_ARROW_TOP_REVERSE', 'SOLID_ARROW_BOTTOM_REVERSE', 'STICK_ARROW_TOP_REVERSE', 'STICK_ARROW_BOTTOM_REVERSE', 'SOLID_ARROW_TOP_REVERSE_DOTTED', 'SOLID_ARROW_BOTTOM_REVERSE_DOTTED', 'STICK_ARROW_TOP_REVERSE_DOTTED', 'STICK_ARROW_BOTTOM_REVERSE_DOTTED', 'BIDIRECTIONAL_SOLID_ARROW', 'DOTTED_ARROW', 'BIDIRECTIONAL_DOTTED_ARROW', 'SOLID_CROSS', 'DOTTED_CROSS', 'SOLID_POINT', 'DOTTED_POINT', got 'NEWLINE'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/nod",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0063",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Wczytuję oryginalny plik obrazu, sprawdzam czy rozmiar obrazu jest duży: jeśli tak, zmieniam rozmiar na duży i generuję miniaturę ze zmienionego obrazu, koniec; jeśli nie, generuję miniaturę bezpośrednio, konwertuję do formatu miniatury, zapisuję plik miniatury, koniec.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Wczytaj oryginalny plik obrazu]\nB --> C{Czy rozmiar obrazu jest duży?}\nC -->|Tak| D[Zmień rozmiar obrazu na duży]\nD --> E[Wygeneruj miniaturę ze zmienionego obrazu]\nE --> Z([Koniec])\nC -->|Nie| F[Wygeneruj miniaturę bezpośrednio]\nF --> G[Przekonwertuj do formatu miniatury]\nG --> H[Zapisz plik miniatury]\nH --> Z([Koniec])",
+      "raw_output": "sequenceDiagram\n  flowchart TD\n  A --> B\n  B --> C\n  C --> D\n  D --> end",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\n  flowchart TD\n  A --> B\n  B --> C\n  C --> D\n  D --> end",
+      "finish_reason": "stop",
+      "completion_tokens": 28,
+      "latency_s": 4.24,
+      "render_error": "Error: Parse error on line 2:\n...agram  flowchart TD  A --> B  B --> C\n----------------------^\nExpecting '()', 'SOLID_OPEN_ARROW', 'DOTTED_OPEN_ARROW', 'SOLID_ARROW', 'SOLID_ARROW_TOP', 'SOLID_ARROW_BOTTOM', 'STICK_ARROW_TOP', 'STICK_ARROW_BOTTOM', 'SOLID_ARROW_TOP_DOTTED', 'SOLID_ARROW_BOTTOM_DOTTED', 'STICK_ARROW_TOP_DOTTED', 'STICK_ARROW_BOTTOM_DOTTED', 'SOLID_ARROW_TOP_REVERSE', 'SOLID_ARROW_BOTTOM_REVERSE', 'STICK_ARROW_TOP_REVERSE', 'STICK_ARROW_BOTTOM_REVERSE', 'SOLID_ARROW_TOP_REVERSE_DOTTED', 'SOLID_ARROW_BOTTOM_REVERSE_DOTTED', 'STICK_ARROW_TOP_REVERSE_DOTTED', 'STICK_ARROW_BOTTOM_REVERSE_DOTTED', 'BIDIRECTIONAL_SOLID_ARROW', 'DOTTED_ARROW', 'BIDIRECTIONAL_DOTTED_ARROW', 'SOLID_CROSS', 'DOTTED_CROSS', 'SOLID_POINT', 'DOTTED_POINT', got 'NEWLINE'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-v",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0066",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Produkt trafia do koszyka, potem decyzja: płatność kartą kredytową - jeśli tak, przetwarzam płatność kartą i koniec; jeśli nie, przetwarzam płatność przez PayPal, weryfikuję dane płatności, zakup zakończony sukcesem i koniec.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Produkt dodany do koszyka]\nB --> C{Czy płatność kartą kredytową?}\nC -->|Tak| D[Przetwórz płatność kartą kredytową]\nD --> Z([Koniec])\nC -->|Nie| E[Przetwórz płatność przez PayPal]\nE --> F[Zweryfikuj dane płatności]\nF --> G[Zakup zakończony sukcesem]\nG --> Z([Koniec])",
+      "raw_output": "sequenceDiagram\n  A --> B \"Produkt trafia do koszyka\"\n  B --> C \"Płatność kartą kredytową - jeśli tak, przetwarzam płatność kartą i koniec; jeśli nie, przetwarzam płatność przez PayPal, weryfikuję dane płatności, zakup zakończony sukcesem i koniec.\"",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\n  A --> B \"Produkt trafia do koszyka\"\n  B --> C \"Płatność kartą kredytową - jeśli tak, przetwarzam płatność kartą i koniec; jeśli nie, przetwarzam płatność przez PayPal, weryfikuję dane płatności, zakup zakończony sukcesem i koniec.\"",
+      "finish_reason": "stop",
+      "completion_tokens": 86,
+      "latency_s": 9.72,
+      "render_error": "Error: Parse error on line 2:\n...t trafia do koszyka\"  B --> C \"Płatność\n-----------------------^\nExpecting 'TXT', got 'NEWLINE'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:344:20)\n    at async CdpElementHandle.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:498:24)\n    at async CdpFrame.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/Frame.js:469:20)\n    at async CdpPage.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/li",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0003",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "hard",
+      "description_style": "brief",
+      "description": "Użytkownik wprowadza dane logowania w aplikacji mobilnej, ta przekierowuje do Backend for Frontend, który przekierowuje do Azure AD; użytkownik podaje dane logowania bezpośrednio do Azure AD, a Azure AD je waliduje. Jeśli dane są poprawne, Azure AD zwraca kod autoryzacyjny do aplikacji mobilnej, która przekazuje go do Backend for Frontend; ten wymienia kod na token dostępu w Azure AD. Jeśli kod autoryzacyjny jest poprawny, Azure AD zwraca token dostępu i token odświeżania, Backend for Frontend zapisuje token odświeżania w bazie danych i przekazuje token dostępu do aplikacji mobilnej; jeśli kod jest niepoprawny, Azure AD zwraca błąd invalid_grant, który Backend for Frontend przekazuje do aplikacji mobilnej. Jeśli dane logowania są niepoprawne, Azure AD od razu zwraca błąd invalid_grant do Backend for Frontend, a ten przekazuje go do aplikacji mobilnej. Aplikacja mobilna informuje użytkownika o wyniku logowania.\n\nNastępnie aplikacja mobilna próbuje uzyskać dostęp do chronionego API przez Backend for Frontend, który waliduje token dostępu w Azure AD. Jeśli token jest poprawny, Azure AD zwraca odpowiedź API, przekazywaną do aplikacji mobilnej; jeśli niepoprawny, zwracany jest błąd invalid_token, przekazywany do aplikacji mobilnej.\n\nNa koniec aplikacja mobilna prosi Backend for Frontend o odświeżenie tokenu dostępu, a ten wysyła żądanie odświeżenia do Azure AD. Jeśli token odświeżania jest poprawny, Azure AD zwraca nowy token dostępu i token odświeżania, Backend for Frontend zapisuje token odświeżania w bazie danych i przekazuje token dostępu do aplikacji mobilnej; jeśli token odświeżania jest niepoprawny, zwracany jest błąd refresh_token_expired, przekazywany do aplikacji mobilnej.",
+      "expected_mermaid": "sequenceDiagram\nparticipant U as Użytkownik\nparticipant MA as Aplikacja mobilna\nparticipant BFF as Backend for Frontend\nparticipant AAD as Azure AD\nparticipant DB as Baza danych\n\nNote over U: Przepływ logowania OAuth\nU->>MA: Wprowadź dane logowania\nMA->>BFF: Przekieruj do Azure AD\nactivate BFF\nBFF->>AAD: Przekieruj do Azure AD\ndeactivate BFF\nactivate AAD\nU->>AAD: Wprowadź dane logowania\nAAD->>AAD: Zwaliduj dane logowania\nalt dane logowania są poprawne\n  AAD->>MA: Kod autoryzacyjny\n  MA->>BFF: Kod autoryzacyjny\n  activate BFF\n  BFF->>AAD: Wymień kod autoryzacyjny na token dostępu\n  alt kod autoryzacyjny jest poprawny\n    AAD-->>BFF: Token dostępu i token odświeżania\n    BFF->>DB: Zapisz token odświeżania\n    BFF-->>MA: Token dostępu\n  else kod autoryzacyjny jest niepoprawny\n    AAD-->>BFF: Błąd (invalid_grant)\n    BFF-->>MA: Błąd (invalid_grant)\n  end\nelse dane logowania są niepoprawne\n  AAD-->>BFF: Błąd (invalid_grant)\n  BFF-->>MA: Błąd (invalid_grant)\nend\ndeactivate AAD\ndeactivate BFF\nMA->>U: Wynik logowania\nMA->>BFF: Uzyskaj dostęp do chronionego API\nactivate BFF\nBFF->>AAD: Zwaliduj token dostępu\nactivate AAD\nalt token dostępu jest poprawny\n  AAD-->>BFF: Odpowiedź API\n  BFF-->>MA: Odpowiedź API\nelse token dostępu jest niepoprawny\n  AAD-->>BFF: Błąd (invalid_token)\n  deactivate AAD\n  BFF-->>MA: Błąd (invalid_token)\nend\ndeactivate BFF\nMA->>BFF: Odśwież token dostępu\nactivate BFF\nBFF->>AAD: Odśwież token dostępu\nactivate AAD\nalt token odświeżania jest poprawny\n  AAD-->>BFF: Token dostępu i token odświeżania\n  BFF->>DB: Zapisz token odświeżania\n  BFF-->>MA: Token dostępu\nelse token odświeżania jest niepoprawny\n  AAD-->>BFF: Błąd (refresh_token_expired)\n  deactivate AAD\n  BFF-->>MA: Błąd (refresh_token_expired)\nend\ndeactivate BFF",
+      "raw_output": "sequenceDiagram:Ukownik->Backend for Frontend: dane logowania\nBackend for Frontend->Azure AD: dane logowania\nAzure AD->Backend for Frontend: kod autoryzacyjny\nBackend for Frontend->Azure AD: kod autoryzacyjny\nAzure AD->Backend for Frontend: kod autoryzacyjny\nBackend for Frontend->Aplikacja mobilna: kod autoryzacyjny\nAplikacja mobilna->Backend for Frontend: dane logowania\nBackend for Frontend->Azure AD: dane logowania\nAzure AD->Backend for Frontend: błąd invalid_grant\nBackend for Frontend->Aplikacja mobilna: błąd invalid_grant\nAplikacja mobilna->Backend for Frontend: dane logowania\nBackend for Frontend->Azure AD: dane logowania\nAzure AD->Backend for Frontend: błąd invalid_token\nBackend for Frontend->Aplikacja mobilna: błąd invalid_token\nAplikacja mobilna->Backend for Frontend: odświeżający token\nBackend for Frontend->Azure AD: odświeżający token\nAzure AD->Backend for Frontend: nowy token dostępu\nBackend for Frontend->Aplikacja mobilna: nowy token dostępu\nAplikacja mobilna->Backend for Frontend: odświeżający token\nBackend for Frontend->Azure AD: odświeżający token\nAzure AD->Backend for Frontend: błąd refresh_token_expired\nBackend for Frontend->Aplikacja mobilna: błąd refresh_token_expired",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram:Ukownik->Backend for Frontend: dane logowania\nBackend for Frontend->Azure AD: dane logowania\nAzure AD->Backend for Frontend: kod autoryzacyjny\nBackend for Frontend->Azure AD: kod autoryzacyjny\nAzure AD->Backend for Frontend: kod autoryzacyjny\nBackend for Frontend->Aplikacja mobilna: kod autoryzacyjny\nAplikacja mobilna->Backend for Frontend: dane logowania\nBackend for Frontend->Azure AD: dane logowania\nAzure AD->Backend for Frontend: błąd invalid_grant\nBackend for Frontend->Aplikacja mobilna: błąd invalid_grant\nAplikacja mobilna->Backend for Frontend: dane logowania\nBackend for Frontend->Azure AD: dane logowania\nAzure AD->Backend for Frontend: błąd invalid_token\nBackend for Frontend->Aplikacja mobilna: błąd invalid_token\nAplikacja mobilna->Backend for Frontend: odświeżający token\nBackend for Frontend->Azure AD: odświeżający token\nAzure AD->Backend for Frontend: nowy token dostępu\nBackend for Frontend->Aplikacja mobilna: nowy token dostępu\nAplikacja mobilna->Backend for Frontend: odświeżający token\nBackend for Frontend->Azure AD: odświeżający token\nAzure AD->Backend for Frontend: błąd refresh_token_expired\nBackend for Frontend->Aplikacja mobilna: błąd refresh_token_expired",
+      "finish_reason": "stop",
+      "completion_tokens": 351,
+      "latency_s": 47.43,
+      "render_error": "Error: Parse error on line 1:\nsequenceDiagram:Ukownik->Backend fo...\n---------------^\nExpecting 'SPACE', 'NEWLINE', 'INVALID', 'create', 'box', 'autonumber', 'activate', 'deactivate', 'title', 'legacy_title', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'loop', 'rect', 'opt', 'alt', 'par', 'par_over', 'critical', 'break', 'participant', 'participant_actor', 'destroy', 'note', 'links', 'link', 'properties', 'details', 'ACTOR', got 'TXT'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:344:20)\n    at async CdpElementHandle.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:498",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram:Ukownik->Backend",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0011",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "hard",
+      "description_style": "natural",
+      "description": "Chodzi o to, jak wygląda składanie zamówienia przez klienta w aplikacji mobilnej. Klient wybiera produkty, dodaje je do koszyka, a aplikacja na bieżąco aktualizuje widok koszyka. Potem klient przechodzi do realizacji zamówienia i wtedy aplikacja wysyła szczegóły zamówienia do serwisu zamówień. Serwis zamówień najpierw sprawdza w systemie magazynowym, czy produkty są dostępne, i czeka na odpowiedź. Jeśli produktów nie ma, to serwis zamówień od razu informuje aplikację, a ta przekazuje klientowi, że produkty są niedostępne, i na tym się kończy. Jeśli produkty są dostępne, to leci dalej - serwis zamówień próbuje przetworzyć płatność przez bramkę płatności. Tu znowu są dwie możliwości: albo płatność się uda, albo nie. Jak się nie uda, to serwis zamówień wysyła informację o niepowodzeniu do aplikacji, a aplikacja mobilna powiadamia o tym klienta. A jak płatność przejdzie, to serwis zamówień aktualizuje stan magazynu w systemie magazynowym, czeka na potwierdzenie aktualizacji, a potem wysyła do aplikacji potwierdzenie zamówienia, które aplikacja pokazuje klientowi jako potwierdzone zamówienie.",
+      "expected_mermaid": "sequenceDiagram\n\nparticipant C as Klient\nparticipant MA as Aplikacja mobilna\nparticipant OS as Serwis zamówień\nparticipant PG as Bramka płatności\nparticipant IS as System magazynowy\n\nNote over C: Składanie zamówienia\nC->>MA: Wybierz produkty i dodaj do koszyka\nMA-->>C: Zaktualizuj widok koszyka\nC->>MA: Przejdź do realizacji zamówienia\nMA->>OS: Wyślij szczegóły zamówienia\nactivate OS\nOS->>IS: Sprawdź dostępność produktu\nactivate IS\nIS-->>OS: Odpowiedź o dostępności produktu\ndeactivate IS\nalt Produkty są dostępne\n    OS->>PG: Przetwórz płatność\n    activate PG\n    PG-->>OS: Odpowiedź płatności\n    deactivate PG\n    alt Płatność zakończona sukcesem\n        OS->>IS: Zaktualizuj stan magazynu\n        activate IS\n        IS-->>OS: Stan magazynu zaktualizowany\n        deactivate IS\n        OS-->>MA: Potwierdź zamówienie\n        MA-->>C: Zamówienie potwierdzone\n    else Płatność nieudana\n        OS-->>MA: Powiadom o niepowodzeniu płatności\n        MA-->>C: Powiadom o niepowodzeniu płatności\n    end\nelse Produkty są niedostępne\n    OS-->>MA: Powiadom o niedostępności produktu\n    MA-->>C: Powiadom o niedostępności produktu\nend\ndeactivate OS",
+      "raw_output": "sequenceDiagram:flowchart;  \nA->>B: Klient wybiera produkty  \nB->>C: Dodaje do koszyka  \nC->>D: Aplikacja aktualizuje widok koszyka  \nD->>E: Klient przekaże do realizacji zamówienia  \nE->>F: Aplikacja wysyła szczegóły do serwisu  \nF->>G: Serwis sprawdza w magazynie  \nG->>H: Jeśli dostępne, wysyła informację do aplikacji  \nH->>I: Aplikacja informuje klienta o dostępności produktów  \nI->>J: Jeśli nie dostępne, wysyła informację o niepowodzeniu do aplikacji  \nJ->>K: Aplikacja informuje klienta o niepowodzeniu  \nK->>L: Jeśli płatność się uda, aktualizuje magazyn i wysyła potwierdzenie  \nL->>M: Aplikacja pokazuje potwierdzone zamówienie  \nM->>N: Aplikacja pokazuje klientowi potwierdzone zamówienie",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram:flowchart;  \nA->>B: Klient wybiera produkty  \nB->>C: Dodaje do koszyka  \nC->>D: Aplikacja aktualizuje widok koszyka  \nD->>E: Klient przekaże do realizacji zamówienia  \nE->>F: Aplikacja wysyła szczegóły do serwisu  \nF->>G: Serwis sprawdza w magazynie  \nG->>H: Jeśli dostępne, wysyła informację do aplikacji  \nH->>I: Aplikacja informuje klienta o dostępności produktów  \nI->>J: Jeśli nie dostępne, wysyła informację o niepowodzeniu do aplikacji  \nJ->>K: Aplikacja informuje klienta o niepowodzeniu  \nK->>L: Jeśli płatność się uda, aktualizuje magazyn i wysyła potwierdzenie  \nL->>M: Aplikacja pokazuje potwierdzone zamówienie  \nM->>N: Aplikacja pokazuje klientowi potwierdzone zamówienie",
+      "finish_reason": "stop",
+      "completion_tokens": 251,
+      "latency_s": 30.47,
+      "render_error": "Error: Parse error on line 1:\nsequenceDiagram:flowchart;  A->>B:\n---------------^\nExpecting 'SPACE', 'NEWLINE', 'INVALID', 'create', 'box', 'autonumber', 'activate', 'deactivate', 'title', 'legacy_title', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'loop', 'rect', 'opt', 'alt', 'par', 'par_over', 'critical', 'break', 'participant', 'participant_actor', 'destroy', 'note', 'links', 'link', 'properties', 'details', 'ACTOR', got 'TXT'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:344:20)\n    at async CdpElementHandle.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:498:24)",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram:flowchart",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0019",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "medium",
+      "description_style": "structured",
+      "description": "Użytkownik tworzy post w aplikacji mediów społecznościowych. Aplikacja wysyła dane posta do serwera backendowego. Jeśli dane są poprawne, serwer backendowy zapisuje post w bazie danych, następnie powiadamia aplikację o pomyślnym dodaniu posta, a aplikacja wyświetla post użytkownikowi. Jeśli dane są niepoprawne, serwer backendowy zwraca aplikacji komunikat błędu, a aplikacja zwraca ten komunikat błędu użytkownikowi.",
+      "expected_mermaid": "sequenceDiagram\n\nparticipant U as Użytkownik\nparticipant A as Aplikacja mediów społecznościowych\nparticipant B as Serwer backendowy\nparticipant D as Baza danych\n\nNote over U: Tworzenie posta\nU->>A: Utwórz post\nA->>B: Wyślij dane posta\nactivate B\nalt dane są poprawne\n    B->>D: Zapisz post\n    B-->>A: Powiadom o pomyślnym dodaniu posta\n    A-->>U: Wyświetl post\nelse dane są niepoprawne\n    B-->>A: Zwróć komunikat błędu\n    deactivate B\n    A-->>U: Zwróć komunikat błędu\nend",
+      "raw_output": "sequenceDiagram:Ukown->>Aplikacja\nUkown: tworzy post w aplikacji mediów społecznościowych\nAplikacja: wysyła dane posta do serwera backendowego\nAplikacja: jeśli dane są poprawne, serwer backendowy zapisuje post w bazie danych\nAplikacja: powiadom aplikację o pomyślnym dodaniu posta\nAplikacja: jeśli dane są niepoprawne, serwer backendowy zwraca komunikat błędu\nAplikacja: aplikacja zwraca komunikat błędu użytkownikowi",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram:Ukown->>Aplikacja\nUkown: tworzy post w aplikacji mediów społecznościowych\nAplikacja: wysyła dane posta do serwera backendowego\nAplikacja: jeśli dane są poprawne, serwer backendowy zapisuje post w bazie danych\nAplikacja: powiadom aplikację o pomyślnym dodaniu posta\nAplikacja: jeśli dane są niepoprawne, serwer backendowy zwraca komunikat błędu\nAplikacja: aplikacja zwraca komunikat błędu użytkownikowi",
+      "finish_reason": "stop",
+      "completion_tokens": 143,
+      "latency_s": 12.71,
+      "render_error": "Error: Parse error on line 1:\nsequenceDiagram:Ukown->>AplikacjaU\n---------------^\nExpecting 'SPACE', 'NEWLINE', 'INVALID', 'create', 'box', 'autonumber', 'activate', 'deactivate', 'title', 'legacy_title', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'loop', 'rect', 'opt', 'alt', 'par', 'par_over', 'critical', 'break', 'participant', 'participant_actor', 'destroy', 'note', 'links', 'link', 'properties', 'details', 'ACTOR', got 'TXT'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:344:20)\n    at async CdpElementHandle.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:498:24)",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram:Ukown->>Aplikacja",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0020",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "medium",
+      "description_style": "natural",
+      "description": "Chodzi o to, że użytkownik wybiera sobie wideo do obejrzenia w aplikacji streamingowej i od tego wszystko się zaczyna. Aplikacja prosi wtedy Content Delivery Network o to wideo, a Content Delivery Network z kolei idzie po nie do magazynu wideo, który odsyła mu dane wideo z powrotem. Mając już dane, Content Delivery Network strumieniuje wideo do aplikacji, a ta puszcza je użytkownikowi. Dodatkowo aplikacja wysyła do usługi analitycznej informację o zdarzeniu odtwarzania - usługa sama sobie przetwarza te dane i potem potwierdza aplikacji, że zarejestrowała zdarzenie. Czyli w skrócie: wybór, pobranie z magazynu przez Content Delivery Network, streaming, odtwarzanie i na końcu zalogowanie tego do analityki.",
+      "expected_mermaid": "sequenceDiagram\n\nparticipant U as Użytkownik\nparticipant SA as Aplikacja streamingowa\nparticipant CDN as Content Delivery Network\nparticipant VS as Magazyn wideo\nparticipant AS as Usługa analityczna\n\nNote over U: Wybór treści\nU->>SA: Wybierz wideo\nactivate SA\n\nSA->>CDN: Poproś o wideo\nactivate CDN\n\nCDN->>VS: Pobierz wideo\nactivate VS\nVS-->>CDN: Dane wideo\ndeactivate VS\n\nCDN-->>SA: Strumieniuj wideo\ndeactivate CDN\n\nSA->>U: Odtwórz wideo\n\nSA->>AS: Zarejestruj zdarzenie odtwarzania\nactivate AS\n\nAS->>AS: Przetwórz dane odtwarzania\nAS-->>SA: Potwierdź zarejestrowanie\ndeactivate AS\ndeactivate SA",
+      "raw_output": "sequenceDiagram: \"User ->> Content Delivery Network ->> Media Server ->> Application ->> Content Delivery Network ->> Application ->> Analytics Service\"",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram: \"User ->> Content Delivery Network ->> Media Server ->> Application ->> Content Delivery Network ->> Application ->> Analytics Service\"",
+      "finish_reason": "stop",
+      "completion_tokens": 31,
+      "latency_s": 5.62,
+      "render_error": "Error: Parse error on line 1:\nsequenceDiagram: \"User ->> Content ...\n---------------^\nExpecting 'SPACE', 'NEWLINE', 'INVALID', 'create', 'box', 'autonumber', 'activate', 'deactivate', 'title', 'legacy_title', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'loop', 'rect', 'opt', 'alt', 'par', 'par_over', 'critical', 'break', 'participant', 'participant_actor', 'destroy', 'note', 'links', 'link', 'properties', 'details', 'ACTOR', got 'TXT'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:344:20)\n    at async CdpElementHandle.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:498",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram:",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0021",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Użytkownik wybiera pokój i przechodzi do rezerwacji, przeglądarka wysyła szczegóły do serwera rezerwacji, który sprawdza dostępność pokoju w bazie danych hotelu. Jeśli pokój dostępny: serwer wysyła dane płatności do bramki płatności, ta autoryzuje płatność i zwraca identyfikator transakcji, serwer aktualizuje status rezerwacji w bazie, baza potwierdza, serwer wysyła potwierdzenie rezerwacji do przeglądarki, a ta wyświetla je użytkownikowi. Jeśli pokój niedostępny: baza informuje serwer, serwer przekazuje informację o niedostępności do przeglądarki, a ta wyświetla ją użytkownikowi.",
+      "expected_mermaid": "sequenceDiagram\n\nparticipant U as Użytkownik\nparticipant WB as Przeglądarka internetowa\nparticipant BS as Serwer rezerwacji\nparticipant PG as Bramka płatności\nparticipant HD as Baza danych hotelu\n\nNote over U: Wybór pokoju\nU->>WB: Wybierz pokój i przejdź do rezerwacji\nWB->>BS: Wyślij szczegóły rezerwacji\nactivate BS\nBS->>HD: Sprawdź dostępność pokoju\nalt Pokój dostępny\n    HD-->>BS: Pokój dostępny\n    BS->>PG: Wyślij dane płatności\n    activate PG\n    PG-->>BS: Autoryzuj płatność i zwróć identyfikator transakcji\n    deactivate PG\n    BS->>HD: Zaktualizuj status rezerwacji\n    activate HD\n    HD-->>BS: Potwierdzenie\n    deactivate HD\n    BS-->>WB: Wyślij potwierdzenie rezerwacji\n    WB-->>U: Wyświetl potwierdzenie rezerwacji\nelse Pokój niedostępny\n    HD-->>BS: Pokój niedostępny\n    BS-->>WB: Wyślij informację o niedostępności pokoju\n    deactivate BS\n    WB-->>U: Wyświetl informację o niedostępności pokoju\nend",
+      "raw_output": "sequenceDiagram:Użytkownik->Rezerwacja->Serwer->Płatność->Baza->Płatność->Rezerwacja->Baza->Płatność->Potwierdzenie->Płatność->Użytkownik\n\n```mermaid\nsequenceDiagram\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Serwer\n    Serwer --> Płatność\n    Płatność --> Baza\n    Baza --> Płatność\n    Płatność --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Potwierdzenie\n    Potwierdzenie --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność -->",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Serwer\n    Serwer --> Płatność\n    Płatność --> Baza\n    Baza --> Płatność\n    Płatność --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Potwierdzenie\n    Potwierdzenie --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność --> Użytkownik\n    Użytkownik --> Rezerwacja\n    Rezerwacja --> Baza\n    Baza --> Płatność\n    Płatność -->",
+      "finish_reason": "length",
+      "completion_tokens": 1024,
+      "latency_s": 105.45,
+      "render_error": "Error: Parse error on line 2:\n...ownik --> Rezerwacja    Rezerwacja --> \n-----------------------^\nExpecting 'TXT', got 'NEWLINE'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:344:20)\n    at async CdpElementHandle.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:498:24)\n    at async CdpFrame.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/Frame.js:469:20)\n    at async CdpPage.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/li",
+      "score": {
+        "mermaid_only": false,
+        "fenced": false,
+        "extra_text": true,
+        "renders": false,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": true,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0026",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "medium",
+      "description_style": "natural",
+      "description": "Chodzi o to, jak klient robi rezerwację stolika przez naszą aplikację. Klient wybiera sobie restaurację i godzinę w aplikacji rezerwacyjnej, a ta od razu leci do usługi uwierzytelniania z prośbą o zweryfikowanie danych klienta. Jak dane są okej, to usługa uwierzytelniania odsyła token do aplikacji, aplikacja przekazuje szczegóły rezerwacji do usługi rezerwacji, ta przetwarza rezerwację i odsyła potwierdzenie z powrotem do aplikacji. Na koniec aplikacja prosi usługę powiadomień, żeby dała znać klientowi, że rezerwacja się udała, i klient dostaje potwierdzenie. No ale jak dane uwierzytelniające okażą się błędne, to usługa uwierzytelniania po prostu zwraca aplikacji komunikat o błędzie i na tym się kończy.",
+      "expected_mermaid": "sequenceDiagram\n\nparticipant C as Klient\nparticipant RA as Aplikacja rezerwacyjna\nparticipant AS as Usługa uwierzytelniania\nparticipant RS as Usługa rezerwacji\nparticipant NS as Usługa powiadomień\n\nNote over C: Dokonywanie rezerwacji w restauracji\n\nC->>RA: Wybiera restaurację i godzinę\nRA->>AS: Wyślij żądanie uwierzytelnienia\nactivate AS\nAS->>AS: Zweryfikuj dane uwierzytelniające klienta\nalt dane uwierzytelniające są poprawne\n    AS-->>RA: Zwróć token\n    RA->>RS: Wyślij szczegóły rezerwacji\n    activate RS\n    RS->>RS: Przetwórz rezerwację\n    RS-->>RA: Zwróć potwierdzenie\n    deactivate RS\n    RA->>NS: Powiadom o udanej rezerwacji\n    activate NS\n    NS-->>C: Wyślij potwierdzenie\n    deactivate NS\nelse dane uwierzytelniające są niepoprawne\n    AS-->>RA: Zwróć komunikat o błędzie\nend\ndeactivate AS",
+      "raw_output": "sequenceDiagram:flowchart;  \nA->>B: Klient wybiera restaurację i godzinę w aplikacji rezerwacyjnej  \nB->>C: Usługa uwierzytelniania z powrotem do aplikacji  \nC->>D: Aplikacja przekazuje szczegóły rezerwacji do usługi rezerwacji  \nD->>E: Usługa rezerwacji odsyła potwierdzenie z powrotem do aplikacji  \nE->>F: Aplikacja prosi usługę powiadomienia  \nF->>G: Usługa powiadomienia z powrotem do aplikacji",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram:flowchart;  \nA->>B: Klient wybiera restaurację i godzinę w aplikacji rezerwacyjnej  \nB->>C: Usługa uwierzytelniania z powrotem do aplikacji  \nC->>D: Aplikacja przekazuje szczegóły rezerwacji do usługi rezerwacji  \nD->>E: Usługa rezerwacji odsyła potwierdzenie z powrotem do aplikacji  \nE->>F: Aplikacja prosi usługę powiadomienia  \nF->>G: Usługa powiadomienia z powrotem do aplikacji",
+      "finish_reason": "stop",
+      "completion_tokens": 150,
+      "latency_s": 16.24,
+      "render_error": "Error: Parse error on line 1:\nsequenceDiagram:flowchart;  A->>B:\n---------------^\nExpecting 'SPACE', 'NEWLINE', 'INVALID', 'create', 'box', 'autonumber', 'activate', 'deactivate', 'title', 'legacy_title', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'loop', 'rect', 'opt', 'alt', 'par', 'par_over', 'critical', 'break', 'participant', 'participant_actor', 'destroy', 'note', 'links', 'link', 'properties', 'details', 'ACTOR', got 'TXT'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:344:20)\n    at async CdpElementHandle.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:498:24)",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram:flowchart",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0031",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "easy",
+      "description_style": "structured",
+      "description": "Klient zamawia kawę u kasjera. Kasjer podaje klientowi kwotę do zapłaty. Klient płaci kasjerowi. Kasjer przekazuje zamówienie bariście. Barista wydaje kawę klientowi.",
+      "expected_mermaid": "sequenceDiagram\nparticipant K as Klient\nparticipant KS as Kasjer\nparticipant B as Barista\n\nK->>KS: Zamów kawę\nKS-->>K: Kwota do zapłaty\nK->>KS: Zapłać\nKS->>B: Przekaż zamówienie\nB->>K: Wydaj kawę",
+      "raw_output": "sequenceDiagram\n  flowchart TD\n  A->>B: Klient zamawia kawę u kasjera.\n  B->>C: Kasjer podaje klientowi kwotę do zapłaty.\n  C->>D: Klient płaci kasjerowi.\n  D->>E: Kasjer przekazuje zamówienie bariście.\n  E->>F: Barista wydaje kawę klientowi.",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\n  flowchart TD\n  A->>B: Klient zamawia kawę u kasjera.\n  B->>C: Kasjer podaje klientowi kwotę do zapłaty.\n  C->>D: Klient płaci kasjerowi.\n  D->>E: Kasjer przekazuje zamówienie bariście.\n  E->>F: Barista wydaje kawę klientowi.",
+      "finish_reason": "stop",
+      "completion_tokens": 97,
+      "latency_s": 8.36,
+      "render_error": "Error: Parse error on line 2:\n...agram  flowchart TD  A->>B: Klient zam\n----------------------^\nExpecting '()', 'SOLID_OPEN_ARROW', 'DOTTED_OPEN_ARROW', 'SOLID_ARROW', 'SOLID_ARROW_TOP', 'SOLID_ARROW_BOTTOM', 'STICK_ARROW_TOP', 'STICK_ARROW_BOTTOM', 'SOLID_ARROW_TOP_DOTTED', 'SOLID_ARROW_BOTTOM_DOTTED', 'STICK_ARROW_TOP_DOTTED', 'STICK_ARROW_BOTTOM_DOTTED', 'SOLID_ARROW_TOP_REVERSE', 'SOLID_ARROW_BOTTOM_REVERSE', 'STICK_ARROW_TOP_REVERSE', 'STICK_ARROW_BOTTOM_REVERSE', 'SOLID_ARROW_TOP_REVERSE_DOTTED', 'SOLID_ARROW_BOTTOM_REVERSE_DOTTED', 'STICK_ARROW_TOP_REVERSE_DOTTED', 'STICK_ARROW_BOTTOM_REVERSE_DOTTED', 'BIDIRECTIONAL_SOLID_ARROW', 'DOTTED_ARROW', 'BIDIRECTIONAL_DOTTED_ARROW', 'SOLID_CROSS', 'DOTTED_CROSS', 'SOLID_POINT', 'DOTTED_POINT', got 'NEWLINE'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:410:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/sequenceDiagram-YUTGG2KN.mjs:482:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": true,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0034",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "easy",
+      "description_style": "structured",
+      "description": "Gość wybiera na domofonie numer mieszkania. Domofon dzwoni do mieszkańca. Mieszkaniec każe domofonowi otworzyć drzwi. Domofon daje gościowi sygnał, że drzwi są otwarte.",
+      "expected_mermaid": "sequenceDiagram\nparticipant G as Gość\nparticipant D as Domofon\nparticipant M as Mieszkaniec\n\nG->>D: Wybierz numer mieszkania\nD->>M: Zadzwoń do mieszkania\nM->>D: Otwórz drzwi\nD-->>G: Drzwi otwarte",
+      "raw_output": "sequenceDiagram\ngość ->> domofon: wybiera na domofonie\ndomofon ->> mieszkaniec: dzwoni do mieszkańca\nmieszkaniec ->> domofon: otworzy drzwi\ndomofon ->> gości: daje sygnał",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\ngość ->> domofon: wybiera na domofonie\ndomofon ->> mieszkaniec: dzwoni do mieszkańca\nmieszkaniec ->> domofon: otworzy drzwi\ndomofon ->> gości: daje sygnał",
+      "finish_reason": "stop",
+      "completion_tokens": 66,
+      "latency_s": 6.03,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.75,
+          "recall": 1.0,
+          "f1": 0.8571428571428571
+        },
+        "edge": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5
+        },
+        "shape_acc": null,
+        "node_pairs": [
+          {
+            "predicted_id": "gość",
+            "reference_id": "G",
+            "predicted_label": "gość",
+            "reference_label": "Gość",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "domofon",
+            "reference_id": "D",
+            "predicted_label": "domofon",
+            "reference_label": "Domofon",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "mieszkaniec",
+            "reference_id": "M",
+            "predicted_label": "mieszkaniec",
+            "reference_label": "Mieszkaniec",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          }
+        ],
+        "message_pairs": [
+          {
+            "predicted_id": "0",
+            "reference_id": "0",
+            "predicted_label": "wybiera na domofonie",
+            "reference_label": "Wybierz numer mieszkania",
+            "method": "embedding",
+            "similarity": 0.6548,
+            "matched": false
+          },
+          {
+            "predicted_id": "1",
+            "reference_id": "1",
+            "predicted_label": "dzwoni do mieszkańca",
+            "reference_label": "Zadzwoń do mieszkania",
+            "method": "embedding",
+            "similarity": 0.818,
+            "matched": true
+          },
+          {
+            "predicted_id": "2",
+            "reference_id": "2",
+            "predicted_label": "otworzy drzwi",
+            "reference_label": "Otwórz drzwi",
+            "method": "embedding",
+            "similarity": 0.8992,
+            "matched": true
+          }
+        ],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-none-0003",
+      "diagram_type": "none",
+      "difficulty": null,
+      "description_style": null,
+      "description": "Wczorajszy film był strasznie nudny. Aktorzy grali bez przekonania, a muzyka zupełnie nie pasowała do scen. Nie polecam nikomu.",
+      "expected_mermaid": "BRAK_PROCESU",
+      "raw_output": "sequenceDiagram\n  A->>B: Film był strasznie nudny\n  B->>C: Aktorzy grali bez przekonania\n  C->>D: Muzyka zupełnie nie pasowała do scen\n  D->>E: Nie polecam nikomu",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\n  A->>B: Film był strasznie nudny\n  B->>C: Aktorzy grali bez przekonania\n  C->>D: Muzyka zupełnie nie pasowała do scen\n  D->>E: Nie polecam nikomu",
+      "finish_reason": "stop",
+      "completion_tokens": 63,
+      "latency_s": 5.56,
+      "render_error": "",
+      "score": {
+        "mermaid_only": false,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": false
+      }
+    }
+  ]
+}
