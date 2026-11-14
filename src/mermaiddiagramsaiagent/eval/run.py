@@ -8,6 +8,7 @@ Inference goes through the OpenAI-compatible API; the server is configured in .e
 import argparse
 import hashlib
 import json
+import random
 import re
 import subprocess
 import tempfile
@@ -47,7 +48,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--embedding-model", default=DEFAULT_EMBEDDING_MODEL, help="used with --matching embedding")
     parser.add_argument("--threshold", type=float, default=DEFAULT_THRESHOLD, help="min cosine similarity for a match")
     parser.add_argument("--limit", type=int, help="only the first N examples (for quick checks)")
+    parser.add_argument("--sample", type=int, help="only N examples, drawn from every diagram type (for quick checks)")
     return parser.parse_args()
+
+
+def sample_records(records: list[dict[str, Any]], n: int) -> list[dict[str, Any]]:
+    """`n` records in file order: every diagram type gets a share in proportion to its size, but at least one
+    record, drawn with a fixed seed. The first N records of the golden set are all flowcharts."""
+    if n >= len(records):
+        return records
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for record in records:
+        groups.setdefault(record["diagram_type"], []).append(record)
+    quotas = {name: max(1, round(n * len(group) / len(records))) for name, group in groups.items()}
+    largest = max(groups, key=lambda name: len(groups[name]))
+    quotas[largest] = max(0, quotas[largest] + n - sum(quotas.values()))  # rounding must not change the total
+    rng = random.Random(SEED)
+    chosen = {record["id"] for name, group in groups.items() for record in rng.sample(group, quotas[name])}
+    return [record for record in records if record["id"] in chosen]
 
 
 def main() -> None:
@@ -61,6 +79,8 @@ def main() -> None:
     check_mmdc_works()
     system_prompt = SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
     records = read_jsonl(args.data)[: args.limit]
+    if args.sample:
+        records = sample_records(records, args.sample)
 
     examples = []
     with tempfile.TemporaryDirectory() as tmp:
@@ -196,6 +216,7 @@ def run_config(args: argparse.Namespace, client: OpenAI, system_prompt: str) -> 
         "seed": SEED,
         "max_tokens": args.max_tokens,
         "limit": args.limit,
+        "sample": args.sample,
         "system_prompt": system_prompt,
         "system_prompt_sha256": sha256(system_prompt.encode("utf-8")),
         "data": args.data.as_posix(),

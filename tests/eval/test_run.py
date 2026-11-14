@@ -5,7 +5,7 @@ import pytest
 
 from mermaiddiagramsaiagent.eval.metrics import score_example
 from mermaiddiagramsaiagent.eval.output import REFUSAL, normalize_output
-from mermaiddiagramsaiagent.eval.run import aggregate, summarize
+from mermaiddiagramsaiagent.eval.run import aggregate, sample_records, summarize
 
 REFERENCE = "flowchart TD\n    A[Złóż wniosek] --> B[Rozpatrz]"
 
@@ -82,3 +82,30 @@ def test_refusal_ok_needs_the_bare_refusal_string(raw_output: str, expected: boo
     score = score_example(normalize_output(raw_output), renders=False, reference_code=REFUSAL)
     assert score.refusal_ok is expected
     assert score.node.f1 == 0.0 and not score.renders
+
+
+def records_of(**counts: int) -> list[dict[str, Any]]:
+    return [{"id": f"{kind}-{i}", "diagram_type": kind} for kind, count in counts.items() for i in range(count)]
+
+
+def test_sample_has_the_asked_size_and_every_diagram_type() -> None:
+    records = records_of(flowchart=91, sequenceDiagram=34, none=5)
+    sample = sample_records(records, 15)
+    kinds = [record["diagram_type"] for record in sample]
+    assert (kinds.count("flowchart"), kinds.count("sequenceDiagram"), kinds.count("none")) == (10, 4, 1)
+
+
+def test_sample_keeps_the_file_order_and_is_the_same_every_time() -> None:
+    records = records_of(flowchart=20, sequenceDiagram=10)
+    sample = sample_records(records, 6)
+    assert sample == sample_records(records, 6)
+    assert sample == [record for record in records if record in sample]
+
+
+def test_small_sample_still_has_the_asked_size() -> None:
+    assert len(sample_records(records_of(flowchart=91, sequenceDiagram=34, none=5), 3)) == 3
+
+
+def test_sample_larger_than_the_data_returns_everything() -> None:
+    records = records_of(flowchart=2)
+    assert sample_records(records, 5) == records
