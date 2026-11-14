@@ -24,12 +24,15 @@ Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist ye
 - `src/mermaiddiagramsaiagent/train/` – LoRA training and export *(planned)*
 - `tests/` – pytest; tests that need `data/raw/` are skipped when it has not been downloaded
 - `results/` – one file per evaluation run, including the full config
+- `jobs/` – Kaggle jobs: `JOBS.md` (list and status) and one folder per job in `runs/` (see `KAGGLE.md`)
 
 ## Setup (once)
 - `uv sync`
 - Mermaid CLI (`mmdc`) on `PATH`. If it fails with "Could not find chrome-headless-shell", install the browser
   with the Puppeteer bundled in mermaid-cli: run `node install.mjs` in
   `<mermaid-cli install dir>/node_modules/puppeteer`. `report-raw` and `evaluate` check `mmdc` before running.
+  In a container (root) Chromium needs `--no-sandbox`: put `{"args": ["--no-sandbox"]}` in a JSON file and set
+  `MMDC_PUPPETEER_CONFIG` to its path.
 - Copy `.env.example` to `.env` (inference server URL; the API key is a dummy for Ollama).
 - Base model: `ollama pull qwen3:4b-instruct-2507-q8_0`
 - Embedding model for node matching in `evaluate`: `ollama pull bge-m3`
@@ -44,8 +47,11 @@ Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist ye
 - `uv run build-golden --model <name> [--kaggle-proxy] [--flowcharts N] [--sequences N] [--out <jsonl>]` – generated
   part of the golden set: Polish texts and a description for chosen source diagrams, structure and `mmdc` checked;
   keeps records already in the output file; read every record afterwards. `--kaggle-proxy`: see `KAGGLE.md` §9
-- `uv run evaluate --model <name> --data <jsonl> [--limit N] [--matching exact]` – evaluate a model, save the run
-  to `results/`; nodes are matched by label embeddings unless `--matching exact`
+- `uv run evaluate --model <name> --data <jsonl> [--limit N] [--sample N] [--matching exact]` – evaluate a model,
+  save the run to `results/`; nodes are matched by label embeddings unless `--matching exact`; `--sample N` takes
+  N records from every diagram type (fixed seed), for smoke tests
+- `uv run kaggle-eval --model <name> --data <jsonl> --out <dir> [-- <evaluate arguments>]` – only inside a Kaggle
+  kernel: installs Node, `mmdc` and Ollama, pulls the models, runs `evaluate`, copies the run file to `<dir>`
 - `uv run pytest` – tests
 - Render a single diagram: `mmdc -i diagram.mmd -o out.svg`
 

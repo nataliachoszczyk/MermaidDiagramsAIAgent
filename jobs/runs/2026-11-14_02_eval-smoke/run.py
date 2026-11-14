@@ -1,4 +1,4 @@
-"""Smoke test of the golden baseline: the 4B base model, zero-shot, on 15 golden records of every diagram type."""
+"""Smoke test of the golden baseline: the 4B base model, zero-shot, on 10 golden records of every diagram type."""
 
 import subprocess
 import sys
@@ -10,7 +10,7 @@ CODENAME = "eval-smoke"
 MODEL = "qwen3:4b-instruct-2507-q8_0"
 DATA = "data/golden/golden.jsonl"
 KAGGLE_EVAL_ARGS = []
-EVALUATE_ARGS = ["--sample", "15"]
+EVALUATE_ARGS = ["--sample", "10"]
 
 subprocess.run(["git", "clone", "--depth", "1", "--branch", BRANCH, REPO, CLONE], check=True)
 print("commit", subprocess.run(["git", "-C", CLONE, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip())

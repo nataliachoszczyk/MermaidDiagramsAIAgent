@@ -3,7 +3,7 @@
 How to run heavy jobs (LoRA training, large evaluations) on Kaggle from this repository. The local machine has
 the code and the records, Kaggle does the computation, git connects the two.
 
-**Status:** the method is fixed, but `jobs/` does not exist yet. Create it with the first job.
+**Status:** `jobs/` exists; the jobs and their results are listed in `jobs/JOBS.md`.
 
 ## 1. Setup
 
@@ -134,6 +134,15 @@ Data:
   used by a training job.
 - The output of one kernel can be the input of another: `"kernel_sources": ["<user>/mermaid-<job name>"]`.
   Use this to pass a trained adapter to an evaluation job without a download.
+
+### Evaluation jobs
+
+The Kaggle image has an older Python than the project needs and neither Ollama nor `mmdc`. An evaluation
+`run.py` therefore installs `uv`, runs `uv sync` in the clone and calls `uv run kaggle-eval`
+(`src/mermaiddiagramsaiagent/kaggle_eval.py`): it installs Node, mermaid-cli (same version as on the local
+machine) and Ollama, starts the server, pulls the models, runs `evaluate` and copies the run file and
+`environment.json` (GPU names, `ollama ps`, total time) to `/kaggle/working/<codename>/`. Copy the run file
+from the job's `output/` to `results/` if its numbers are reported.
 
 ## 5. Two GPUs
 
