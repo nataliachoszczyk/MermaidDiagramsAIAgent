@@ -49,7 +49,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--threshold", type=float, default=DEFAULT_THRESHOLD, help="min cosine similarity for a match")
     parser.add_argument("--limit", type=int, help="only the first N examples (for quick checks)")
     parser.add_argument("--sample", type=int, help="only N examples, drawn from every diagram type (for quick checks)")
+    parser.add_argument("--ids", help="only the records with these ids, comma-separated (to repeat a quick check)")
     return parser.parse_args()
+
+
+def select_records(records: list[dict[str, Any]], ids: list[str]) -> list[dict[str, Any]]:
+    """The records with the given ids, in file order; an id that is not in the data is an error."""
+    unknown = sorted(set(ids) - {record["id"] for record in records})
+    if unknown:
+        raise SystemExit(f"ids not in the data: {', '.join(unknown)}")
+    return [record for record in records if record["id"] in ids]
 
 
 def sample_records(records: list[dict[str, Any]], n: int) -> list[dict[str, Any]]:
@@ -81,6 +90,8 @@ def main() -> None:
     records = read_jsonl(args.data)[: args.limit]
     if args.sample:
         records = sample_records(records, args.sample)
+    if args.ids:
+        records = select_records(records, args.ids.split(","))
 
     examples = []
     with tempfile.TemporaryDirectory() as tmp:
@@ -217,6 +228,7 @@ def run_config(args: argparse.Namespace, client: OpenAI, system_prompt: str) -> 
         "max_tokens": args.max_tokens,
         "limit": args.limit,
         "sample": args.sample,
+        "ids": args.ids,
         "system_prompt": system_prompt,
         "system_prompt_sha256": sha256(system_prompt.encode("utf-8")),
         "data": args.data.as_posix(),

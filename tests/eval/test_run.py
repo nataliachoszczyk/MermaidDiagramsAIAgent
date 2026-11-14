@@ -5,7 +5,7 @@ import pytest
 
 from mermaiddiagramsaiagent.eval.metrics import score_example
 from mermaiddiagramsaiagent.eval.output import REFUSAL, normalize_output
-from mermaiddiagramsaiagent.eval.run import aggregate, sample_records, summarize
+from mermaiddiagramsaiagent.eval.run import aggregate, sample_records, select_records, summarize
 
 REFERENCE = "flowchart TD\n    A[Złóż wniosek] --> B[Rozpatrz]"
 
@@ -109,3 +109,13 @@ def test_small_sample_still_has_the_asked_size() -> None:
 def test_sample_larger_than_the_data_returns_everything() -> None:
     records = records_of(flowchart=2)
     assert sample_records(records, 5) == records
+
+
+def test_select_records_keeps_the_file_order() -> None:
+    records = records_of(flowchart=3)
+    assert select_records(records, ["flowchart-2", "flowchart-0"]) == [records[0], records[2]]
+
+
+def test_select_records_rejects_an_unknown_id() -> None:
+    with pytest.raises(SystemExit, match="flowchart-9"):
+        select_records(records_of(flowchart=3), ["flowchart-9"])
