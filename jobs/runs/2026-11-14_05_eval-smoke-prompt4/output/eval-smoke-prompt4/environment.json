@@ -1,0 +1,6 @@
+{
+  "gpu": [],
+  "ollama_ps": "NAME                           ID              SIZE      PROCESSOR    CONTEXT    RUNNER      UNTIL              \nqwen3:4b-instruct-2507-q8_0    aa7252f68dda    5.0 GB    100% CPU     4096       llamacpp    4 minutes from now    \nbge-m3:latest                  790764642607    1.2 GB    100% CPU     4096       llamacpp    4 minutes from now    \n",
+  "ollama": "ollama version is 0.40.16",
+  "total_seconds": 1784
+}
