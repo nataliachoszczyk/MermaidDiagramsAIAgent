@@ -141,6 +141,9 @@ Every generated record keeps the generator model name and the generation paramet
 - `zero-shot`: system prompt + description.
 - `few-shot`: system prompt + k = 3 fixed examples taken from `val` (never golden) + description.
 - Temperature 0, seed 0, fixed max tokens. **[OPEN]** max tokens = 1024.
+- Thinking is off for every model. The base model is an instruct model without thinking; a hybrid model
+  (`qwen3:1.7b`, `qwen3:0.6b`) is run with `--no-think` (`reasoning_effort: none`), and the run file keeps the
+  length of any reasoning text per example (`reasoning_chars`), which must be 0.
 
 ### 4.2 Per-example pipeline
 

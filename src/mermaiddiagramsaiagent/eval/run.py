@@ -35,6 +35,7 @@ TEMPERATURE = 0.0
 SEED = 0
 DEFAULT_MAX_TOKENS = 1024
 DEFAULT_EMBEDDING_MODEL = "bge-m3:latest"
+NO_THINK_BODY = {"reasoning_effort": "none"}  # Ollama: turns thinking off for models where it is on/off
 GROUP_KEYS = ("diagram_type", "difficulty", "description_style")
 
 
@@ -49,6 +50,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--threshold", type=float, default=DEFAULT_THRESHOLD, help="min cosine similarity for a match")
     parser.add_argument("--limit", type=int, help="only the first N examples (for quick checks)")
     parser.add_argument("--sample", type=int, help="only N examples, drawn from every diagram type (for quick checks)")
+    parser.add_argument("--no-think", action="store_true", help="turn thinking off (hybrid models, e.g. qwen3:1.7b)")
     parser.add_argument("--ids", help="only the records with these ids, comma-separated (to repeat a quick check)")
     return parser.parse_args()
 
@@ -97,7 +99,8 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         for i, record in enumerate(records, start=1):
             example = evaluate_record(
-                client, args.model, system_prompt, args.max_tokens, record, Path(tmp), embed, args.threshold
+                client, args.model, system_prompt, args.max_tokens, record, Path(tmp), embed, args.threshold,
+                args.no_think,
             )
             examples.append(example)
             print_progress(i, len(records), example)
@@ -135,6 +138,7 @@ def evaluate_record(
     work_dir: Path,
     embed: Embedder | None,
     threshold: float,
+    no_think: bool = False,
 ) -> dict[str, Any]:
     started = time.perf_counter()
     response = client.chat.completions.create(
@@ -146,6 +150,7 @@ def evaluate_record(
         temperature=TEMPERATURE,
         seed=SEED,
         max_tokens=max_tokens,
+        extra_body=NO_THINK_BODY if no_think else None,
     )
     latency_s = time.perf_counter() - started
     choice = response.choices[0]
@@ -164,6 +169,7 @@ def evaluate_record(
         "description": record["description"],
         "expected_mermaid": record["expected_mermaid"],
         "raw_output": raw_output,
+        "reasoning_chars": len(getattr(choice.message, "reasoning", None) or ""),  # 0 when the model did not think
         "code": output.code,
         "finish_reason": choice.finish_reason,
         "completion_tokens": response.usage.completion_tokens if response.usage else None,
@@ -226,6 +232,7 @@ def run_config(args: argparse.Namespace, client: OpenAI, system_prompt: str) -> 
         "temperature": TEMPERATURE,
         "seed": SEED,
         "max_tokens": args.max_tokens,
+        "no_think": args.no_think,
         "limit": args.limit,
         "sample": args.sample,
         "ids": args.ids,
