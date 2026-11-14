@@ -8,7 +8,8 @@ in a message or a note, and messages with every arrow type (`->>`, `-->>`, `->`,
 Notes, activations, blocks (`loop`, `alt`, `opt`, `par`, `critical`, `break`, `rect`, `box`), `autonumber`,
 `title` and actor menus are skipped silently: a message inside a block is still a message, the block itself is
 not scored (design.md §4.3). Any other line is skipped with a warning. Whether the code is valid Mermaid is
-decided by `mmdc`, not by this parser.
+decided by `mmdc`, not by this parser. Unlike in a flowchart, quotation marks around an alias or a message
+text are not syntax: Mermaid draws them, so they stay in the text.
 """
 
 import json
@@ -16,7 +17,7 @@ import re
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 
-from mermaiddiagramsaiagent.eval.flowchart import ParseError, clean_label
+from mermaiddiagramsaiagent.eval.flowchart import ParseError, clean_text
 
 HEADER = "sequenceDiagram"
 DEFAULT_KIND = "participant"
@@ -106,7 +107,7 @@ def _parse_statement(statement: str, diagram: SequenceDiagram) -> None:
         src, dst = message.group("src"), message.group("dst")
         _use(src, diagram)
         _use(dst, diagram)
-        diagram.messages.append(Message(src, dst, clean_label(message.group("text")), message.group("arrow")))
+        diagram.messages.append(Message(src, dst, clean_text(message.group("text")), message.group("arrow")))
     elif not SKIP_RE.match(statement):
         diagram.warnings.append(f"unrecognized statement: {statement!r}")
 
@@ -120,7 +121,7 @@ def _declare(declaration: re.Match[str], diagram: SequenceDiagram) -> None:
     if existing is not None and alias is None:
         return  # declared again without a new label: Mermaid keeps the first one
     kind = str(config.get("type") or declaration.group("kind").lower())
-    label = clean_label(str(alias)) if alias is not None else participant_id
+    label = clean_text(str(alias)) if alias is not None else participant_id
     diagram.participants[participant_id] = Participant(participant_id, label, kind)
 
 

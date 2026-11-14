@@ -9,7 +9,7 @@ proposed default. When a decision is made, update this file and the decision log
 - **Output:** bare Mermaid code, nothing else.
 - **In scope:** `flowchart` (any direction) and `sequenceDiagram`.
 - **Out of scope inputs** (text that does not describe a process): the model must answer with the exact
-  refusal string `BRAK_PROCESU`. **[OPEN]** exact string.
+  refusal string `BRAK_PROCESU` (confirmed by the team, 2026-11-13).
 - **Model under test:** a small open model (~4B, optionally 9B) served through an OpenAI-compatible API (Ollama).
   Base model: `Qwen3-4B-Instruct-2507` (Ollama `qwen3:4b-instruct-2507-q8_0`, HF `Qwen/Qwen3-4B-Instruct-2507`).
 
@@ -38,8 +38,8 @@ The golden set never feeds training, validation or few-shot prompts. Train/val a
 {
   "id": "golden-flow-0001",
   "split": "golden",
-  "source": "ronnieallen | mermaidseqbench | handwritten | synthetic",
-  "source_ref": "original id or URL, null for handwritten",
+  "source": "ronnieallen | mermaidseqbench | handwritten | claude-drafted | synthetic",
+  "source_ref": "original id or URL, null for handwritten and claude-drafted",
   "license": "CC-BY-4.0 | Apache-2.0 | own",
   "diagram_type": "flowchart | sequenceDiagram | none",
   "difficulty": "easy | medium | hard",
@@ -78,10 +78,29 @@ defined in §3.
 | flowchart | `RonnieAllen/mermaid-flowchart-dataset` (CC-BY-4.0) | ~100 | prompts there are underspecified, so regenerate a step-by-step description from the diagram; translate description and labels to Polish; human check |
 | sequenceDiagram | `ibm-research/MermaidSeqBench` (Apache-2.0) | ~30 | one variant per scenario (the set is ~30 scenarios augmented ~4×); translate; human check |
 | handwritten | team | 20–30 | written "in user words", includes ~5 out-of-scope texts |
+| claude-drafted | written by Claude without a source diagram | 16 | 11 easy records (7 flowcharts, 4 sequence diagrams), because the public sources have almost none: styles in turn; parse, difficulty rule and `mmdc` render checked. 5 out-of-scope texts (`golden-none-*`, `difficulty: null`). Human check |
 
-**Status: not built yet — open task.** Needs a script that generates the step-by-step Polish descriptions and
-translated labels with a local model, an `mmdc` check of every diagram, and a human pass over every record.
-Until then the evaluation pipeline runs on the English pilot (§2.1).
+**Status (2026-11-14): `data/golden/golden.jsonl` has 130 records: 114 generated with `uv run build-golden`
+(`data/golden.py`, prompt `prompts/golden.txt`) and 16 `claude-drafted` (11 easy diagrams, 5 out-of-scope texts); none read by a human yet.** For each chosen source diagram one model call translates the texts
+to Polish and writes the description in the style assigned to the record. The command then checks that the
+translation has the structure of the source (same ids, shapes, edges; same participants and messages), that
+texts were translated, and that the diagram renders with `mmdc`; a failed record is retried twice with the
+problems named, then skipped. Every record still needs a human read. Hand-written records are added by the team.
+
+Which source diagrams are used:
+
+- RonnieAllen (174 diagrams outside the pilot): only **84 are usable** as references. The others have a logic
+  defect: a decision with a single branch (71 diagrams), a labelled branch that leaves a plain step, not exactly
+  one start and one end, or a shape that does not render. The 84 cover **41 topics** (the dataset has several
+  diagrams per topic; some topics also occur in the pilot, with other diagrams). The command orders them so
+  that the first 41 are one per topic. None of them is `easy`: 77 `medium`, 7 `hard`.
+- MermaidSeqBench: the scenario and variant are the end of `nl_task_title` (`Read water meter 4/II`): 30
+  scenarios, 2 to 32 variants each. The command takes the first variant of each scenario in which every
+  participant sends or receives a message (3 of the 132 diagrams have an idle participant).
+
+Generator model: a hosted model through the Kaggle Model Proxy (`KAGGLE.md` §9), `anthropic/claude-sonnet-5@default`
+in the trial. The rule about a local open model applies to training data, not to the golden set. The model
+rejects `temperature`, so a rerun gives different texts; the generated file is the record, not the command.
 
 Description generator: `uv run describe` (`data/describe.py`, prompt `prompts/describe.txt`), output language
 as a parameter, temperature 0. For each record it prints the share of node labels found verbatim in the
@@ -91,8 +110,10 @@ descriptions. Label translation for golden is not implemented yet. **[OPEN]** ge
 `qwen3:30b-a3b` without thinking).
 
 Difficulty (flowchart, as implemented in `data/pilot.py`): `easy` ≤ 6 nodes and no decision; `medium`
-≤ 12 nodes and ≤ 2 decisions; `hard` otherwise. **[OPEN]** thresholds; whether loops, parallel paths and
-subgraphs also make a diagram `hard` (not implemented); the rule for sequence diagrams.
+≤ 12 nodes and ≤ 2 decisions; `hard` otherwise. Sequence diagram (as implemented in `data/golden.py`, proposed):
+`easy` ≤ 8 messages and no block (`alt`, `loop`, `opt`, `par`, ...); `medium` ≤ 14 messages and ≤ 1 block;
+`hard` otherwise (the 30 chosen diagrams: 1 easy, 22 medium, 7 hard). **[OPEN]** all thresholds; whether loops,
+parallel paths and subgraphs also make a flowchart `hard` (not implemented).
 
 Rejected: `Celiadraw/text-to-mermaid` (LLM-generated, contains diagrams that do not render).
 
@@ -230,3 +251,6 @@ scores) and aggregated metrics. Few-shot is not implemented until `val` exists.
 | 2026-11-13 | Three description styles in golden (`structured`, `natural`, `brief`), stored in `description_style`, results reported per style | The base model already scores high on step-by-step descriptions (PL pilot node F1 0.87); the harder styles are closer to real use and are where fine-tuning can show a gain |
 | 2026-11-13 | System prompt stays unchanged | Team decision; the prompt is shared by all stages, so it is fixed before the first golden run |
 | 2026-11-13 | Sequence diagrams: participants are nodes, messages are edges; a message matches by sender, receiver and text | (sender, receiver) pairs alone are nearly the same for any diagram with 3–4 participants; order and blocks stay unscored in v1 |
+| 2026-11-14 | Golden texts (translation, descriptions) are generated with a hosted model through the Kaggle Model Proxy | No local GPU; a strong model writes better Polish, so fewer manual fixes; the local-open-model rule is about training data |
+| 2026-11-14 | Only RonnieAllen diagrams without logic defects go into golden (84 of 174) | 71 source diagrams have a decision with one branch; a broken reference would be unfair to the model |
+| 2026-11-14 | A golden record whose source diagram has a logic defect is corrected by hand (diagram and description); `notes` says what and why | The human read found 14 such diagrams among the 84; an illogical reference makes the description unnatural. These records no longer have the structure of the source |

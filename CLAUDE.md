@@ -16,7 +16,9 @@ Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist ye
 - `data/synthetic/` – generated training and validation data *(planned)*
 - `prompts/system.txt` – system prompt shared by every model and stage
 - `prompts/describe.txt` – prompt for generating descriptions from diagrams (`uv run describe`)
-- `src/mermaiddiagramsaiagent/data/` – dataset definitions (`sources.py`), download, raw-data report, pilot builder, JSONL I/O
+- `prompts/golden.txt` – prompt for translating a source diagram and describing it (`uv run build-golden`)
+- `src/mermaiddiagramsaiagent/data/` – dataset definitions (`sources.py`), download, raw-data report, pilot builder,
+  golden builder, JSONL I/O
 - `src/mermaiddiagramsaiagent/eval/` – output normalization, rendering (`mmdc`), flowchart parser, metrics, evaluation runner
 - `src/mermaiddiagramsaiagent/synth/` – data synthesis: topics → diagram → filters → description → coverage check *(planned)*
 - `src/mermaiddiagramsaiagent/train/` – LoRA training and export *(planned)*
@@ -39,6 +41,9 @@ Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist ye
 - `uv run build-pilot` – build `data/pilot/pilot_en.jsonl`
 - `uv run describe --data <jsonl> --model <name> --language <lang> [--no-think]` – replace descriptions with
   step-by-step ones generated from `expected_mermaid` → `<stem>_described.jsonl`; read every one afterwards
+- `uv run build-golden --model <name> [--kaggle-proxy] [--flowcharts N] [--sequences N] [--out <jsonl>]` – generated
+  part of the golden set: Polish texts and a description for chosen source diagrams, structure and `mmdc` checked;
+  keeps records already in the output file; read every record afterwards. `--kaggle-proxy`: see `KAGGLE.md` §9
 - `uv run evaluate --model <name> --data <jsonl> [--limit N] [--matching exact]` – evaluate a model, save the run
   to `results/`; nodes are matched by label embeddings unless `--matching exact`
 - `uv run pytest` – tests

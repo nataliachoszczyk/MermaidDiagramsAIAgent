@@ -20,6 +20,7 @@ download-raw = "mermaiddiagramsaiagent.data.download:main"
 report-raw = "mermaiddiagramsaiagent.data.report:main"
 build-pilot = "mermaiddiagramsaiagent.data.pilot:main"
 describe = "mermaiddiagramsaiagent.data.describe:main"
+build-golden = "mermaiddiagramsaiagent.data.golden:main"
 evaluate = "mermaiddiagramsaiagent.eval.run:main"
 
 [build-system]

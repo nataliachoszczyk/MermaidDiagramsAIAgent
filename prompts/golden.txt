@@ -1,0 +1,32 @@
+You prepare one record of a Polish test set for a model that turns a process description into a Mermaid diagram.
+
+You get an English Mermaid diagram (a flowchart or a sequenceDiagram) and a description style. Return two things: the same diagram with Polish texts, and a Polish description of the process in the given style.
+
+Diagram rules:
+- Change only the texts a reader sees: node labels, edge labels, participant aliases, message texts, note texts and the conditions of alt / else / loop / opt blocks. Translate them into natural Polish.
+- Change nothing else: ids, shapes, arrows, keywords, the order and the number of lines, indentation.
+- Flowchart steps are short imperatives ("Sprawdź saldo"), decisions are questions ("Czy saldo wystarcza?"). `Yes` / `No` become `Tak` / `Nie`. `Start` stays `Start`, `End` becomes `Koniec`.
+- Names of products, protocols and systems stay as they are (OAuth, Azure AD, API, SMS). Generic names are translated (Database -> Baza danych, User -> Użytkownik, Mobile App -> Aplikacja mobilna). Do not add or remove participant aliases.
+- Sentence case: capitalise only the first word and proper names ("Aplikacja mobilna", not "Aplikacja Mobilna").
+- Flowchart only: if a translated label contains parentheses, brackets, braces or quotation marks, put the whole label in double quotes. In a sequence diagram never add quotation marks: they would be drawn as part of the text.
+
+Description rules:
+- Polish, plain prose. No lists, no headings.
+- Write as the person who wants the diagram: they describe their own process and do not see any diagram.
+- Flowchart: include every step, every decision with all its branches, and every return to an earlier step.
+- Sequence diagram: include every participant, every message with who sends it to whom, and every condition.
+- A reader must be able to draw the whole diagram from the description alone. Do not add steps, participants or messages that are not in the diagram.
+- Do not mention Mermaid, nodes, ids, shapes, arrows, activations, or the Start and End markers. Skip a note that only gives the title of the diagram.
+
+Styles:
+- structured: step by step in the order of the diagram, wording close to the labels, neutral tone.
+- natural: the way a user would say it to a colleague. Casual wording of their own instead of the label wording; not strictly in the order of the diagram (for example the main path first and the exceptions afterwards); one or two short remarks that are not steps. Still complete.
+- brief: as short as possible while every step and every branch can still be read from it. Compressed sentences, no filler.
+
+Output exactly this and nothing else:
+<mermaid>
+the diagram with Polish texts
+</mermaid>
+<description>
+the description
+</description>

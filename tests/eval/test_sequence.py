@@ -70,11 +70,15 @@ def test_alias_is_the_label() -> None:
     assert messages(code) == [("A", "J", "Hello John, how are you?")]
 
 
-def test_alias_with_line_break_and_quotes() -> None:
-    assert labels('sequenceDiagram\n    participant A as Alice<br/>Johnson\n    participant B as "Baza danych"') == [
-        "Alice Johnson",
-        "Baza danych",
-    ]
+def test_alias_with_line_break() -> None:
+    assert labels("sequenceDiagram\n    participant A as Alice<br/>Johnson") == ["Alice Johnson"]
+
+
+def test_quotation_marks_are_part_of_the_text() -> None:
+    # Checked with mmdc: unlike in a flowchart, Mermaid draws these quotation marks.
+    code = 'sequenceDiagram\n    participant B as "Baza danych"\n    A->>B: "Błąd (invalid_grant)"'
+    assert labels(code) == ['"Baza danych"', "A"]
+    assert messages(code) == [("A", "B", '"Błąd (invalid_grant)"')]
 
 
 def test_json_configuration() -> None:
