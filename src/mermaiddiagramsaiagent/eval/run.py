@@ -1,6 +1,8 @@
 """Evaluate a model on an evaluation set (JSONL in the design.md §2.2 format) and save one result file.
 
     uv run evaluate --model qwen3:4b-instruct-2507-q8_0 --data data/pilot/pilot_en.jsonl
+    uv run evaluate --model qwen3:4b-instruct-2507-q8_0 --data data/golden/golden.jsonl \
+        --setting few-shot --shots data/shots/shots_pl.jsonl
 
 Inference goes through the OpenAI-compatible API; the server is configured in .env (see .env.example).
 """
@@ -30,6 +32,7 @@ from mermaiddiagramsaiagent.eval.render import RenderResult, check_mmdc_works, m
 from mermaiddiagramsaiagent.llm import check_model_available, make_client
 
 SYSTEM_PROMPT_PATH = Path("prompts/system.txt")
+GOLDEN_PATH = Path("data/golden/golden.jsonl")
 RESULTS_DIR = Path("results")
 TEMPERATURE = 0.0
 SEED = 0
@@ -37,13 +40,16 @@ DEFAULT_MAX_TOKENS = 1024
 DEFAULT_EMBEDDING_MODEL = "bge-m3:latest"
 NO_THINK_BODY = {"reasoning_effort": "none"}  # Ollama: turns thinking off for models where it is on/off
 GROUP_KEYS = ("diagram_type", "difficulty", "description_style")
+DEFAULT_K = 3
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--model", required=True, help="model name as the server knows it")
     parser.add_argument("--data", type=Path, required=True, help="evaluation JSONL")
-    parser.add_argument("--setting", default="zero-shot", choices=["zero-shot"], help="few-shot needs a val split")
+    parser.add_argument("--setting", default="zero-shot", choices=["zero-shot", "few-shot"])
+    parser.add_argument("--shots", type=Path, help="few-shot examples (JSONL, §2.2 format); never golden records")
+    parser.add_argument("--k", type=int, default=DEFAULT_K, help="number of few-shot examples (first k of --shots)")
     parser.add_argument("--max-tokens", type=int, default=DEFAULT_MAX_TOKENS)
     parser.add_argument("--matching", default="embedding", choices=["embedding", "exact"], help="node matching")
     parser.add_argument("--embedding-model", default=DEFAULT_EMBEDDING_MODEL, help="used with --matching embedding")
@@ -52,7 +58,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sample", type=int, help="only N examples, drawn from every diagram type (for quick checks)")
     parser.add_argument("--no-think", action="store_true", help="turn thinking off (hybrid models, e.g. qwen3:1.7b)")
     parser.add_argument("--ids", help="only the records with these ids, comma-separated (to repeat a quick check)")
-    return parser.parse_args()
+    args = parser.parse_args()
+    if (args.setting == "few-shot") != (args.shots is not None):
+        parser.error("--shots is required with --setting few-shot and only allowed with it")
+    return args
 
 
 def select_records(records: list[dict[str, Any]], ids: list[str]) -> list[dict[str, Any]]:
@@ -89,7 +98,9 @@ def main() -> None:
         embed = make_embedder(client, args.embedding_model)
     check_mmdc_works()
     system_prompt = SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
-    records = read_jsonl(args.data)[: args.limit]
+    all_records = read_jsonl(args.data)
+    shots = load_shots(args.shots, args.k, all_records + golden_records()) if args.shots else []
+    records = all_records[: args.limit]
     if args.sample:
         records = sample_records(records, args.sample)
     if args.ids:
@@ -100,19 +111,52 @@ def main() -> None:
         for i, record in enumerate(records, start=1):
             example = evaluate_record(
                 client, args.model, system_prompt, args.max_tokens, record, Path(tmp), embed, args.threshold,
-                args.no_think,
+                args.no_think, shots,
             )
             examples.append(example)
             print_progress(i, len(records), example)
 
     result = {
-        "config": run_config(args, client, system_prompt),
+        "config": run_config(args, client, system_prompt, shots),
         "summary": summarize(examples),
         "examples": examples,
     }
     path = save_result(result, args)
     print_summary(result["summary"])
     print(f"\nSaved to {path}")
+
+
+def golden_records() -> list[dict[str, Any]]:
+    return read_jsonl(GOLDEN_PATH) if GOLDEN_PATH.exists() else []
+
+
+def load_shots(path: Path, k: int, forbidden: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """First k records of the shots file. Refuses a shot that shares its diagram, description or source record
+    with a forbidden record (the evaluation data and the golden set: design.md §2.1)."""
+    shots = read_jsonl(path)
+    if len(shots) < k:
+        raise SystemExit(f"{path} has {len(shots)} examples, --k is {k}")
+    shots = shots[:k]
+    leaked = [shot["id"] for shot in shots if any(shares_source(shot, record) for record in forbidden)]
+    if leaked:
+        raise SystemExit(f"few-shot examples overlap the evaluation data or the golden set: {', '.join(leaked)}")
+    return shots
+
+
+def shares_source(shot: dict[str, Any], record: dict[str, Any]) -> bool:
+    same_ref = shot.get("source_ref") is not None and shot.get("source_ref") == record.get("source_ref")
+    same_text = any(shot[key].strip() == record[key].strip() for key in ("expected_mermaid", "description"))
+    return same_ref or same_text
+
+
+def build_messages(system_prompt: str, shots: list[dict[str, Any]], description: str) -> list[dict[str, str]]:
+    """System prompt, each shot as a user/assistant turn (design.md §4.1), then the description."""
+    messages = [{"role": "system", "content": system_prompt}]
+    for shot in shots:
+        messages.append({"role": "user", "content": shot["description"]})
+        messages.append({"role": "assistant", "content": shot["expected_mermaid"]})
+    messages.append({"role": "user", "content": description})
+    return messages
 
 
 def make_embedder(client: OpenAI, model: str) -> Embedder:
@@ -139,14 +183,12 @@ def evaluate_record(
     embed: Embedder | None,
     threshold: float,
     no_think: bool = False,
+    shots: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     started = time.perf_counter()
     response = client.chat.completions.create(
         model=model,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": record["description"]},
-        ],
+        messages=build_messages(system_prompt, shots or [], record["description"]),
         temperature=TEMPERATURE,
         seed=SEED,
         max_tokens=max_tokens,
@@ -221,13 +263,18 @@ def mean_or_none(values: Iterable[float]) -> float | None:
     return mean(items) if items else None
 
 
-def run_config(args: argparse.Namespace, client: OpenAI, system_prompt: str) -> dict[str, Any]:
+def run_config(
+    args: argparse.Namespace, client: OpenAI, system_prompt: str, shots: list[dict[str, Any]]
+) -> dict[str, Any]:
     embedding = args.matching == "embedding"
     return {
         "date": datetime.now().isoformat(timespec="seconds"),
         "model": args.model,
         "model_digest": ollama_digest(str(client.base_url), args.model),
         "setting": args.setting,
+        "shots": args.shots.as_posix() if args.shots else None,
+        "shots_sha256": sha256(args.shots.read_bytes()) if args.shots else None,
+        "shot_ids": [shot["id"] for shot in shots],
         "base_url": str(client.base_url),
         "temperature": TEMPERATURE,
         "seed": SEED,

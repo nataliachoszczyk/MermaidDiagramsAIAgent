@@ -139,7 +139,14 @@ Every generated record keeps the generator model name and the generation paramet
 
 - Same system prompt for every model and stage (stored in `prompts/system.txt`).
 - `zero-shot`: system prompt + description.
-- `few-shot`: system prompt + k = 3 fixed examples taken from `val` (never golden) + description.
+- `few-shot`: system prompt + k = 3 fixed examples taken from `val` (never golden) + description; each example is
+  a user turn (description) and an assistant turn (diagram). Until `val` exists the examples are
+  `data/shots/shots_pl.jsonl`: two flowcharts from RonnieAllen `validation` lines 7 and 9 (not used by the golden
+  set; texts translated, a missing branch added to each) and one hand-written sequence diagram on a topic absent
+  from golden, one per description style (`brief`, `natural`, `structured`). Description embedding similarity to
+  every golden record (bge-m3) is at most 0.84, below the 0.9 dedup threshold. `evaluate` refuses examples that
+  share a diagram, description or `source_ref` with the evaluation data or the golden set. No refusal example:
+  it could push the model towards refusing.
 - Temperature 0, seed 0, fixed max tokens. **[OPEN]** max tokens = 1024.
 - Thinking is off for every model. The base model is an instruct model without thinking; a hybrid model
   (`qwen3:1.7b`, `qwen3:0.6b`) is run with `--no-think` (`reasoning_effort: none`), and the run file keeps the
@@ -219,7 +226,7 @@ Each run (`uv run evaluate --model <name> --data <jsonl>`) writes
 `results/<date>_<time>_<model>_<setting>_<data>_<matching>.json` with: model name and Ollama digest, setting
 (zero-shot / few-shot / fine-tuned checkpoint), system prompt text and hash, temperature, seed, max tokens,
 data file hash, matching method, embedding model and digest, τ, mmdc version, git commit, per-example results (raw output, render error,
-scores) and aggregated metrics. Few-shot is not implemented until `val` exists.
+scores) and aggregated metrics. Few-shot runs also record the shots file, its hash and the example ids.
 
 ## 5. Training
 

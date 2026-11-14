@@ -13,6 +13,7 @@ Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist ye
 - `data/pilot/` – English smoke-test set from the RonnieAllen `test` split. Descriptions are one-line prompts, so
   node/edge F1 on it is meaningless (only `mermaid_only`, `render_rate`, `type_acc` are); not for reported numbers
 - `data/golden/` – test set, JSONL in the `docs/design.md` §2.2 format *(planned)*
+- `data/shots/shots_pl.jsonl` – 3 few-shot examples outside the golden set (temporary, until `val` exists; §4.1)
 - `data/synthetic/` – generated training and validation data *(planned)*
 - `prompts/system.txt` – system prompt shared by every model and stage
 - `prompts/describe.txt` – prompt for generating descriptions from diagrams (`uv run describe`)
@@ -47,7 +48,8 @@ Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist ye
 - `uv run build-golden --model <name> [--kaggle-proxy] [--flowcharts N] [--sequences N] [--out <jsonl>]` – generated
   part of the golden set: Polish texts and a description for chosen source diagrams, structure and `mmdc` checked;
   keeps records already in the output file; read every record afterwards. `--kaggle-proxy`: see `KAGGLE.md` §9
-- `uv run evaluate --model <name> --data <jsonl> [--limit N] [--sample N] [--ids a,b] [--matching exact] [--no-think]` –
+- `uv run evaluate --model <name> --data <jsonl> [--limit N] [--sample N] [--ids a,b] [--matching exact] [--no-think]
+  [--setting few-shot --shots <jsonl> [--k 3]]` –
   evaluate a model, save the run to `results/`; nodes are matched by label embeddings unless `--matching exact`; `--sample N`
   takes N records from every diagram type (fixed seed) and `--ids` the named records, for smoke tests; `--no-think` turns thinking off
   (needed for hybrid models such as `qwen3:1.7b`, so that they answer like the instruct base model)
