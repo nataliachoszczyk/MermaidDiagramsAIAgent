@@ -85,20 +85,16 @@ def ensure_proxy_key() -> str:
     if os.environ.get("MODEL_PROXY_URL") and os.environ.get("MODEL_PROXY_API_KEY"):
         print("proxy key: from the kernel environment", flush=True)
         return "environment"
-    try:
-        from kaggle_secrets import UserSecretsClient  # only exists inside a Kaggle kernel
-
-        secrets = UserSecretsClient()
-        for name in ("KAGGLE_USERNAME", "KAGGLE_KEY"):
-            os.environ[name] = secrets.get_secret(name)
-    except Exception as error:  # noqa: BLE001 - any failure means the same: no key
+    # `kaggle_secrets` exists only in the kernel's own Python, not in the project environment, so the job script
+    # reads the secrets and passes them here as environment variables.
+    if not (os.environ.get("KAGGLE_USERNAME") and os.environ.get("KAGGLE_KEY")):
         raise SystemExit(
-            "no Kaggle Model Proxy key: the kernel environment has no MODEL_PROXY_URL / MODEL_PROXY_API_KEY and the "
-            f"secrets KAGGLE_USERNAME and KAGGLE_KEY are not attached ({type(error).__name__})"
-        ) from None
+            "no Kaggle Model Proxy key: the kernel environment has no MODEL_PROXY_URL / MODEL_PROXY_API_KEY, and "
+            "KAGGLE_USERNAME / KAGGLE_KEY are not set (attach them to the kernel as secrets; the job script passes them)"
+        )
     # Writes .env.kaggle in the repository root, where `evaluate --kaggle-proxy` reads it.
     run(["uvx", "--with", "six", "kaggle", "benchmarks", "auth", "-y", "--env-file", ".env.kaggle"])
-    print("proxy key: from `kaggle benchmarks auth` with the kernel secrets", flush=True)
+    print("proxy key: from `kaggle benchmarks auth` with KAGGLE_USERNAME / KAGGLE_KEY", flush=True)
     return "secrets"
 
 

@@ -229,8 +229,10 @@ uvx --with six kaggle benchmarks quota
 
 `.env.kaggle` is gitignored. Commands that support the proxy take `--kaggle-proxy` (`build-golden`, `evaluate`,
 `kaggle-eval`) and read the key from that file, or from `MODEL_PROXY_URL` / `MODEL_PROXY_API_KEY` if they are
-already set. In a kernel, `kaggle-eval --kaggle-proxy` uses those variables when the kernel has them, and otherwise
-fetches a key with the kernel secrets `KAGGLE_USERNAME` and `KAGGLE_KEY` (attach them to the kernel on the website).
+already set. A kernel does not have those variables (checked 2026-11-15), so `kaggle-eval --kaggle-proxy` fetches a key with
+`KAGGLE_USERNAME` and `KAGGLE_KEY`: add them once as secrets of the account (values from `kaggle.json`) and
+attach them to the kernel (editor → Add-ons → Secrets). The job script reads them with `kaggle_secrets`, which
+exists only in the kernel's own Python, and passes them on as environment variables.
 The embedding model for `evaluate` still runs in Ollama. `uvx --with six kaggle benchmarks init --env-file <file>` also lists the models of
 the account in `LLMS_AVAILABLE`; the proxy has no model list endpoint.
 

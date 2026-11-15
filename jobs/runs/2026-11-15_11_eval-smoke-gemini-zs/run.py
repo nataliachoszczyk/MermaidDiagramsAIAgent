@@ -3,8 +3,11 @@ zero-shot, on 5 golden records (2 flowcharts, 2 sequence diagrams, 1 refusal) th
 Qwen3 smoke jobs also ran. The model runs at Google; the kernel only renders with mmdc and embeds labels with
 bge-m3."""
 
+import os
 import subprocess
 import sys
+
+from kaggle_secrets import UserSecretsClient
 
 REPO = "https://github.com/nataliachoszczyk/MermaidDiagramsAIAgent.git"
 BRANCH = "eval-gemini"
@@ -16,6 +19,12 @@ KAGGLE_EVAL_ARGS = ["--allow-cpu", "--kaggle-proxy"]
 IDS = ["golden-flow-0006", "golden-flow-0050", "golden-seq-0020", "golden-seq-0026", "golden-none-0003"]
 # Thinking off as for every model (design.md §4.1); with it on, it eats most of the 1024 max tokens.
 EVALUATE_ARGS = ["--ids", ",".join(IDS), "--no-think"]
+
+# The proxy key is fetched in the kernel with the account credentials, attached to the kernel as two secrets.
+# kaggle_secrets exists only in this Python, not in the project environment, so they go on as variables.
+secrets = UserSecretsClient()
+for name in ("KAGGLE_USERNAME", "KAGGLE_KEY"):
+    os.environ[name] = secrets.get_secret(name)
 
 subprocess.run(["git", "clone", "--depth", "1", "--branch", BRANCH, REPO, CLONE], check=True)
 print("commit", subprocess.run(["git", "-C", CLONE, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip())
