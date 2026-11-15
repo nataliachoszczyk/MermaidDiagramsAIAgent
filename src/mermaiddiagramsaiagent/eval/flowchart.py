@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 
 
 class ParseError(ValueError):
-    """The code is not a flowchart (empty, or missing / wrong header)."""
+    """The code is not a diagram of the expected type (empty, or missing / wrong header)."""
 
 
 @dataclass(frozen=True)
@@ -128,10 +128,13 @@ def clean_label(raw: str) -> str:
         label = label[1:-1]
     if len(label) >= 2 and label[0] == label[-1] == "`":
         label = MARKDOWN_EMPHASIS_RE.sub(r"\2", label[1:-1])
-    label = BR_RE.sub(" ", label)
-    label = ENTITY_RE.sub(_decode_entity, label)
-    label = ICON_RE.sub(" ", label)
-    return WHITESPACE_RE.sub(" ", label).strip()
+    return clean_text(ICON_RE.sub(" ", label))
+
+
+def clean_text(raw: str) -> str:
+    """The part of label cleaning shared by all diagram types: <br>, entity codes, whitespace."""
+    text = ENTITY_RE.sub(_decode_entity, BR_RE.sub(" ", raw))
+    return WHITESPACE_RE.sub(" ", text).strip()
 
 
 def _decode_entity(match: re.Match[str]) -> str:

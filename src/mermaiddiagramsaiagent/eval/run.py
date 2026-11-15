@@ -1,82 +1,187 @@
 """Evaluate a model on an evaluation set (JSONL in the design.md §2.2 format) and save one result file.
 
     uv run evaluate --model qwen3:4b-instruct-2507-q8_0 --data data/pilot/pilot_en.jsonl
+    uv run evaluate --model qwen3:4b-instruct-2507-q8_0 --data data/golden/golden.jsonl \
+        --setting few-shot --shots data/shots/shots_pl.jsonl
+    uv run evaluate --model google/gemini-3-flash-preview --kaggle-proxy --no-think --matching exact \
+        --data data/golden/golden.jsonl
 
 Inference goes through the OpenAI-compatible API; the server is configured in .env (see .env.example).
+With --kaggle-proxy the evaluated model is a hosted one behind the Kaggle Model Proxy (KAGGLE.md §9), while the
+embedding model for node matching stays on the server from .env.
+With --replay <run file> the answers come from an earlier run of the same model, data, prompt and setting, and
+are only rendered and scored again: used to score on Kaggle answers that were fetched through the proxy locally,
+because a Kaggle kernel cannot reach the proxy.
 """
 
 import argparse
 import hashlib
 import json
+import random
 import re
 import subprocess
 import tempfile
 import time
 import urllib.request
+from collections.abc import Iterable
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 from statistics import mean
 from typing import Any
 
-from openai import OpenAI
+from openai import BadRequestError, OpenAI
 
 from mermaiddiagramsaiagent.data.jsonl import read_jsonl
 from mermaiddiagramsaiagent.eval.metrics import DEFAULT_THRESHOLD, Embedder, score_example
-from mermaiddiagramsaiagent.eval.output import normalize_output
-from mermaiddiagramsaiagent.eval.render import check_mmdc_works, mmdc_version, render
-from mermaiddiagramsaiagent.llm import check_model_available, make_client
+from mermaiddiagramsaiagent.eval.output import is_refusal, normalize_output
+from mermaiddiagramsaiagent.eval.render import RenderResult, check_mmdc_works, mmdc_version, render
+from mermaiddiagramsaiagent.llm import check_model_available, make_client, make_kaggle_proxy_client
 
 SYSTEM_PROMPT_PATH = Path("prompts/system.txt")
+GOLDEN_PATH = Path("data/golden/golden.jsonl")
 RESULTS_DIR = Path("results")
 TEMPERATURE = 0.0
 SEED = 0
 DEFAULT_MAX_TOKENS = 1024
 DEFAULT_EMBEDDING_MODEL = "bge-m3:latest"
+NO_THINK_BODY = {"reasoning_effort": "none"}  # Ollama: turns thinking off for models where it is on/off
+GROUP_KEYS = ("diagram_type", "difficulty", "description_style")
+DEFAULT_K = 3
+EMPTY_RETRIES = 2
+ANSWER_KEYS = (
+    "raw_output", "reasoning_chars", "finish_reason", "completion_tokens", "reasoning_tokens", "cost_usd", "latency_s"
+)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--model", required=True, help="model name as the server knows it")
     parser.add_argument("--data", type=Path, required=True, help="evaluation JSONL")
-    parser.add_argument("--setting", default="zero-shot", choices=["zero-shot"], help="few-shot needs a val split")
+    parser.add_argument("--setting", default="zero-shot", choices=["zero-shot", "few-shot"])
+    parser.add_argument("--shots", type=Path, help="few-shot examples (JSONL, §2.2 format); never golden records")
+    parser.add_argument("--k", type=int, default=DEFAULT_K, help="number of few-shot examples (first k of --shots)")
     parser.add_argument("--max-tokens", type=int, default=DEFAULT_MAX_TOKENS)
     parser.add_argument("--matching", default="embedding", choices=["embedding", "exact"], help="node matching")
     parser.add_argument("--embedding-model", default=DEFAULT_EMBEDDING_MODEL, help="used with --matching embedding")
     parser.add_argument("--threshold", type=float, default=DEFAULT_THRESHOLD, help="min cosine similarity for a match")
     parser.add_argument("--limit", type=int, help="only the first N examples (for quick checks)")
-    return parser.parse_args()
+    parser.add_argument("--sample", type=int, help="only N examples, drawn from every diagram type (for quick checks)")
+    parser.add_argument("--no-think", action="store_true", help="turn thinking off (hybrid models, e.g. qwen3:1.7b)")
+    parser.add_argument("--ids", help="only the records with these ids, comma-separated (to repeat a quick check)")
+    parser.add_argument(
+        "--kaggle-proxy", action="store_true", help="evaluate a hosted model of the Kaggle Model Proxy (KAGGLE.md §9)"
+    )
+    parser.add_argument(
+        "--replay", type=Path, help="take the model answers from this earlier run file instead of calling the model"
+    )
+    args = parser.parse_args()
+    if (args.setting == "few-shot") != (args.shots is not None):
+        parser.error("--shots is required with --setting few-shot and only allowed with it")
+    return args
+
+
+def select_records(records: list[dict[str, Any]], ids: list[str]) -> list[dict[str, Any]]:
+    """The records with the given ids, in file order; an id that is not in the data is an error."""
+    unknown = sorted(set(ids) - {record["id"] for record in records})
+    if unknown:
+        raise SystemExit(f"ids not in the data: {', '.join(unknown)}")
+    return [record for record in records if record["id"] in ids]
+
+
+def sample_records(records: list[dict[str, Any]], n: int) -> list[dict[str, Any]]:
+    """`n` records in file order: every diagram type gets a share in proportion to its size, but at least one
+    record, drawn with a fixed seed. The first N records of the golden set are all flowcharts."""
+    if n >= len(records):
+        return records
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for record in records:
+        groups.setdefault(record["diagram_type"], []).append(record)
+    quotas = {name: max(1, round(n * len(group) / len(records))) for name, group in groups.items()}
+    largest = max(groups, key=lambda name: len(groups[name]))
+    quotas[largest] = max(0, quotas[largest] + n - sum(quotas.values()))  # rounding must not change the total
+    rng = random.Random(SEED)
+    chosen = {record["id"] for name, group in groups.items() for record in rng.sample(group, quotas[name])}
+    return [record for record in records if record["id"] in chosen]
 
 
 def main() -> None:
     args = parse_args()
-    client = make_client()
-    check_model_available(client, args.model)
-    embed = None
+    replay = json.loads(args.replay.read_text(encoding="utf-8")) if args.replay else None
+    client = None
+    if replay is None:
+        client = make_kaggle_proxy_client() if args.kaggle_proxy else make_client()
+        if not args.kaggle_proxy:  # the proxy has no model list; an unknown model fails at the first request
+            check_model_available(client, args.model)
+    embed, embed_client = None, None
     if args.matching == "embedding":
-        check_model_available(client, args.embedding_model)
-        embed = make_embedder(client, args.embedding_model)
+        embed_client = client if client is not None and not args.kaggle_proxy else make_client()
+        check_model_available(embed_client, args.embedding_model)
+        embed = make_embedder(embed_client, args.embedding_model)
     check_mmdc_works()
     system_prompt = SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
-    records = read_jsonl(args.data)[: args.limit]
+    all_records = read_jsonl(args.data)
+    shots = load_shots(args.shots, args.k, all_records + golden_records()) if args.shots else []
+    records = all_records[: args.limit]
+    if args.sample:
+        records = sample_records(records, args.sample)
+    if args.ids:
+        records = select_records(records, args.ids.split(","))
+    answers = replay_answers(replay, args, system_prompt, shots, records) if replay else {}
 
+    sampling = {"temperature": TEMPERATURE, "seed": SEED}  # emptied if the model rejects them
     examples = []
     with tempfile.TemporaryDirectory() as tmp:
         for i, record in enumerate(records, start=1):
-            example = evaluate_record(
-                client, args.model, system_prompt, args.max_tokens, record, Path(tmp), embed, args.threshold
+            answer = answers.get(record["id"]) or ask_model(
+                client, args.model, system_prompt, args.max_tokens, record["description"], args.no_think, shots, sampling,
             )
+            example = evaluate_record(record, answer, Path(tmp), embed, args.threshold)
             examples.append(example)
             print_progress(i, len(records), example)
 
+    generation = replay_generation(replay, args.replay) if replay else live_generation(client, args, sampling)
     result = {
-        "config": run_config(args, client, system_prompt),
+        "config": run_config(args, generation, embed_client, system_prompt, shots),
         "summary": summarize(examples),
         "examples": examples,
     }
     path = save_result(result, args)
     print_summary(result["summary"])
     print(f"\nSaved to {path}")
+
+
+def golden_records() -> list[dict[str, Any]]:
+    return read_jsonl(GOLDEN_PATH) if GOLDEN_PATH.exists() else []
+
+
+def load_shots(path: Path, k: int, forbidden: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """First k records of the shots file. Refuses a shot that shares its diagram, description or source record
+    with a forbidden record (the evaluation data and the golden set: design.md §2.1)."""
+    shots = read_jsonl(path)
+    if len(shots) < k:
+        raise SystemExit(f"{path} has {len(shots)} examples, --k is {k}")
+    shots = shots[:k]
+    leaked = [shot["id"] for shot in shots if any(shares_source(shot, record) for record in forbidden)]
+    if leaked:
+        raise SystemExit(f"few-shot examples overlap the evaluation data or the golden set: {', '.join(leaked)}")
+    return shots
+
+
+def shares_source(shot: dict[str, Any], record: dict[str, Any]) -> bool:
+    same_ref = shot.get("source_ref") is not None and shot.get("source_ref") == record.get("source_ref")
+    same_text = any(shot[key].strip() == record[key].strip() for key in ("expected_mermaid", "description"))
+    return same_ref or same_text
+
+
+def build_messages(system_prompt: str, shots: list[dict[str, Any]], description: str) -> list[dict[str, str]]:
+    """System prompt, each shot as a user/assistant turn (design.md §4.1), then the description."""
+    messages = [{"role": "system", "content": system_prompt}]
+    for shot in shots:
+        messages.append({"role": "user", "content": shot["description"]})
+        messages.append({"role": "assistant", "content": shot["expected_mermaid"]})
+    messages.append({"role": "user", "content": description})
+    return messages
 
 
 def make_embedder(client: OpenAI, model: str) -> Embedder:
@@ -93,97 +198,252 @@ def make_embedder(client: OpenAI, model: str) -> Embedder:
     return embed
 
 
-def evaluate_record(
+def ask_model(
     client: OpenAI,
     model: str,
     system_prompt: str,
     max_tokens: int,
+    description: str,
+    no_think: bool = False,
+    shots: list[dict[str, Any]] | None = None,
+    sampling: dict[str, float] | None = None,
+) -> dict[str, Any]:
+    """One model call; returns the answer fields of an example (ANSWER_KEYS)."""
+    started = time.perf_counter()
+    response = complete(
+        client,
+        {"temperature": TEMPERATURE, "seed": SEED} if sampling is None else sampling,
+        model=model,
+        messages=build_messages(system_prompt, shots or [], description),
+        max_tokens=max_tokens,
+        extra_body=NO_THINK_BODY if no_think else None,
+    )
+    latency_s = time.perf_counter() - started
+    choice = response.choices[0] if response.choices else None
+    message = choice.message if choice else None
+    return {
+        "raw_output": (message.content if message else None) or "",  # still empty after the retries: a failure
+        "reasoning_chars": len(getattr(message, "reasoning", None) or ""),  # 0 when the model did not think
+        "finish_reason": choice.finish_reason if choice else "empty",
+        "completion_tokens": response.usage.completion_tokens if response.usage else None,
+        "reasoning_tokens": reasoning_tokens(response.usage),  # hosted thinking models report only the count
+        "cost_usd": call_cost_usd(response.usage),  # Kaggle Model Proxy only
+        "latency_s": round(latency_s, 2),
+    }
+
+
+def replay_answers(
+    replay: dict[str, Any],
+    args: argparse.Namespace,
+    system_prompt: str,
+    shots: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Answer fields per record id from an earlier run file. That run must have asked the same model the same
+    thing: model, setting, shots, system prompt, data, thinking and max tokens are checked."""
+    config = replay["config"]
+    expected = {
+        "model": args.model,
+        "setting": args.setting,
+        "shot_ids": [shot["id"] for shot in shots],
+        "system_prompt_sha256": sha256(system_prompt.encode("utf-8")),
+        "no_think": args.no_think,
+        "max_tokens": args.max_tokens,
+    }
+    differ = [key for key, value in expected.items() if config.get(key) != value]
+    files = {"data_sha256": args.data, "shots_sha256": args.shots}
+    differ += [key for key, path in files.items() if not same_file(path, config.get(key))]
+    if differ:
+        raise SystemExit(f"{args.replay} was run with a different {', '.join(differ)}")
+    answers = {example["id"]: {key: example.get(key) for key in ANSWER_KEYS} for example in replay["examples"]}
+    missing = [record["id"] for record in records if record["id"] not in answers]
+    if missing:
+        raise SystemExit(f"{args.replay} has no answer for: {', '.join(missing)}")
+    return answers
+
+
+def same_file(path: Path | None, recorded: str | None) -> bool:
+    """Whether a file has the recorded hash, with either line ending: a Windows checkout has CRLF, Linux LF."""
+    if path is None:
+        return recorded is None
+    lf = path.read_bytes().replace(b"\r\n", b"\n")
+    return recorded in (sha256(lf), sha256(lf.replace(b"\n", b"\r\n")))
+
+
+def live_generation(client: OpenAI, args: argparse.Namespace, sampling: dict[str, float]) -> dict[str, Any]:
+    return {
+        "model_digest": ollama_digest(str(client.base_url), args.model),
+        "base_url": str(client.base_url),
+        "kaggle_proxy": args.kaggle_proxy,
+        "temperature": sampling.get("temperature"),
+        "seed": sampling.get("seed"),
+        "replay": None,
+    }
+
+
+def replay_generation(replay: dict[str, Any], path: Path) -> dict[str, Any]:
+    """Where the replayed answers came from: the server of the earlier run and that run file."""
+    config = replay["config"]
+    return {
+        "model_digest": config.get("model_digest"),
+        "base_url": config.get("base_url"),
+        "kaggle_proxy": config.get("kaggle_proxy", False),
+        "temperature": config.get("temperature"),
+        "seed": config.get("seed"),
+        "replay": {
+            "file": path.as_posix(),
+            "sha256": sha256(path.read_bytes().replace(b"\r\n", b"\n")),
+            "date": config.get("date"),
+            "git_commit": config.get("git_commit"),
+        },
+    }
+
+
+def evaluate_record(
     record: dict[str, Any],
+    answer: dict[str, Any],
     work_dir: Path,
     embed: Embedder | None,
     threshold: float,
 ) -> dict[str, Any]:
-    started = time.perf_counter()
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": record["description"]},
-        ],
-        temperature=TEMPERATURE,
-        seed=SEED,
-        max_tokens=max_tokens,
-    )
-    latency_s = time.perf_counter() - started
-    choice = response.choices[0]
-    raw_output = choice.message.content or ""
-    output = normalize_output(raw_output)
-    rendered = render(output.code, work_dir, record["id"])
+    """Render and score one model answer (from `ask_model` or an earlier run file)."""
+    output = normalize_output(answer["raw_output"])
+    if is_refusal(record["expected_mermaid"]) or is_refusal(output.code):
+        rendered = RenderResult(False, "")  # a refusal is not a diagram: nothing to render
+    else:
+        rendered = render(output.code, work_dir, record["id"])
     score = score_example(output, rendered.ok, record["expected_mermaid"], embed, threshold)
     return {
         "id": record["id"],
         "diagram_type": record["diagram_type"],
-        "difficulty": record["difficulty"],
+        "difficulty": record.get("difficulty"),
+        "description_style": record.get("description_style"),
         "description": record["description"],
         "expected_mermaid": record["expected_mermaid"],
-        "raw_output": raw_output,
+        **answer,
         "code": output.code,
-        "finish_reason": choice.finish_reason,
-        "completion_tokens": response.usage.completion_tokens if response.usage else None,
-        "latency_s": round(latency_s, 2),
         "render_error": rendered.error,
         "score": asdict(score),
     }
 
 
+def complete(client: OpenAI, sampling: dict[str, float], **request: Any) -> Any:
+    """A chat completion with `sampling` (temperature, seed). Some hosted models reject these parameters: then
+    `sampling` is emptied, so the rest of the run and its config show that the model sampled with its defaults."""
+    for attempt in range(EMPTY_RETRIES + 1):
+        try:
+            response = client.chat.completions.create(**request, **sampling)
+        except BadRequestError as error:
+            if not sampling or not any(name in str(error) for name in sampling):
+                raise
+            print(f"The model rejects {', '.join(sampling)}; generating with its default sampling.", flush=True)
+            sampling.clear()
+            response = client.chat.completions.create(**request)
+        if response.choices and response.choices[0].message is not None:
+            return response
+        print(f"Empty response (attempt {attempt + 1}); asking again.", flush=True)  # seen on the Kaggle proxy
+    return response
+
+
+
+def reasoning_tokens(usage: Any) -> int | None:
+    details = getattr(usage, "completion_tokens_details", None)
+    return getattr(details, "reasoning_tokens", None)
+
+
+def call_cost_usd(usage: Any) -> float | None:
+    """Price of one call from the `cost` field the Kaggle Model Proxy adds to `usage` (nanodollars per part);
+    None for servers without it."""
+    cost = getattr(usage, "cost", None)
+    if not isinstance(cost, dict):
+        return None
+    return sum(value for value in cost.values() if isinstance(value, (int, float))) / 1e9
+
+
 def summarize(examples: list[dict[str, Any]]) -> dict[str, Any]:
-    """Macro averages overall, per diagram type and per difficulty (design.md §4.3)."""
+    """Macro averages overall and per diagram type, difficulty and description style (design.md §4.3).
+
+    An example without a value for a key (e.g. no `description_style` in the pilot) is left out of that grouping.
+    """
     summary: dict[str, Any] = {"overall": aggregate(examples)}
-    for key in ("diagram_type", "difficulty"):
+    for key in GROUP_KEYS:
         groups: dict[str, list[dict[str, Any]]] = {}
         for example in examples:
-            groups.setdefault(example[key], []).append(example)
+            if example.get(key) is not None:
+                groups.setdefault(example[key], []).append(example)
         summary[f"by_{key}"] = {name: aggregate(group) for name, group in sorted(groups.items())}
     return summary
 
 
 def aggregate(examples: list[dict[str, Any]]) -> dict[str, Any]:
+    """Diagram metrics are averaged over examples with a diagram reference, `refusal_acc` over the others."""
     scores = [example["score"] for example in examples]
-    rendering = [s for s in scores if s["renders"]]
-    shapes = [s["shape_acc"] for s in scores if s["shape_acc"] is not None]
+    diagrams = [s for s in scores if s["refusal_ok"] is None]
+    refusals = [s["refusal_ok"] for s in scores if s["refusal_ok"] is not None]
+    rendering = [s for s in diagrams if s["renders"]]
     return {
         "n": len(scores),
-        "mermaid_only": mean(s["mermaid_only"] for s in scores),
-        "render_rate": mean(s["renders"] for s in scores),
-        "type_acc": mean(s["type_ok"] for s in scores),
-        "node_f1": mean(s["node"]["f1"] for s in scores),
-        "edge_f1": mean(s["edge"]["f1"] for s in scores),
-        "shape_acc": mean(shapes) if shapes else None,
-        "node_f1_rendering_only": mean(s["node"]["f1"] for s in rendering) if rendering else None,
-        "edge_f1_rendering_only": mean(s["edge"]["f1"] for s in rendering) if rendering else None,
+        "n_refusal": len(refusals),
+        "mermaid_only": mean_or_none(s["mermaid_only"] for s in diagrams),
+        "render_rate": mean_or_none(s["renders"] for s in diagrams),
+        "type_acc": mean_or_none(s["type_ok"] for s in diagrams),
+        "node_f1": mean_or_none(s["node"]["f1"] for s in diagrams),
+        "edge_f1": mean_or_none(s["edge"]["f1"] for s in diagrams),
+        "shape_acc": mean_or_none(s["shape_acc"] for s in diagrams if s["shape_acc"] is not None),
+        "node_f1_rendering_only": mean_or_none(s["node"]["f1"] for s in rendering),
+        "edge_f1_rendering_only": mean_or_none(s["edge"]["f1"] for s in rendering),
+        "refusal_acc": mean_or_none(refusals),
         "truncated": sum(example["finish_reason"] == "length" for example in examples),
+        "cost_usd": total_cost_usd(examples),
     }
 
 
-def run_config(args: argparse.Namespace, client: OpenAI, system_prompt: str) -> dict[str, Any]:
-    embedding = args.matching == "embedding"
+def total_cost_usd(examples: list[dict[str, Any]]) -> float | None:
+    costs = [example["cost_usd"] for example in examples if example.get("cost_usd") is not None]
+    return round(sum(costs), 6) if costs else None
+
+
+def mean_or_none(values: Iterable[float]) -> float | None:
+    items = list(values)
+    return mean(items) if items else None
+
+
+def run_config(
+    args: argparse.Namespace,
+    generation: dict[str, Any],
+    embed_client: OpenAI | None,
+    system_prompt: str,
+    shots: list[dict[str, Any]],
+) -> dict[str, Any]:
+    embedding = embed_client is not None
     return {
         "date": datetime.now().isoformat(timespec="seconds"),
         "model": args.model,
-        "model_digest": ollama_digest(str(client.base_url), args.model),
+        "model_digest": generation["model_digest"],
         "setting": args.setting,
-        "base_url": str(client.base_url),
-        "temperature": TEMPERATURE,
-        "seed": SEED,
+        "shots": args.shots.as_posix() if args.shots else None,
+        "shots_sha256": sha256(args.shots.read_bytes()) if args.shots else None,
+        "shot_ids": [shot["id"] for shot in shots],
+        "base_url": generation["base_url"],
+        "kaggle_proxy": generation["kaggle_proxy"],
+        "replay": generation["replay"],
+        "temperature": generation["temperature"],  # None: the model rejected it and used its default
+        "seed": generation["seed"],
         "max_tokens": args.max_tokens,
+        "no_think": args.no_think,
         "limit": args.limit,
+        "sample": args.sample,
+        "ids": args.ids,
         "system_prompt": system_prompt,
         "system_prompt_sha256": sha256(system_prompt.encode("utf-8")),
         "data": args.data.as_posix(),
         "data_sha256": sha256(args.data.read_bytes()),
         "matching": args.matching,
         "embedding_model": args.embedding_model if embedding else None,
-        "embedding_model_digest": ollama_digest(str(client.base_url), args.embedding_model) if embedding else None,
+        "embedding_base_url": str(embed_client.base_url) if embed_client else None,
+        "embedding_model_digest": (
+            ollama_digest(str(embed_client.base_url), args.embedding_model) if embed_client else None
+        ),
         "threshold": args.threshold if embedding else None,
         "mmdc": mmdc_version(),
         "git_commit": git_commit(),
@@ -226,25 +486,26 @@ def save_result(result: dict[str, Any], args: argparse.Namespace) -> Path:
 def print_progress(i: int, total: int, example: dict[str, Any]) -> None:
     s = example["score"]
     flags = "".join(flag for flag, on in (("F", s["fenced"]), ("T", s["extra_text"])) if on) or "-"
-    print(
-        f"[{i:>3}/{total}] {example['id']:<18} render={'ok ' if s['renders'] else 'ERR'} "
-        f"node_f1={s['node']['f1']:.2f} edge_f1={s['edge']['f1']:.2f} flags={flags} {example['latency_s']}s"
-    )
+    if s["refusal_ok"] is not None:
+        result = f"refusal={'ok ' if s['refusal_ok'] else 'NO '}"
+    else:
+        result = f"render={'ok ' if s['renders'] else 'ERR'} node_f1={s['node']['f1']:.2f} edge_f1={s['edge']['f1']:.2f}"
+    print(f"[{i:>3}/{total}] {example['id']:<18} {result} flags={flags} {example['latency_s']}s")
 
 
 def print_summary(summary: dict[str, Any]) -> None:
     print("\n" + format_row("group", None))
     print(format_row("overall", summary["overall"]))
-    for key in ("by_diagram_type", "by_difficulty"):
-        for name, values in summary[key].items():
+    for key in GROUP_KEYS:
+        for name, values in summary[f"by_{key}"].items():
             print(format_row(f"  {name}", values))
 
 
 def format_row(name: str, values: dict[str, Any] | None) -> str:
-    columns = ("n", "mermaid_only", "render_rate", "type_acc", "node_f1", "edge_f1", "shape_acc")
+    columns = ("n", "mermaid_only", "render_rate", "type_acc", "node_f1", "edge_f1", "shape_acc", "refusal_acc")
     if values is None:
-        return f"{name:<14}" + "".join(f"{c:>14}" for c in columns)
-    return f"{name:<14}" + "".join(format_cell(column, values[column]) for column in columns)
+        return f"{name:<18}" + "".join(f"{c:>14}" for c in columns)
+    return f"{name:<18}" + "".join(format_cell(column, values[column]) for column in columns)
 
 
 def format_cell(column: str, value: float | None) -> str:

@@ -16,21 +16,27 @@ Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist ye
   - `pilot_en_described.jsonl` – English step-by-step descriptions
   - `pilot_pl.jsonl` – Polish labels and descriptions; the main pilot until the golden set exists
 - `data/golden/` – test set, JSONL in the `docs/design.md` §2.2 format *(planned)*
+- `data/shots/shots_pl.jsonl` – 3 few-shot examples outside the golden set (temporary, until `val` exists; §4.1)
 - `data/synthetic/` – generated training and validation data *(planned)*
 - `prompts/system.txt` – system prompt shared by every model and stage
 - `prompts/describe.txt` – prompt for generating descriptions from diagrams (`uv run describe`)
-- `src/mermaiddiagramsaiagent/data/` – dataset definitions (`sources.py`), download, raw-data report, pilot builder, JSONL I/O
+- `prompts/golden.txt` – prompt for translating a source diagram and describing it (`uv run build-golden`)
+- `src/mermaiddiagramsaiagent/data/` – dataset definitions (`sources.py`), download, raw-data report, pilot builder,
+  golden builder, JSONL I/O
 - `src/mermaiddiagramsaiagent/eval/` – output normalization, rendering (`mmdc`), flowchart parser, metrics, evaluation runner
 - `src/mermaiddiagramsaiagent/synth/` – data synthesis: topics → diagram → filters → description → coverage check *(planned)*
 - `src/mermaiddiagramsaiagent/train/` – LoRA training and export *(planned)*
 - `tests/` – pytest; tests that need `data/raw/` are skipped when it has not been downloaded
 - `results/` – one file per evaluation run, including the full config
+- `jobs/` – Kaggle jobs: `JOBS.md` (list and status) and one folder per job in `runs/` (see `KAGGLE.md`)
 
 ## Setup (once)
 - `uv sync`
 - Mermaid CLI (`mmdc`) on `PATH`. If it fails with "Could not find chrome-headless-shell", install the browser
   with the Puppeteer bundled in mermaid-cli: run `node install.mjs` in
   `<mermaid-cli install dir>/node_modules/puppeteer`. `report-raw` and `evaluate` check `mmdc` before running.
+  In a container (root) Chromium needs `--no-sandbox`: put `{"args": ["--no-sandbox"]}` in a JSON file and set
+  `MMDC_PUPPETEER_CONFIG` to its path.
 - Copy `.env.example` to `.env` (inference server URL; the API key is a dummy for Ollama).
 - Base model: `ollama pull qwen3:4b-instruct-2507-q8_0`
 - Embedding model for node matching in `evaluate`: `ollama pull bge-m3`
@@ -42,8 +48,18 @@ Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist ye
 - `uv run build-pilot` – build `data/pilot/pilot_en.jsonl`
 - `uv run describe --data <jsonl> --model <name> --language <lang> [--no-think]` – replace descriptions with
   step-by-step ones generated from `expected_mermaid` → `<stem>_described.jsonl`; read every one afterwards
-- `uv run evaluate --model <name> --data <jsonl> [--limit N] [--matching exact]` – evaluate a model, save the run
-  to `results/`; nodes are matched by label embeddings unless `--matching exact`
+- `uv run build-golden --model <name> [--kaggle-proxy] [--flowcharts N] [--sequences N] [--out <jsonl>]` – generated
+  part of the golden set: Polish texts and a description for chosen source diagrams, structure and `mmdc` checked;
+  keeps records already in the output file; read every record afterwards. `--kaggle-proxy`: see `KAGGLE.md` §9
+- `uv run evaluate --model <name> --data <jsonl> [--limit N] [--sample N] [--ids a,b] [--matching exact] [--no-think]
+  [--setting few-shot --shots <jsonl> [--k 3]] [--kaggle-proxy] [--replay <run file>]` –
+  evaluate a model, save the run to `results/`; nodes are matched by label embeddings unless `--matching exact`; `--sample N`
+  takes N records from every diagram type (fixed seed) and `--ids` the named records, for smoke tests; `--no-think` turns thinking off
+  (needed for hybrid models such as `qwen3:1.7b`, so that they answer like the instruct base model); `--kaggle-proxy`
+  evaluates a hosted model of the Kaggle Model Proxy, embeddings stay in Ollama; `--replay` scores the answers of an earlier
+  run file instead of calling the model (`KAGGLE.md` §9)
+- `uv run kaggle-eval --model <name> --data <jsonl> --out <dir> [--replay <run file>] [-- <evaluate arguments>]` – only inside
+  a Kaggle kernel: installs Node, `mmdc` and Ollama, pulls the models, runs `evaluate`, copies the run file to `<dir>`
 - `uv run pytest` – tests
 - Render a single diagram: `mmdc -i diagram.mmd -o out.svg`
 

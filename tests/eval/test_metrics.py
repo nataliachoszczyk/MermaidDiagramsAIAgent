@@ -116,9 +116,9 @@ def test_fenced_output_is_not_mermaid_only_but_still_scored() -> None:
     assert score.node.f1 == 1.0
 
 
-def test_sequence_reference_is_not_supported_yet() -> None:
-    with pytest.raises(NotImplementedError):
-        score_example(bare(REFERENCE), renders=True, reference_code="sequenceDiagram\n    A->>B: hej")
+def test_reference_that_is_not_a_diagram_is_an_error() -> None:
+    with pytest.raises(ValueError):
+        score_example(bare(REFERENCE), renders=True, reference_code="classDiagram\n    A <|-- B")
 
 
 # --- embedding matching ---------------------------------------------------------------------------
@@ -191,3 +191,84 @@ def test_shape_acc_counts_matched_nodes_with_the_reference_shape() -> None:
 
 def test_shape_acc_is_none_without_matched_nodes() -> None:
     assert score_example(bare("flowchart TD\n    A[Zamów pizzę]"), True, REFERENCE).shape_acc is None
+
+
+# --- sequence diagrams ----------------------------------------------------------------------------
+
+SEQUENCE = """sequenceDiagram
+    participant K as Klient
+    participant S as Sklep
+    participant B as Bank
+    K->>S: Złóż zamówienie
+    S->>B: Pobierz płatność
+    B-->>S: Płatność przyjęta
+    S-->>K: Potwierdzenie
+"""
+
+
+def test_sequence_perfect_prediction_with_other_ids_and_order_of_declarations() -> None:
+    predicted = """sequenceDiagram
+    participant Bank
+    actor Klient
+    Klient->>Sklep: Złóż zamówienie
+    Sklep->>Bank: pobierz płatność
+    Bank-->>Sklep: Płatność przyjęta.
+    Sklep-->>Klient: Potwierdzenie
+    """
+    score = score_example(bare(predicted), renders=True, reference_code=SEQUENCE)
+    assert score.node == PRF(1.0, 1.0, 1.0)
+    assert score.edge == PRF(1.0, 1.0, 1.0)
+    assert score.type_ok and score.parsed and score.shape_acc is None
+    assert [(p.predicted_id, p.reference_id) for p in score.message_pairs] == [("0", "0"), ("1", "1"), ("2", "2"), ("3", "3")]
+
+
+def test_sequence_partial_prediction() -> None:
+    # No bank: 2 of 2 participants and 2 of 3 messages are right, against 3 participants and 4 messages.
+    predicted = """sequenceDiagram
+    Klient->>Sklep: Złóż zamówienie
+    Sklep->>Sklep: Pobierz płatność
+    Sklep-->>Klient: Potwierdzenie
+    """
+    score = score_example(bare(predicted), renders=True, reference_code=SEQUENCE)
+    assert astuple(score.node) == pytest.approx((1.0, 2 / 3, 0.8))
+    assert astuple(score.edge) == pytest.approx((2 / 3, 2 / 4, 4 / 7))
+
+
+def test_sequence_message_needs_the_right_direction_and_text() -> None:
+    reversed_message = "sequenceDiagram\n    participant Klient\n    participant Bank\n    Sklep->>Klient: Złóż zamówienie"
+    assert score_example(bare(reversed_message), True, SEQUENCE).edge.f1 == 0.0
+    other_text = "sequenceDiagram\n    participant Klient\n    participant Bank\n    Klient->>Sklep: Zapytaj o cenę"
+    score = score_example(bare(other_text), True, SEQUENCE)
+    assert score.node.f1 == 1.0 and score.edge.f1 == 0.0
+
+
+def test_sequence_repeated_message_counts_once_per_reference_message() -> None:
+    reference = "sequenceDiagram\n    A->>B: Ping\n    B-->>A: Pong"
+    predicted = "sequenceDiagram\n    A->>B: Ping\n    A->>B: Ping\n    B-->>A: Pong"
+    assert astuple(score_example(bare(predicted), True, reference).edge) == pytest.approx((2 / 3, 1.0, 0.8))
+
+
+def test_sequence_blocks_and_order_are_not_scored() -> None:
+    reference = "sequenceDiagram\n    A->>B: Dane\n    alt poprawne\n        B-->>A: OK\n    else błędne\n        B-->>A: Błąd\n    end"
+    predicted = "sequenceDiagram\n    B-->>A: Błąd\n    B-->>A: OK\n    A->>B: Dane"
+    assert score_example(bare(predicted), True, reference).edge.f1 == 1.0
+
+
+def test_sequence_with_embeddings_matches_participants_and_message_texts() -> None:
+    vectors = VECTORS | {"Programista": [1.0, 0.0, 0.0], "Deweloper": [0.9, 0.1, 0.0], "CI": [0.0, 0.0, 1.0]}
+    embed = lambda texts: [vectors[text] for text in texts]  # noqa: E731
+    reference = "sequenceDiagram\n    Programista->>CI: Sklonuj repozytorium\n    Programista->>CI: Uruchom testy"
+    output = bare("sequenceDiagram\n    Deweloper->>CI: Uruchamiamy testy\n    Deweloper->>CI: Zamów pizzę")
+    assert score_example(output, True, reference).node.f1 == pytest.approx(0.5)
+    score = score_example(output, True, reference, embed)
+    assert score.node.f1 == 1.0
+    assert astuple(score.edge) == pytest.approx((0.5, 0.5, 0.5))
+    assert [(p.predicted_label, p.reference_label, p.matched) for p in score.message_pairs] == [
+        ("Uruchamiamy testy", "Uruchom testy", True),
+        ("Zamów pizzę", "Sklonuj repozytorium", False),
+    ]
+
+
+def test_flowchart_output_for_a_sequence_reference_gets_zero_f1() -> None:
+    score = score_example(bare(REFERENCE), renders=True, reference_code=SEQUENCE)
+    assert not score.type_ok and score.node.f1 == 0.0 and score.edge.f1 == 0.0

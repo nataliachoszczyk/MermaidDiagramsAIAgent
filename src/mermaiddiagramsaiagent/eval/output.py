@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 FENCED_BLOCK_RE = re.compile(r"```[ \t]*(?:mermaid)?[ \t]*\n(.*?)\n?[ \t]*```", re.DOTALL)
 DIAGRAM_KEYWORDS = ("flowchart", "graph", "sequenceDiagram")
+REFUSAL = "BRAK_PROCESU"  # expected answer to a text that does not describe a process (prompts/system.txt)
 
 
 @dataclass(frozen=True)
@@ -25,6 +26,11 @@ def normalize_output(raw: str) -> NormalizedOutput:
     if start is None:  # no diagram at all (e.g. a refusal); keep the text as is
         return NormalizedOutput(text, fenced=False, extra_text=False)
     return NormalizedOutput("\n".join(lines[start:]).strip(), fenced=False, extra_text=start > 0)
+
+
+def is_refusal(text: str) -> bool:
+    """True if the text is exactly the refusal string (surrounding whitespace ignored)."""
+    return text.strip() == REFUSAL
 
 
 def diagram_type(code: str) -> str:

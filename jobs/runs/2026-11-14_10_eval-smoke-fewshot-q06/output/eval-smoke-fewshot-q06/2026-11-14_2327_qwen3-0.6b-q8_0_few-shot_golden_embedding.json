@@ -1,0 +1,1561 @@
+{
+  "config": {
+    "date": "2026-11-14T23:27:08",
+    "model": "qwen3:0.6b-q8_0",
+    "model_digest": "f6358994266d548dc070c564d49588fa3a6fac0cccd196bef38128aaa6ed22f3",
+    "setting": "few-shot",
+    "shots": "data/shots/shots_pl.jsonl",
+    "shots_sha256": "f6dffb0e119edd627a14cd20a55428b8c39ab7c16e8fff293d2a675f972cf47b",
+    "shot_ids": [
+      "shot-flow-0001",
+      "shot-seq-0001",
+      "shot-flow-0002"
+    ],
+    "base_url": "http://127.0.0.1:11434/v1/",
+    "temperature": 0.0,
+    "seed": 0,
+    "max_tokens": 1024,
+    "no_think": true,
+    "limit": null,
+    "sample": null,
+    "ids": "golden-flow-0006,golden-flow-0034,golden-flow-0050,golden-flow-0054,golden-flow-0063,golden-flow-0066,golden-seq-0020,golden-seq-0026,golden-seq-0031,golden-none-0003,golden-seq-0003,golden-seq-0011,golden-seq-0019,golden-seq-0021,golden-seq-0034",
+    "system_prompt": "You convert a description of a process into a Mermaid diagram.\n\nRules:\n- Choose the diagram type by who acts in the description:\n  - one person or team, or nobody named (steps, conditions, going back to an earlier step): `flowchart TD`;\n  - several named participants such as a user, an app, a service or a database that send or return things to one another, also when there are conditions: `sequenceDiagram`, one line per message in the form A->>B: text.\n- Output only the Mermaid code: no code fences, no explanations, no text before or after the diagram.\n- Keywords are lowercase. Put labels with special characters in double quotes. Never use `end` as a node id.\n- Keep the labels in the language of the description.\n- If the text does not describe a process, answer exactly: BRAK_PROCESU\n",
+    "system_prompt_sha256": "45e98198b8a14f0426f63a28a1662cf9b80f39f5744281bb94bb701cc71b189d",
+    "data": "data/golden/golden.jsonl",
+    "data_sha256": "5a412bd9287f81315ce7b9844224d91d131db249f0d1fbf4b8e114560d41bdbb",
+    "matching": "embedding",
+    "embedding_model": "bge-m3:latest",
+    "embedding_model_digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+    "threshold": 0.7,
+    "mmdc": "12.2.0",
+    "git_commit": "67f5e650afb5fc3cd93f8ea252a82c24315f05cf"
+  },
+  "summary": {
+    "overall": {
+      "n": 15,
+      "n_refusal": 1,
+      "mermaid_only": 1,
+      "render_rate": 1,
+      "type_acc": 0.7857142857142857,
+      "node_f1": 0.6522881880024737,
+      "edge_f1": 0.27649472474549874,
+      "shape_acc": 0.7416666666666667,
+      "node_f1_rendering_only": 0.6522881880024737,
+      "edge_f1_rendering_only": 0.27649472474549874,
+      "refusal_acc": 1,
+      "truncated": 0
+    },
+    "by_diagram_type": {
+      "flowchart": {
+        "n": 6,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 0.5,
+        "node_f1": 0.38840788840788837,
+        "edge_f1": 0.23988603988603988,
+        "shape_acc": 0.7416666666666667,
+        "node_f1_rendering_only": 0.38840788840788837,
+        "edge_f1_rendering_only": 0.23988603988603988,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "none": {
+        "n": 1,
+        "n_refusal": 1,
+        "mermaid_only": null,
+        "render_rate": null,
+        "type_acc": null,
+        "node_f1": null,
+        "edge_f1": null,
+        "shape_acc": null,
+        "node_f1_rendering_only": null,
+        "edge_f1_rendering_only": null,
+        "refusal_acc": 1,
+        "truncated": 0
+      },
+      "sequenceDiagram": {
+        "n": 8,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.8501984126984127,
+        "edge_f1": 0.30395123839009286,
+        "shape_acc": null,
+        "node_f1_rendering_only": 0.8501984126984127,
+        "edge_f1_rendering_only": 0.30395123839009286,
+        "refusal_acc": null,
+        "truncated": 0
+      }
+    },
+    "by_difficulty": {
+      "easy": {
+        "n": 2,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 1.0,
+        "edge_f1": 0.47500000000000003,
+        "shape_acc": null,
+        "node_f1_rendering_only": 1.0,
+        "edge_f1_rendering_only": 0.47500000000000003,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "hard": {
+        "n": 3,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 0.6666666666666666,
+        "node_f1": 0.5462962962962963,
+        "edge_f1": 0.1288888888888889,
+        "shape_acc": null,
+        "node_f1_rendering_only": 0.5462962962962963,
+        "edge_f1_rendering_only": 0.1288888888888889,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "medium": {
+        "n": 9,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 0.7777777777777778,
+        "node_f1": 0.6103495270161936,
+        "edge_f1": 0.28158438664114616,
+        "shape_acc": 0.7416666666666667,
+        "node_f1_rendering_only": 0.6103495270161936,
+        "edge_f1_rendering_only": 0.28158438664114616,
+        "refusal_acc": null,
+        "truncated": 0
+      }
+    },
+    "by_description_style": {
+      "brief": {
+        "n": 6,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 0.8333333333333334,
+        "node_f1": 0.6476671476671476,
+        "edge_f1": 0.25988603988603987,
+        "shape_acc": 0.7416666666666667,
+        "node_f1_rendering_only": 0.6476671476671476,
+        "edge_f1_rendering_only": 0.25988603988603987,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "natural": {
+        "n": 4,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 0.75,
+        "node_f1": 0.5972222222222222,
+        "edge_f1": 0.2570691434468524,
+        "shape_acc": null,
+        "node_f1_rendering_only": 0.5972222222222222,
+        "edge_f1_rendering_only": 0.2570691434468524,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "structured": {
+        "n": 4,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 0.75,
+        "node_f1": 0.7142857142857143,
+        "edge_f1": 0.32083333333333336,
+        "shape_acc": null,
+        "node_f1_rendering_only": 0.7142857142857143,
+        "edge_f1_rendering_only": 0.32083333333333336,
+        "refusal_acc": null,
+        "truncated": 0
+      }
+    }
+  },
+  "examples": [
+    {
+      "id": "golden-flow-0006",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Logowanie przez Google, sprawdzenie czy zalogowano: tak - przejście do panelu i koniec; nie - zalogowanie się przez Google i powrót do logowania przez Google.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Logowanie przez Google]\nB --> C{Czy zalogowano?}\nC -->|Tak| D[Przejdź do panelu]\nD --> Z([Koniec])\nC -->|Nie| E[Zaloguj się przez Google]\nE --> B",
+      "raw_output": "sequenceDiagram\nparticipant G\nparticipant S\n\nG --> S: Logowanie przez Google\nS --> G: Sprawdzenie logowania\nG --> S: Tak - przejście do panelu i koniec\nG --> S: Nie - zalogowanie się przez Google i powrót do logowania przez Google",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\nparticipant G\nparticipant S\n\nG --> S: Logowanie przez Google\nS --> G: Sprawdzenie logowania\nG --> S: Tak - przejście do panelu i koniec\nG --> S: Nie - zalogowanie się przez Google i powrót do logowania przez Google",
+      "finish_reason": "stop",
+      "completion_tokens": 67,
+      "latency_s": 24.5,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0034",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description_style": "structured",
+      "description": "Proces zaczyna się od odebrania zgłoszenia. Następnie sprawdzam, czy problem jest pilny. Jeśli tak, zgłoszenie jest przekazywane do pilnego wsparcia i proces się kończy. Jeśli nie, przechodzę do rozwiązania problemu. Potem sprawdzam, czy problem został rozwiązany. Jeśli nie, zgłoszenie jest przekazywane do dalszej analizy i proces się kończy. Jeśli tak, sprawdzam, czy klient jest zadowolony z rozwiązania. Jeśli klient jest zadowolony, zgłoszenie zostaje zamknięte i proces się kończy. Jeśli nie jest zadowolony, zgłoszenie jest przekierowywane do zespołu wsparcia, a następnie następuje kontakt z klientem w celu udzielenia dalszej pomocy, po czym proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Odbierz zgłoszenie]\n B --> C{Czy problem jest pilny?}\n C -->|Tak| D[Przekaż do pilnego wsparcia]\n D --> Z([Koniec])\n C -->|Nie| E[Rozwiąż problem]\n E --> F{Czy problem został rozwiązany?}\n F -->|Nie| G[Przekaż do dalszej analizy]\n G --> Z([Koniec])\n F -->|Tak| H{Czy klient jest zadowolony z rozwiązania?}\n H -->|Tak| I[Zamknij zgłoszenie]\n I --> Z([Koniec])\n H -->|Nie| J[Przekieruj do zespołu wsparcia]\n J --> K[Skontaktuj się z klientem w celu dalszej pomocy]\n K --> Z([Koniec])",
+      "raw_output": "sequenceDiagram\nparticipant C as Klient\nparticipant A as Pilo\nparticipant S as Pilo wsparcie\nparticipant B as Zespół wsparcia\nparticipant D as Zgłoszenie\n\nC->>A: Odebranie zgłoszenia\nA->>S: Sprawdź, czy problem jest pilny\nS-->>A: Przekaza zgrzeczność\nS-->>B: Zgłoszenie przekazane do pilnego wsparcia\nS-->>B: Problem został rozwiązany\nB->>D: Problem został rozwiązany\nD->>C: Klient zadowolony\nC->>Z: Koniec procesu\nD->>B: Zgłoszenie przekierowane do zespołu wsparcia\nB->>C: Kontakt z klientem w celu pomocy",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\nparticipant C as Klient\nparticipant A as Pilo\nparticipant S as Pilo wsparcie\nparticipant B as Zespół wsparcia\nparticipant D as Zgłoszenie\n\nC->>A: Odebranie zgłoszenia\nA->>S: Sprawdź, czy problem jest pilny\nS-->>A: Przekaza zgrzeczność\nS-->>B: Zgłoszenie przekazane do pilnego wsparcia\nS-->>B: Problem został rozwiązany\nB->>D: Problem został rozwiązany\nD->>C: Klient zadowolony\nC->>Z: Koniec procesu\nD->>B: Zgłoszenie przekierowane do zespołu wsparcia\nB->>C: Kontakt z klientem w celu pomocy",
+      "finish_reason": "stop",
+      "completion_tokens": 179,
+      "latency_s": 23.69,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0050",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "natural",
+      "description": "Zaczynam od tego, że identyfikuję zgłoszony problem, czyli po prostu ustalam, z czym mam do czynienia. Potem patrzę, czy sprawa jest poważna - jeśli waga problemu jest wysoka, od razu przekazuję to dalej do zespołu wsparcia, żeby się tym zajęli. Jeśli jednak nie jest to nic poważnego, to sam załatwiam sprawę na czacie z użytkownikiem. W obu przypadkach, czy to po przekazaniu do wsparcia, czy po rozwiązaniu na czacie, proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Zidentyfikuj problem]\n B --> C{Czy waga problemu jest wysoka?}\n C -->|Tak| D[Przypisz do zespołu wsparcia]\n C -->|Nie| E[Rozwiąż problem przez czat]\n E --> Z([Koniec])\n D --> Z([Koniec])",
+      "raw_output": "sequenceDiagram\nparticipant C as Zgłoszony problem\nparticipant A as Zespół wsparcia\nparticipant S as Czat użytkownika\n\nC->>A: Ustalam, z czym mam do czynienia\nA->>S: Sprawdzam, czy sprawa jest poważna\nS-->>A: Jeśli waga problemu jest wysoka, przekazuję do zespołu wsparcia\nS-->>C: Jeśli nie jest poważne, sam załatwiam sprawę\nA-->>S: W obu przypadkach, proces się kończy.",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\nparticipant C as Zgłoszony problem\nparticipant A as Zespół wsparcia\nparticipant S as Czat użytkownika\n\nC->>A: Ustalam, z czym mam do czynienia\nA->>S: Sprawdzam, czy sprawa jest poważna\nS-->>A: Jeśli waga problemu jest wysoka, przekazuję do zespołu wsparcia\nS-->>C: Jeśli nie jest poważne, sam załatwiam sprawę\nA-->>S: W obu przypadkach, proces się kończy.",
+      "finish_reason": "stop",
+      "completion_tokens": 132,
+      "latency_s": 17.34,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0054",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Autoryzuję płatność, potem sprawdzam, czy kontrola oszustw jest włączona: jeśli tak, wykonuję sprawdzenie pod kątem oszustw i kończę, jeśli nie, płatność uznaję za opłaconą bez kontroli oszustw i kończę.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Autoryzuj płatność]\nB --> C{Czy kontrola oszustw jest włączona?}\nC -->|Tak| D[Sprawdź pod kątem oszustw]\nD --> Z([Koniec])\nC -->|Nie| E[Opłacono bez kontroli oszustw]\nE --> Z([Koniec])",
+      "raw_output": "flowchart TD\n A([Autoryzuję płatność]) --> B[Sprawdzam kontrolę oszustw]\n B --> C{Czy kontrola oszustw jest włączona?}\n C -->|Tak| D[Wykonaj sprawdzenie i kończę]\n C -->|Nie| E[Płatność uznaję za opłaconą bez kontroli oszustw i kończę]",
+      "reasoning_chars": 0,
+      "code": "flowchart TD\n A([Autoryzuję płatność]) --> B[Sprawdzam kontrolę oszustw]\n B --> C{Czy kontrola oszustw jest włączona?}\n C -->|Tak| D[Wykonaj sprawdzenie i kończę]\n C -->|Nie| E[Płatność uznaję za opłaconą bez kontroli oszustw i kończę]",
+      "finish_reason": "stop",
+      "completion_tokens": 95,
+      "latency_s": 11.37,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8,
+          "recall": 0.6666666666666666,
+          "f1": 0.7272727272727272
+        },
+        "edge": {
+          "precision": 0.25,
+          "recall": 0.16666666666666666,
+          "f1": 0.2
+        },
+        "shape_acc": 0.75,
+        "node_pairs": [
+          {
+            "predicted_id": "C",
+            "reference_id": "C",
+            "predicted_label": "Czy kontrola oszustw jest włączona?",
+            "reference_label": "Czy kontrola oszustw jest włączona?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Autoryzuję płatność",
+            "reference_label": "Autoryzuj płatność",
+            "method": "embedding",
+            "similarity": 0.9238,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "D",
+            "predicted_label": "Sprawdzam kontrolę oszustw",
+            "reference_label": "Sprawdź pod kątem oszustw",
+            "method": "embedding",
+            "similarity": 0.8038,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "Z",
+            "predicted_label": "Wykonaj sprawdzenie i kończę",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.5887,
+            "matched": false
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Płatność uznaję za opłaconą bez kontroli oszustw i kończę",
+            "reference_label": "Opłacono bez kontroli oszustw",
+            "method": "embedding",
+            "similarity": 0.7794,
+            "matched": true
+          }
+        ],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0063",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Wczytuję oryginalny plik obrazu, sprawdzam czy rozmiar obrazu jest duży: jeśli tak, zmieniam rozmiar na duży i generuję miniaturę ze zmienionego obrazu, koniec; jeśli nie, generuję miniaturę bezpośrednio, konwertuję do formatu miniatury, zapisuję plik miniatury, koniec.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Wczytaj oryginalny plik obrazu]\nB --> C{Czy rozmiar obrazu jest duży?}\nC -->|Tak| D[Zmień rozmiar obrazu na duży]\nD --> E[Wygeneruj miniaturę ze zmienionego obrazu]\nE --> Z([Koniec])\nC -->|Nie| F[Wygeneruj miniaturę bezpośrednio]\nF --> G[Przekonwertuj do formatu miniatury]\nG --> H[Zapisz plik miniatury]\nH --> Z([Koniec])",
+      "raw_output": "flowchart TD\n A([Wczytaj obraz]) --> B[Oczytij plik obrazu]\n B --> C{Rozmiar obrazu jest duży?}\n C -->|Tak| D[Zmieniłem rozmiar na duży]\n D --> E[Generuję miniaturę]\n E --> F[Koniec]\n C -->|Nie| F[Generuję miniatura bezpośrednio]\n F --> G[Konwertuję do formatu miniatury]\n G --> H[Zapisuję plik miniatury]\n H --> I[Koniec]",
+      "reasoning_chars": 0,
+      "code": "flowchart TD\n A([Wczytaj obraz]) --> B[Oczytij plik obrazu]\n B --> C{Rozmiar obrazu jest duży?}\n C -->|Tak| D[Zmieniłem rozmiar na duży]\n D --> E[Generuję miniaturę]\n E --> F[Koniec]\n C -->|Nie| F[Generuję miniatura bezpośrednio]\n F --> G[Konwertuję do formatu miniatury]\n G --> H[Zapisuję plik miniatury]\n H --> I[Koniec]",
+      "finish_reason": "stop",
+      "completion_tokens": 129,
+      "latency_s": 15.75,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8888888888888888,
+          "recall": 0.8888888888888888,
+          "f1": 0.8888888888888888
+        },
+        "edge": {
+          "precision": 0.7777777777777778,
+          "recall": 0.7777777777777778,
+          "f1": 0.7777777777777778
+        },
+        "shape_acc": 0.875,
+        "node_pairs": [
+          {
+            "predicted_id": "I",
+            "reference_id": "Z",
+            "predicted_label": "Koniec",
+            "reference_label": "Koniec",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "A",
+            "predicted_label": "Wczytaj obraz",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.5715,
+            "matched": false
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "B",
+            "predicted_label": "Oczytij plik obrazu",
+            "reference_label": "Wczytaj oryginalny plik obrazu",
+            "method": "embedding",
+            "similarity": 0.7734,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "C",
+            "predicted_label": "Rozmiar obrazu jest duży?",
+            "reference_label": "Czy rozmiar obrazu jest duży?",
+            "method": "embedding",
+            "similarity": 0.9883,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "D",
+            "predicted_label": "Zmieniłem rozmiar na duży",
+            "reference_label": "Zmień rozmiar obrazu na duży",
+            "method": "embedding",
+            "similarity": 0.8402,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Generuję miniaturę",
+            "reference_label": "Wygeneruj miniaturę ze zmienionego obrazu",
+            "method": "embedding",
+            "similarity": 0.7827,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Generuję miniatura bezpośrednio",
+            "reference_label": "Wygeneruj miniaturę bezpośrednio",
+            "method": "embedding",
+            "similarity": 0.9415,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Konwertuję do formatu miniatury",
+            "reference_label": "Przekonwertuj do formatu miniatury",
+            "method": "embedding",
+            "similarity": 0.9278,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "H",
+            "predicted_label": "Zapisuję plik miniatury",
+            "reference_label": "Zapisz plik miniatury",
+            "method": "embedding",
+            "similarity": 0.9397,
+            "matched": true
+          }
+        ],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0066",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Produkt trafia do koszyka, potem decyzja: płatność kartą kredytową - jeśli tak, przetwarzam płatność kartą i koniec; jeśli nie, przetwarzam płatność przez PayPal, weryfikuję dane płatności, zakup zakończony sukcesem i koniec.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Produkt dodany do koszyka]\nB --> C{Czy płatność kartą kredytową?}\nC -->|Tak| D[Przetwórz płatność kartą kredytową]\nD --> Z([Koniec])\nC -->|Nie| E[Przetwórz płatność przez PayPal]\nE --> F[Zweryfikuj dane płatności]\nF --> G[Zakup zakończony sukcesem]\nG --> Z([Koniec])",
+      "raw_output": "flowchart TD\n A([Produkt trafia do koszyka])\n A --> B[Płatność kartą kredytową]\n B --> C{Płatność koniec}\n B --> D[PayPal]\n D --> E[Zakup zakończony sukcesem]\n E --> Z([Koniec])",
+      "reasoning_chars": 0,
+      "code": "flowchart TD\n A([Produkt trafia do koszyka])\n A --> B[Płatność kartą kredytową]\n B --> C{Płatność koniec}\n B --> D[PayPal]\n D --> E[Zakup zakończony sukcesem]\n E --> Z([Koniec])",
+      "finish_reason": "stop",
+      "completion_tokens": 69,
+      "latency_s": 8.66,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8333333333333334,
+          "recall": 0.625,
+          "f1": 0.7142857142857143
+        },
+        "edge": {
+          "precision": 0.6,
+          "recall": 0.375,
+          "f1": 0.4615384615384615
+        },
+        "shape_acc": 0.6,
+        "node_pairs": [
+          {
+            "predicted_id": "E",
+            "reference_id": "G",
+            "predicted_label": "Zakup zakończony sukcesem",
+            "reference_label": "Zakup zakończony sukcesem",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "Z",
+            "reference_id": "Z",
+            "predicted_label": "Koniec",
+            "reference_label": "Koniec",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Produkt trafia do koszyka",
+            "reference_label": "Produkt dodany do koszyka",
+            "method": "embedding",
+            "similarity": 0.8147,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Płatność kartą kredytową",
+            "reference_label": "Czy płatność kartą kredytową?",
+            "method": "embedding",
+            "similarity": 0.8484,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "F",
+            "predicted_label": "Płatność koniec",
+            "reference_label": "Zweryfikuj dane płatności",
+            "method": "embedding",
+            "similarity": 0.6477,
+            "matched": false
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "PayPal",
+            "reference_label": "Przetwórz płatność przez PayPal",
+            "method": "embedding",
+            "similarity": 0.7209,
+            "matched": true
+          }
+        ],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0003",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "hard",
+      "description_style": "brief",
+      "description": "Użytkownik wprowadza dane logowania w aplikacji mobilnej, ta przekierowuje do Backend for Frontend, który przekierowuje do Azure AD; użytkownik podaje dane logowania bezpośrednio do Azure AD, a Azure AD je waliduje. Jeśli dane są poprawne, Azure AD zwraca kod autoryzacyjny do aplikacji mobilnej, która przekazuje go do Backend for Frontend; ten wymienia kod na token dostępu w Azure AD. Jeśli kod autoryzacyjny jest poprawny, Azure AD zwraca token dostępu i token odświeżania, Backend for Frontend zapisuje token odświeżania w bazie danych i przekazuje token dostępu do aplikacji mobilnej; jeśli kod jest niepoprawny, Azure AD zwraca błąd invalid_grant, który Backend for Frontend przekazuje do aplikacji mobilnej. Jeśli dane logowania są niepoprawne, Azure AD od razu zwraca błąd invalid_grant do Backend for Frontend, a ten przekazuje go do aplikacji mobilnej. Aplikacja mobilna informuje użytkownika o wyniku logowania.\n\nNastępnie aplikacja mobilna próbuje uzyskać dostęp do chronionego API przez Backend for Frontend, który waliduje token dostępu w Azure AD. Jeśli token jest poprawny, Azure AD zwraca odpowiedź API, przekazywaną do aplikacji mobilnej; jeśli niepoprawny, zwracany jest błąd invalid_token, przekazywany do aplikacji mobilnej.\n\nNa koniec aplikacja mobilna prosi Backend for Frontend o odświeżenie tokenu dostępu, a ten wysyła żądanie odświeżenia do Azure AD. Jeśli token odświeżania jest poprawny, Azure AD zwraca nowy token dostępu i token odświeżania, Backend for Frontend zapisuje token odświeżania w bazie danych i przekazuje token dostępu do aplikacji mobilnej; jeśli token odświeżania jest niepoprawny, zwracany jest błąd refresh_token_expired, przekazywany do aplikacji mobilnej.",
+      "expected_mermaid": "sequenceDiagram\nparticipant U as Użytkownik\nparticipant MA as Aplikacja mobilna\nparticipant BFF as Backend for Frontend\nparticipant AAD as Azure AD\nparticipant DB as Baza danych\n\nNote over U: Przepływ logowania OAuth\nU->>MA: Wprowadź dane logowania\nMA->>BFF: Przekieruj do Azure AD\nactivate BFF\nBFF->>AAD: Przekieruj do Azure AD\ndeactivate BFF\nactivate AAD\nU->>AAD: Wprowadź dane logowania\nAAD->>AAD: Zwaliduj dane logowania\nalt dane logowania są poprawne\n  AAD->>MA: Kod autoryzacyjny\n  MA->>BFF: Kod autoryzacyjny\n  activate BFF\n  BFF->>AAD: Wymień kod autoryzacyjny na token dostępu\n  alt kod autoryzacyjny jest poprawny\n    AAD-->>BFF: Token dostępu i token odświeżania\n    BFF->>DB: Zapisz token odświeżania\n    BFF-->>MA: Token dostępu\n  else kod autoryzacyjny jest niepoprawny\n    AAD-->>BFF: Błąd (invalid_grant)\n    BFF-->>MA: Błąd (invalid_grant)\n  end\nelse dane logowania są niepoprawne\n  AAD-->>BFF: Błąd (invalid_grant)\n  BFF-->>MA: Błąd (invalid_grant)\nend\ndeactivate AAD\ndeactivate BFF\nMA->>U: Wynik logowania\nMA->>BFF: Uzyskaj dostęp do chronionego API\nactivate BFF\nBFF->>AAD: Zwaliduj token dostępu\nactivate AAD\nalt token dostępu jest poprawny\n  AAD-->>BFF: Odpowiedź API\n  BFF-->>MA: Odpowiedź API\nelse token dostępu jest niepoprawny\n  AAD-->>BFF: Błąd (invalid_token)\n  deactivate AAD\n  BFF-->>MA: Błąd (invalid_token)\nend\ndeactivate BFF\nMA->>BFF: Odśwież token dostępu\nactivate BFF\nBFF->>AAD: Odśwież token dostępu\nactivate AAD\nalt token odświeżania jest poprawny\n  AAD-->>BFF: Token dostępu i token odświeżania\n  BFF->>DB: Zapisz token odświeżania\n  BFF-->>MA: Token dostępu\nelse token odświeżania jest niepoprawny\n  AAD-->>BFF: Błąd (refresh_token_expired)\n  deactivate AAD\n  BFF-->>MA: Błąd (refresh_token_expired)\nend\ndeactivate BFF",
+      "raw_output": "sequenceDiagram\nparticipant A as Użytkownik\nparticipant B as Aplikacja mobilna\nparticipant C as Backend for Frontend\nparticipant D as Azure AD\n\nA->>B: Użytkownik wprowadza dane logowania w aplikację mobilną\nB->>C: Aplikacja przekierowuje do Backend for Frontend\nC->>D: Użytkownik podaje dane logowania bezpośrednio do Azure AD\nD->>A: Azure AD waliduje dane logowania\nA->>C: Jeśli dane są poprawne, Azure AD zwraca kod autoryzacyjny do aplikacji\nC->>A: Aplikacja przekazuje kod do Backend for Frontend\nC->>D: Backend for Frontend przekazuje kod do Azure AD\nD->>C: Jeśli kod jest poprawny, Azure AD zwraca token dostępu i token odświeżania\nC->>D: Backend for Frontend zapisuje token odświeżania w bazie danych\nD->>C: Aplikacja mobilna informuje użytkownika o wyniku logowania\nA->>C: Aplikacja mobilna próbuje uzyskać dostęp do chronionego API\nC->>D: Backend for Frontend waliduje token dostępu w Azure AD\nD->>A: Jeśli token jest poprawny, Azure AD zwraca odpowiedź API\nA->>C: Aplikacja mobilna przekazuje odpowiedź API\nC->>D: Backend for Frontend przekazuje błąd invalid_token\nA->>C: Aplikacja mobilna informuje użytkownika o wyniku logowania\nA->>C: Aplikacja mobilna prosi Backend for Frontend o odświeżenie tokenu\nC->>D: Backend for Frontend odświeża token i przekazuje do Azure AD\nD->>C: Jeśli token jest poprawny, Azure AD zwraca nowy token dostępu\nC->>D: Backend for Frontend zapisuje token odświeżania w bazie danych\nD->>C: Aplikacja mobilna informuje użytkownika o wyniku logowania",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\nparticipant A as Użytkownik\nparticipant B as Aplikacja mobilna\nparticipant C as Backend for Frontend\nparticipant D as Azure AD\n\nA->>B: Użytkownik wprowadza dane logowania w aplikację mobilną\nB->>C: Aplikacja przekierowuje do Backend for Frontend\nC->>D: Użytkownik podaje dane logowania bezpośrednio do Azure AD\nD->>A: Azure AD waliduje dane logowania\nA->>C: Jeśli dane są poprawne, Azure AD zwraca kod autoryzacyjny do aplikacji\nC->>A: Aplikacja przekazuje kod do Backend for Frontend\nC->>D: Backend for Frontend przekazuje kod do Azure AD\nD->>C: Jeśli kod jest poprawny, Azure AD zwraca token dostępu i token odświeżania\nC->>D: Backend for Frontend zapisuje token odświeżania w bazie danych\nD->>C: Aplikacja mobilna informuje użytkownika o wyniku logowania\nA->>C: Aplikacja mobilna próbuje uzyskać dostęp do chronionego API\nC->>D: Backend for Frontend waliduje token dostępu w Azure AD\nD->>A: Jeśli token jest poprawny, Azure AD zwraca odpowiedź API\nA->>C: Aplikacja mobilna przekazuje odpowiedź API\nC->>D: Backend for Frontend przekazuje błąd invalid_token\nA->>C: Aplikacja mobilna informuje użytkownika o wyniku logowania\nA->>C: Aplikacja mobilna prosi Backend for Frontend o odświeżenie tokenu\nC->>D: Backend for Frontend odświeża token i przekazuje do Azure AD\nD->>C: Jeśli token jest poprawny, Azure AD zwraca nowy token dostępu\nC->>D: Backend for Frontend zapisuje token odświeżania w bazie danych\nD->>C: Aplikacja mobilna informuje użytkownika o wyniku logowania",
+      "finish_reason": "stop",
+      "completion_tokens": 494,
+      "latency_s": 76.65,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8,
+          "f1": 0.888888888888889
+        },
+        "edge": {
+          "precision": 0.14285714285714285,
+          "recall": 0.10344827586206896,
+          "f1": 0.12000000000000001
+        },
+        "shape_acc": null,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "U",
+            "predicted_label": "Użytkownik",
+            "reference_label": "Użytkownik",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "MA",
+            "predicted_label": "Aplikacja mobilna",
+            "reference_label": "Aplikacja mobilna",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "BFF",
+            "predicted_label": "Backend for Frontend",
+            "reference_label": "Backend for Frontend",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "AAD",
+            "predicted_label": "Azure AD",
+            "reference_label": "Azure AD",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          }
+        ],
+        "message_pairs": [
+          {
+            "predicted_id": "0",
+            "reference_id": "0",
+            "predicted_label": "Użytkownik wprowadza dane logowania w aplikację mobilną",
+            "reference_label": "Wprowadź dane logowania",
+            "method": "embedding",
+            "similarity": 0.7445,
+            "matched": true
+          },
+          {
+            "predicted_id": "1",
+            "reference_id": "1",
+            "predicted_label": "Aplikacja przekierowuje do Backend for Frontend",
+            "reference_label": "Przekieruj do Azure AD",
+            "method": "embedding",
+            "similarity": 0.5677,
+            "matched": false
+          },
+          {
+            "predicted_id": "2",
+            "reference_id": "2",
+            "predicted_label": "Użytkownik podaje dane logowania bezpośrednio do Azure AD",
+            "reference_label": "Przekieruj do Azure AD",
+            "method": "embedding",
+            "similarity": 0.7277,
+            "matched": true
+          },
+          {
+            "predicted_id": "11",
+            "reference_id": "17",
+            "predicted_label": "Backend for Frontend waliduje token dostępu w Azure AD",
+            "reference_label": "Zwaliduj token dostępu",
+            "method": "embedding",
+            "similarity": 0.6701,
+            "matched": false
+          },
+          {
+            "predicted_id": "17",
+            "reference_id": "7",
+            "predicted_label": "Backend for Frontend odświeża token i przekazuje do Azure AD",
+            "reference_label": "Wymień kod autoryzacyjny na token dostępu",
+            "method": "embedding",
+            "similarity": 0.5796,
+            "matched": false
+          },
+          {
+            "predicted_id": "19",
+            "reference_id": "23",
+            "predicted_label": "Backend for Frontend zapisuje token odświeżania w bazie danych",
+            "reference_label": "Odśwież token dostępu",
+            "method": "embedding",
+            "similarity": 0.6642,
+            "matched": false
+          },
+          {
+            "predicted_id": "7",
+            "reference_id": "8",
+            "predicted_label": "Jeśli kod jest poprawny, Azure AD zwraca token dostępu i token odświeżania",
+            "reference_label": "Token dostępu i token odświeżania",
+            "method": "embedding",
+            "similarity": 0.7468,
+            "matched": true
+          },
+          {
+            "predicted_id": "9",
+            "reference_id": "18",
+            "predicted_label": "Aplikacja mobilna informuje użytkownika o wyniku logowania",
+            "reference_label": "Odpowiedź API",
+            "method": "embedding",
+            "similarity": 0.4734,
+            "matched": false
+          },
+          {
+            "predicted_id": "18",
+            "reference_id": "24",
+            "predicted_label": "Jeśli token jest poprawny, Azure AD zwraca nowy token dostępu",
+            "reference_label": "Token dostępu i token odświeżania",
+            "method": "embedding",
+            "similarity": 0.6794,
+            "matched": false
+          },
+          {
+            "predicted_id": "20",
+            "reference_id": "27",
+            "predicted_label": "Aplikacja mobilna informuje użytkownika o wyniku logowania",
+            "reference_label": "Błąd (refresh_token_expired)",
+            "method": "embedding",
+            "similarity": 0.4489,
+            "matched": false
+          }
+        ],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0011",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "hard",
+      "description_style": "natural",
+      "description": "Chodzi o to, jak wygląda składanie zamówienia przez klienta w aplikacji mobilnej. Klient wybiera produkty, dodaje je do koszyka, a aplikacja na bieżąco aktualizuje widok koszyka. Potem klient przechodzi do realizacji zamówienia i wtedy aplikacja wysyła szczegóły zamówienia do serwisu zamówień. Serwis zamówień najpierw sprawdza w systemie magazynowym, czy produkty są dostępne, i czeka na odpowiedź. Jeśli produktów nie ma, to serwis zamówień od razu informuje aplikację, a ta przekazuje klientowi, że produkty są niedostępne, i na tym się kończy. Jeśli produkty są dostępne, to leci dalej - serwis zamówień próbuje przetworzyć płatność przez bramkę płatności. Tu znowu są dwie możliwości: albo płatność się uda, albo nie. Jak się nie uda, to serwis zamówień wysyła informację o niepowodzeniu do aplikacji, a aplikacja mobilna powiadamia o tym klienta. A jak płatność przejdzie, to serwis zamówień aktualizuje stan magazynu w systemie magazynowym, czeka na potwierdzenie aktualizacji, a potem wysyła do aplikacji potwierdzenie zamówienia, które aplikacja pokazuje klientowi jako potwierdzone zamówienie.",
+      "expected_mermaid": "sequenceDiagram\n\nparticipant C as Klient\nparticipant MA as Aplikacja mobilna\nparticipant OS as Serwis zamówień\nparticipant PG as Bramka płatności\nparticipant IS as System magazynowy\n\nNote over C: Składanie zamówienia\nC->>MA: Wybierz produkty i dodaj do koszyka\nMA-->>C: Zaktualizuj widok koszyka\nC->>MA: Przejdź do realizacji zamówienia\nMA->>OS: Wyślij szczegóły zamówienia\nactivate OS\nOS->>IS: Sprawdź dostępność produktu\nactivate IS\nIS-->>OS: Odpowiedź o dostępności produktu\ndeactivate IS\nalt Produkty są dostępne\n    OS->>PG: Przetwórz płatność\n    activate PG\n    PG-->>OS: Odpowiedź płatności\n    deactivate PG\n    alt Płatność zakończona sukcesem\n        OS->>IS: Zaktualizuj stan magazynu\n        activate IS\n        IS-->>OS: Stan magazynu zaktualizowany\n        deactivate IS\n        OS-->>MA: Potwierdź zamówienie\n        MA-->>C: Zamówienie potwierdzone\n    else Płatność nieudana\n        OS-->>MA: Powiadom o niepowodzeniu płatności\n        MA-->>C: Powiadom o niepowodzeniu płatności\n    end\nelse Produkty są niedostępne\n    OS-->>MA: Powiadom o niedostępności produktu\n    MA-->>C: Powiadom o niedostępności produktu\nend\ndeactivate OS",
+      "raw_output": "sequenceDiagram\nparticipant C as Klient\nparticipant A as Aplikacja\nparticipant S as Serwis zamówień\n\nC->>A: Wybierz produkty\nA->>S: Dodaj do koszyka\nS->>A: Aktualizuj widok koszyka\nC->>S: Przekaż do realizacji zamówienia\nS->>A: Wysyłaj szczegóły do serwisu\nS->>A: Sprawdź dostępność produktów\nA->>S: Jeśli dostępne, potwierdzenie\nS->>A: Jeśli nie dostępne, informacja\nA->>S: Jeśli płatność się uda, potwierdzenie\nS->>A: Jeśli nie, informacja\nA->>C: Potwierdzenie zamówienia\nC->>S: Jeśli płatność przejdzie, aktualizacja\nS->>A: Potwierdzenie zamówienia\nA->>C: Potwierdzenie zamówienia",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\nparticipant C as Klient\nparticipant A as Aplikacja\nparticipant S as Serwis zamówień\n\nC->>A: Wybierz produkty\nA->>S: Dodaj do koszyka\nS->>A: Aktualizuj widok koszyka\nC->>S: Przekaż do realizacji zamówienia\nS->>A: Wysyłaj szczegóły do serwisu\nS->>A: Sprawdź dostępność produktów\nA->>S: Jeśli dostępne, potwierdzenie\nS->>A: Jeśli nie dostępne, informacja\nA->>S: Jeśli płatność się uda, potwierdzenie\nS->>A: Jeśli nie, informacja\nA->>C: Potwierdzenie zamówienia\nC->>S: Jeśli płatność przejdzie, aktualizacja\nS->>A: Potwierdzenie zamówienia\nA->>C: Potwierdzenie zamówienia",
+      "finish_reason": "stop",
+      "completion_tokens": 217,
+      "latency_s": 32.33,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.6,
+          "f1": 0.7499999999999999
+        },
+        "edge": {
+          "precision": 0.2857142857142857,
+          "recall": 0.25,
+          "f1": 0.26666666666666666
+        },
+        "shape_acc": null,
+        "node_pairs": [
+          {
+            "predicted_id": "C",
+            "reference_id": "C",
+            "predicted_label": "Klient",
+            "reference_label": "Klient",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "S",
+            "reference_id": "OS",
+            "predicted_label": "Serwis zamówień",
+            "reference_label": "Serwis zamówień",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "MA",
+            "predicted_label": "Aplikacja",
+            "reference_label": "Aplikacja mobilna",
+            "method": "embedding",
+            "similarity": 0.8986,
+            "matched": true
+          }
+        ],
+        "message_pairs": [
+          {
+            "predicted_id": "0",
+            "reference_id": "0",
+            "predicted_label": "Wybierz produkty",
+            "reference_label": "Wybierz produkty i dodaj do koszyka",
+            "method": "embedding",
+            "similarity": 0.8371,
+            "matched": true
+          },
+          {
+            "predicted_id": "8",
+            "reference_id": "3",
+            "predicted_label": "Jeśli płatność się uda, potwierdzenie",
+            "reference_label": "Wyślij szczegóły zamówienia",
+            "method": "embedding",
+            "similarity": 0.5981,
+            "matched": false
+          },
+          {
+            "predicted_id": "4",
+            "reference_id": "12",
+            "predicted_label": "Wysyłaj szczegóły do serwisu",
+            "reference_label": "Powiadom o niepowodzeniu płatności",
+            "method": "embedding",
+            "similarity": 0.6407,
+            "matched": false
+          },
+          {
+            "predicted_id": "5",
+            "reference_id": "14",
+            "predicted_label": "Sprawdź dostępność produktów",
+            "reference_label": "Powiadom o niedostępności produktu",
+            "method": "embedding",
+            "similarity": 0.7754,
+            "matched": true
+          },
+          {
+            "predicted_id": "12",
+            "reference_id": "10",
+            "predicted_label": "Potwierdzenie zamówienia",
+            "reference_label": "Potwierdź zamówienie",
+            "method": "embedding",
+            "similarity": 0.9464,
+            "matched": true
+          },
+          {
+            "predicted_id": "10",
+            "reference_id": "11",
+            "predicted_label": "Potwierdzenie zamówienia",
+            "reference_label": "Zamówienie potwierdzone",
+            "method": "embedding",
+            "similarity": 0.8998,
+            "matched": true
+          },
+          {
+            "predicted_id": "13",
+            "reference_id": "13",
+            "predicted_label": "Potwierdzenie zamówienia",
+            "reference_label": "Powiadom o niepowodzeniu płatności",
+            "method": "embedding",
+            "similarity": 0.6763,
+            "matched": false
+          }
+        ],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0019",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "medium",
+      "description_style": "structured",
+      "description": "Użytkownik tworzy post w aplikacji mediów społecznościowych. Aplikacja wysyła dane posta do serwera backendowego. Jeśli dane są poprawne, serwer backendowy zapisuje post w bazie danych, następnie powiadamia aplikację o pomyślnym dodaniu posta, a aplikacja wyświetla post użytkownikowi. Jeśli dane są niepoprawne, serwer backendowy zwraca aplikacji komunikat błędu, a aplikacja zwraca ten komunikat błędu użytkownikowi.",
+      "expected_mermaid": "sequenceDiagram\n\nparticipant U as Użytkownik\nparticipant A as Aplikacja mediów społecznościowych\nparticipant B as Serwer backendowy\nparticipant D as Baza danych\n\nNote over U: Tworzenie posta\nU->>A: Utwórz post\nA->>B: Wyślij dane posta\nactivate B\nalt dane są poprawne\n    B->>D: Zapisz post\n    B-->>A: Powiadom o pomyślnym dodaniu posta\n    A-->>U: Wyświetl post\nelse dane są niepoprawne\n    B-->>A: Zwróć komunikat błędu\n    deactivate B\n    A-->>U: Zwróć komunikat błędu\nend",
+      "raw_output": "sequenceDiagram\nparticipant A as Użytkownik\nparticipant B as Aplikacja\nparticipant C as Serwer backendowy\n\nA->>B: Użytkownik tworzy post w aplikacji mediów społecznościowych\nB->>C: Dane posta wysyłane do serwera backendowego\nC-->>B: Dane są poprawne → B->>A: Aplikacja powiadomia o pomyślnym dodaniu posta\nC-->>B: Dane niepoprawne → B->>A: Aplikacja zwraca komunikat błędu\n\nA->>C: Komunikat błędu w aplikacji",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\nparticipant A as Użytkownik\nparticipant B as Aplikacja\nparticipant C as Serwer backendowy\n\nA->>B: Użytkownik tworzy post w aplikacji mediów społecznościowych\nB->>C: Dane posta wysyłane do serwera backendowego\nC-->>B: Dane są poprawne → B->>A: Aplikacja powiadomia o pomyślnym dodaniu posta\nC-->>B: Dane niepoprawne → B->>A: Aplikacja zwraca komunikat błędu\n\nA->>C: Komunikat błędu w aplikacji",
+      "finish_reason": "stop",
+      "completion_tokens": 150,
+      "latency_s": 19.94,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.75,
+          "f1": 0.8571428571428571
+        },
+        "edge": {
+          "precision": 0.4,
+          "recall": 0.2857142857142857,
+          "f1": 0.3333333333333333
+        },
+        "shape_acc": null,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "U",
+            "predicted_label": "Użytkownik",
+            "reference_label": "Użytkownik",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "B",
+            "predicted_label": "Serwer backendowy",
+            "reference_label": "Serwer backendowy",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "A",
+            "predicted_label": "Aplikacja",
+            "reference_label": "Aplikacja mediów społecznościowych",
+            "method": "embedding",
+            "similarity": 0.8009,
+            "matched": true
+          }
+        ],
+        "message_pairs": [
+          {
+            "predicted_id": "0",
+            "reference_id": "0",
+            "predicted_label": "Użytkownik tworzy post w aplikacji mediów społecznościowych",
+            "reference_label": "Utwórz post",
+            "method": "embedding",
+            "similarity": 0.6898,
+            "matched": false
+          },
+          {
+            "predicted_id": "1",
+            "reference_id": "1",
+            "predicted_label": "Dane posta wysyłane do serwera backendowego",
+            "reference_label": "Wyślij dane posta",
+            "method": "embedding",
+            "similarity": 0.7139,
+            "matched": true
+          },
+          {
+            "predicted_id": "2",
+            "reference_id": "3",
+            "predicted_label": "Dane są poprawne → B->>A: Aplikacja powiadomia o pomyślnym dodaniu posta",
+            "reference_label": "Powiadom o pomyślnym dodaniu posta",
+            "method": "embedding",
+            "similarity": 0.757,
+            "matched": true
+          },
+          {
+            "predicted_id": "3",
+            "reference_id": "5",
+            "predicted_label": "Dane niepoprawne → B->>A: Aplikacja zwraca komunikat błędu",
+            "reference_label": "Zwróć komunikat błędu",
+            "method": "embedding",
+            "similarity": 0.6654,
+            "matched": false
+          }
+        ],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0020",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "medium",
+      "description_style": "natural",
+      "description": "Chodzi o to, że użytkownik wybiera sobie wideo do obejrzenia w aplikacji streamingowej i od tego wszystko się zaczyna. Aplikacja prosi wtedy Content Delivery Network o to wideo, a Content Delivery Network z kolei idzie po nie do magazynu wideo, który odsyła mu dane wideo z powrotem. Mając już dane, Content Delivery Network strumieniuje wideo do aplikacji, a ta puszcza je użytkownikowi. Dodatkowo aplikacja wysyła do usługi analitycznej informację o zdarzeniu odtwarzania - usługa sama sobie przetwarza te dane i potem potwierdza aplikacji, że zarejestrowała zdarzenie. Czyli w skrócie: wybór, pobranie z magazynu przez Content Delivery Network, streaming, odtwarzanie i na końcu zalogowanie tego do analityki.",
+      "expected_mermaid": "sequenceDiagram\n\nparticipant U as Użytkownik\nparticipant SA as Aplikacja streamingowa\nparticipant CDN as Content Delivery Network\nparticipant VS as Magazyn wideo\nparticipant AS as Usługa analityczna\n\nNote over U: Wybór treści\nU->>SA: Wybierz wideo\nactivate SA\n\nSA->>CDN: Poproś o wideo\nactivate CDN\n\nCDN->>VS: Pobierz wideo\nactivate VS\nVS-->>CDN: Dane wideo\ndeactivate VS\n\nCDN-->>SA: Strumieniuj wideo\ndeactivate CDN\n\nSA->>U: Odtwórz wideo\n\nSA->>AS: Zarejestruj zdarzenie odtwarzania\nactivate AS\n\nAS->>AS: Przetwórz dane odtwarzania\nAS-->>SA: Potwierdź zarejestrowanie\ndeactivate AS\ndeactivate SA",
+      "raw_output": "sequenceDiagram\nparticipant C as Użytkownik\nparticipant A as Aplikacja\nparticipant S as Content Delivery Network\n\nC->>A: Wybierzę wideo\nA->>S: Pobrzę z magazynu\nS->>A: Strumieniuje wideo\nA->>S: Odtwarzam\nS->>A: Zaloguję do analityki\n\nA->>S: Zarejestrowałem zdarzenie\nS->>A: Potwierdzenie zdarzenia\nA->>S: Zarejestrowano do analityki",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\nparticipant C as Użytkownik\nparticipant A as Aplikacja\nparticipant S as Content Delivery Network\n\nC->>A: Wybierzę wideo\nA->>S: Pobrzę z magazynu\nS->>A: Strumieniuje wideo\nA->>S: Odtwarzam\nS->>A: Zaloguję do analityki\n\nA->>S: Zarejestrowałem zdarzenie\nS->>A: Potwierdzenie zdarzenia\nA->>S: Zarejestrowano do analityki",
+      "finish_reason": "stop",
+      "completion_tokens": 132,
+      "latency_s": 18.31,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.6,
+          "f1": 0.7499999999999999
+        },
+        "edge": {
+          "precision": 0.25,
+          "recall": 0.2222222222222222,
+          "f1": 0.23529411764705882
+        },
+        "shape_acc": null,
+        "node_pairs": [
+          {
+            "predicted_id": "C",
+            "reference_id": "U",
+            "predicted_label": "Użytkownik",
+            "reference_label": "Użytkownik",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "S",
+            "reference_id": "CDN",
+            "predicted_label": "Content Delivery Network",
+            "reference_label": "Content Delivery Network",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "SA",
+            "predicted_label": "Aplikacja",
+            "reference_label": "Aplikacja streamingowa",
+            "method": "embedding",
+            "similarity": 0.7675,
+            "matched": true
+          }
+        ],
+        "message_pairs": [
+          {
+            "predicted_id": "0",
+            "reference_id": "0",
+            "predicted_label": "Wybierzę wideo",
+            "reference_label": "Wybierz wideo",
+            "method": "embedding",
+            "similarity": 0.8333,
+            "matched": true
+          },
+          {
+            "predicted_id": "5",
+            "reference_id": "1",
+            "predicted_label": "Zarejestrowałem zdarzenie",
+            "reference_label": "Poproś o wideo",
+            "method": "embedding",
+            "similarity": 0.6264,
+            "matched": false
+          },
+          {
+            "predicted_id": "2",
+            "reference_id": "4",
+            "predicted_label": "Strumieniuje wideo",
+            "reference_label": "Strumieniuj wideo",
+            "method": "embedding",
+            "similarity": 0.8788,
+            "matched": true
+          }
+        ],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0021",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Użytkownik wybiera pokój i przechodzi do rezerwacji, przeglądarka wysyła szczegóły do serwera rezerwacji, który sprawdza dostępność pokoju w bazie danych hotelu. Jeśli pokój dostępny: serwer wysyła dane płatności do bramki płatności, ta autoryzuje płatność i zwraca identyfikator transakcji, serwer aktualizuje status rezerwacji w bazie, baza potwierdza, serwer wysyła potwierdzenie rezerwacji do przeglądarki, a ta wyświetla je użytkownikowi. Jeśli pokój niedostępny: baza informuje serwer, serwer przekazuje informację o niedostępności do przeglądarki, a ta wyświetla ją użytkownikowi.",
+      "expected_mermaid": "sequenceDiagram\n\nparticipant U as Użytkownik\nparticipant WB as Przeglądarka internetowa\nparticipant BS as Serwer rezerwacji\nparticipant PG as Bramka płatności\nparticipant HD as Baza danych hotelu\n\nNote over U: Wybór pokoju\nU->>WB: Wybierz pokój i przejdź do rezerwacji\nWB->>BS: Wyślij szczegóły rezerwacji\nactivate BS\nBS->>HD: Sprawdź dostępność pokoju\nalt Pokój dostępny\n    HD-->>BS: Pokój dostępny\n    BS->>PG: Wyślij dane płatności\n    activate PG\n    PG-->>BS: Autoryzuj płatność i zwróć identyfikator transakcji\n    deactivate PG\n    BS->>HD: Zaktualizuj status rezerwacji\n    activate HD\n    HD-->>BS: Potwierdzenie\n    deactivate HD\n    BS-->>WB: Wyślij potwierdzenie rezerwacji\n    WB-->>U: Wyświetl potwierdzenie rezerwacji\nelse Pokój niedostępny\n    HD-->>BS: Pokój niedostępny\n    BS-->>WB: Wyślij informację o niedostępności pokoju\n    deactivate BS\n    WB-->>U: Wyświetl informację o niedostępności pokoju\nend",
+      "raw_output": "sequenceDiagram\nparticipant A as Użytkownik\nparticipant B as Rezerwacja\nparticipant C as Serwer rezerwacji\nparticipant D as Bramka płatności\n\nA->>B: Wybierzę pokój\nB->>C: Wysyłam szczegóły do serwera\nC->>D: Sprawdzam dostępność pokoju\nD->>C: Wysyłam dane płatności\nC->>A: Autoryzuję płatność\nA->>C: Wysyłam potwierdzenie rezerwacji\nC->>D: Wysyłam informację o niedostępności\nD->>A: Wysyłam informację o niedostępności",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\nparticipant A as Użytkownik\nparticipant B as Rezerwacja\nparticipant C as Serwer rezerwacji\nparticipant D as Bramka płatności\n\nA->>B: Wybierzę pokój\nB->>C: Wysyłam szczegóły do serwera\nC->>D: Sprawdzam dostępność pokoju\nD->>C: Wysyłam dane płatności\nC->>A: Autoryzuję płatność\nA->>C: Wysyłam potwierdzenie rezerwacji\nC->>D: Wysyłam informację o niedostępności\nD->>A: Wysyłam informację o niedostępności",
+      "finish_reason": "stop",
+      "completion_tokens": 168,
+      "latency_s": 22.14,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.75,
+          "recall": 0.6,
+          "f1": 0.6666666666666665
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "U",
+            "predicted_label": "Użytkownik",
+            "reference_label": "Użytkownik",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "BS",
+            "predicted_label": "Serwer rezerwacji",
+            "reference_label": "Serwer rezerwacji",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "PG",
+            "predicted_label": "Bramka płatności",
+            "reference_label": "Bramka płatności",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "HD",
+            "predicted_label": "Rezerwacja",
+            "reference_label": "Baza danych hotelu",
+            "method": "embedding",
+            "similarity": 0.5604,
+            "matched": false
+          }
+        ],
+        "message_pairs": [
+          {
+            "predicted_id": "6",
+            "reference_id": "4",
+            "predicted_label": "Wysyłam informację o niedostępności",
+            "reference_label": "Wyślij dane płatności",
+            "method": "embedding",
+            "similarity": 0.6624,
+            "matched": false
+          },
+          {
+            "predicted_id": "3",
+            "reference_id": "5",
+            "predicted_label": "Wysyłam dane płatności",
+            "reference_label": "Autoryzuj płatność i zwróć identyfikator transakcji",
+            "method": "embedding",
+            "similarity": 0.6384,
+            "matched": false
+          }
+        ],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0026",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "medium",
+      "description_style": "natural",
+      "description": "Chodzi o to, jak klient robi rezerwację stolika przez naszą aplikację. Klient wybiera sobie restaurację i godzinę w aplikacji rezerwacyjnej, a ta od razu leci do usługi uwierzytelniania z prośbą o zweryfikowanie danych klienta. Jak dane są okej, to usługa uwierzytelniania odsyła token do aplikacji, aplikacja przekazuje szczegóły rezerwacji do usługi rezerwacji, ta przetwarza rezerwację i odsyła potwierdzenie z powrotem do aplikacji. Na koniec aplikacja prosi usługę powiadomień, żeby dała znać klientowi, że rezerwacja się udała, i klient dostaje potwierdzenie. No ale jak dane uwierzytelniające okażą się błędne, to usługa uwierzytelniania po prostu zwraca aplikacji komunikat o błędzie i na tym się kończy.",
+      "expected_mermaid": "sequenceDiagram\n\nparticipant C as Klient\nparticipant RA as Aplikacja rezerwacyjna\nparticipant AS as Usługa uwierzytelniania\nparticipant RS as Usługa rezerwacji\nparticipant NS as Usługa powiadomień\n\nNote over C: Dokonywanie rezerwacji w restauracji\n\nC->>RA: Wybiera restaurację i godzinę\nRA->>AS: Wyślij żądanie uwierzytelnienia\nactivate AS\nAS->>AS: Zweryfikuj dane uwierzytelniające klienta\nalt dane uwierzytelniające są poprawne\n    AS-->>RA: Zwróć token\n    RA->>RS: Wyślij szczegóły rezerwacji\n    activate RS\n    RS->>RS: Przetwórz rezerwację\n    RS-->>RA: Zwróć potwierdzenie\n    deactivate RS\n    RA->>NS: Powiadom o udanej rezerwacji\n    activate NS\n    NS-->>C: Wyślij potwierdzenie\n    deactivate NS\nelse dane uwierzytelniające są niepoprawne\n    AS-->>RA: Zwróć komunikat o błędzie\nend\ndeactivate AS",
+      "raw_output": "sequenceDiagram\nparticipant C as Klient\nparticipant A as Aplikacja\nparticipant S as Usługa uwierzytelniania\nparticipant D as Usługa rezerwacji\n\nC->>A: Wybierz restaurację i godzinę\nA->>S: Sprawdź zweryfikację danych klienta\nS-->>A: Token odsłany do aplikacji\nA->>D: Przekazać szczegóły rezerwacji\nD-->>A: Potwierdzenie rezerwacji\nA->>C: Informacja o sukcesie\nC->>S: Usługa powiadomiająca o sukcesie\nS-->>A: Komunikat o błędzie\nA->>S: Koniec procesu",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\nparticipant C as Klient\nparticipant A as Aplikacja\nparticipant S as Usługa uwierzytelniania\nparticipant D as Usługa rezerwacji\n\nC->>A: Wybierz restaurację i godzinę\nA->>S: Sprawdź zweryfikację danych klienta\nS-->>A: Token odsłany do aplikacji\nA->>D: Przekazać szczegóły rezerwacji\nD-->>A: Potwierdzenie rezerwacji\nA->>C: Informacja o sukcesie\nC->>S: Usługa powiadomiająca o sukcesie\nS-->>A: Komunikat o błędzie\nA->>S: Koniec procesu",
+      "finish_reason": "stop",
+      "completion_tokens": 173,
+      "latency_s": 23.67,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8,
+          "f1": 0.888888888888889
+        },
+        "edge": {
+          "precision": 0.5555555555555556,
+          "recall": 0.5,
+          "f1": 0.5263157894736842
+        },
+        "shape_acc": null,
+        "node_pairs": [
+          {
+            "predicted_id": "C",
+            "reference_id": "C",
+            "predicted_label": "Klient",
+            "reference_label": "Klient",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "S",
+            "reference_id": "AS",
+            "predicted_label": "Usługa uwierzytelniania",
+            "reference_label": "Usługa uwierzytelniania",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "RS",
+            "predicted_label": "Usługa rezerwacji",
+            "reference_label": "Usługa rezerwacji",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "RA",
+            "predicted_label": "Aplikacja",
+            "reference_label": "Aplikacja rezerwacyjna",
+            "method": "embedding",
+            "similarity": 0.7625,
+            "matched": true
+          }
+        ],
+        "message_pairs": [
+          {
+            "predicted_id": "0",
+            "reference_id": "0",
+            "predicted_label": "Wybierz restaurację i godzinę",
+            "reference_label": "Wybiera restaurację i godzinę",
+            "method": "embedding",
+            "similarity": 0.8938,
+            "matched": true
+          },
+          {
+            "predicted_id": "1",
+            "reference_id": "1",
+            "predicted_label": "Sprawdź zweryfikację danych klienta",
+            "reference_label": "Wyślij żądanie uwierzytelnienia",
+            "method": "embedding",
+            "similarity": 0.6543,
+            "matched": false
+          },
+          {
+            "predicted_id": "2",
+            "reference_id": "3",
+            "predicted_label": "Token odsłany do aplikacji",
+            "reference_label": "Zwróć token",
+            "method": "embedding",
+            "similarity": 0.708,
+            "matched": true
+          },
+          {
+            "predicted_id": "7",
+            "reference_id": "9",
+            "predicted_label": "Komunikat o błędzie",
+            "reference_label": "Zwróć komunikat o błędzie",
+            "method": "embedding",
+            "similarity": 0.825,
+            "matched": true
+          },
+          {
+            "predicted_id": "3",
+            "reference_id": "4",
+            "predicted_label": "Przekazać szczegóły rezerwacji",
+            "reference_label": "Wyślij szczegóły rezerwacji",
+            "method": "embedding",
+            "similarity": 0.893,
+            "matched": true
+          },
+          {
+            "predicted_id": "4",
+            "reference_id": "6",
+            "predicted_label": "Potwierdzenie rezerwacji",
+            "reference_label": "Zwróć potwierdzenie",
+            "method": "embedding",
+            "similarity": 0.7573,
+            "matched": true
+          }
+        ],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0031",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "easy",
+      "description_style": "structured",
+      "description": "Klient zamawia kawę u kasjera. Kasjer podaje klientowi kwotę do zapłaty. Klient płaci kasjerowi. Kasjer przekazuje zamówienie bariście. Barista wydaje kawę klientowi.",
+      "expected_mermaid": "sequenceDiagram\nparticipant K as Klient\nparticipant KS as Kasjer\nparticipant B as Barista\n\nK->>KS: Zamów kawę\nKS-->>K: Kwota do zapłaty\nK->>KS: Zapłać\nKS->>B: Przekaż zamówienie\nB->>K: Wydaj kawę",
+      "raw_output": "sequenceDiagram\nparticipant Klient\nparticipant Kasjer\nparticipant Barista\n\nKlient --> Kasjer: Zamawiam kawę\nKasjer --> Barista: Kwota do zapłaty\nBarista --> Kasjer: Zamówienie bariście\nKasjer --> Barista: Płata\nBarista --> Klient: Kawa",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\nparticipant Klient\nparticipant Kasjer\nparticipant Barista\n\nKlient --> Kasjer: Zamawiam kawę\nKasjer --> Barista: Kwota do zapłaty\nBarista --> Kasjer: Zamówienie bariście\nKasjer --> Barista: Płata\nBarista --> Klient: Kawa",
+      "finish_reason": "stop",
+      "completion_tokens": 75,
+      "latency_s": 8.8,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "edge": {
+          "precision": 0.2,
+          "recall": 0.2,
+          "f1": 0.20000000000000004
+        },
+        "shape_acc": null,
+        "node_pairs": [
+          {
+            "predicted_id": "Klient",
+            "reference_id": "K",
+            "predicted_label": "Klient",
+            "reference_label": "Klient",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "Kasjer",
+            "reference_id": "KS",
+            "predicted_label": "Kasjer",
+            "reference_label": "Kasjer",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "Barista",
+            "reference_id": "B",
+            "predicted_label": "Barista",
+            "reference_label": "Barista",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          }
+        ],
+        "message_pairs": [
+          {
+            "predicted_id": "0",
+            "reference_id": "0",
+            "predicted_label": "Zamawiam kawę",
+            "reference_label": "Zamów kawę",
+            "method": "embedding",
+            "similarity": 0.8237,
+            "matched": true
+          },
+          {
+            "predicted_id": "1",
+            "reference_id": "3",
+            "predicted_label": "Kwota do zapłaty",
+            "reference_label": "Przekaż zamówienie",
+            "method": "embedding",
+            "similarity": 0.5774,
+            "matched": false
+          },
+          {
+            "predicted_id": "4",
+            "reference_id": "4",
+            "predicted_label": "Kawa",
+            "reference_label": "Wydaj kawę",
+            "method": "embedding",
+            "similarity": 0.6261,
+            "matched": false
+          }
+        ],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0034",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "easy",
+      "description_style": "structured",
+      "description": "Gość wybiera na domofonie numer mieszkania. Domofon dzwoni do mieszkańca. Mieszkaniec każe domofonowi otworzyć drzwi. Domofon daje gościowi sygnał, że drzwi są otwarte.",
+      "expected_mermaid": "sequenceDiagram\nparticipant G as Gość\nparticipant D as Domofon\nparticipant M as Mieszkaniec\n\nG->>D: Wybierz numer mieszkania\nD->>M: Zadzwoń do mieszkania\nM->>D: Otwórz drzwi\nD-->>G: Drzwi otwarte",
+      "raw_output": "sequenceDiagram\nparticipant C as Gość\nparticipant D as Domofon\nparticipant S as Mieszkaniec\n\nC->>D: Wybierzę numer domofonu\nD->>S: Dzwoni do mieszkańca\nS->>D: Otworzy drzwi\nD->>C: Sygnał drzwi są otwarte",
+      "reasoning_chars": 0,
+      "code": "sequenceDiagram\nparticipant C as Gość\nparticipant D as Domofon\nparticipant S as Mieszkaniec\n\nC->>D: Wybierzę numer domofonu\nD->>S: Dzwoni do mieszkańca\nS->>D: Otworzy drzwi\nD->>C: Sygnał drzwi są otwarte",
+      "finish_reason": "stop",
+      "completion_tokens": 81,
+      "latency_s": 9.55,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "sequenceDiagram",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "edge": {
+          "precision": 0.75,
+          "recall": 0.75,
+          "f1": 0.75
+        },
+        "shape_acc": null,
+        "node_pairs": [
+          {
+            "predicted_id": "C",
+            "reference_id": "G",
+            "predicted_label": "Gość",
+            "reference_label": "Gość",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "D",
+            "predicted_label": "Domofon",
+            "reference_label": "Domofon",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "S",
+            "reference_id": "M",
+            "predicted_label": "Mieszkaniec",
+            "reference_label": "Mieszkaniec",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          }
+        ],
+        "message_pairs": [
+          {
+            "predicted_id": "0",
+            "reference_id": "0",
+            "predicted_label": "Wybierzę numer domofonu",
+            "reference_label": "Wybierz numer mieszkania",
+            "method": "embedding",
+            "similarity": 0.791,
+            "matched": true
+          },
+          {
+            "predicted_id": "1",
+            "reference_id": "1",
+            "predicted_label": "Dzwoni do mieszkańca",
+            "reference_label": "Zadzwoń do mieszkania",
+            "method": "embedding",
+            "similarity": 0.8236,
+            "matched": true
+          },
+          {
+            "predicted_id": "2",
+            "reference_id": "2",
+            "predicted_label": "Otworzy drzwi",
+            "reference_label": "Otwórz drzwi",
+            "method": "embedding",
+            "similarity": 0.9564,
+            "matched": true
+          },
+          {
+            "predicted_id": "3",
+            "reference_id": "3",
+            "predicted_label": "Sygnał drzwi są otwarte",
+            "reference_label": "Drzwi otwarte",
+            "method": "embedding",
+            "similarity": 0.6896,
+            "matched": false
+          }
+        ],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-none-0003",
+      "diagram_type": "none",
+      "difficulty": null,
+      "description_style": null,
+      "description": "Wczorajszy film był strasznie nudny. Aktorzy grali bez przekonania, a muzyka zupełnie nie pasowała do scen. Nie polecam nikomu.",
+      "expected_mermaid": "BRAK_PROCESU",
+      "raw_output": "BRAK_PROCESU",
+      "reasoning_chars": 0,
+      "code": "BRAK_PROCESU",
+      "finish_reason": "stop",
+      "completion_tokens": 7,
+      "latency_s": 2.65,
+      "render_error": "",
+      "score": {
+        "mermaid_only": false,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "none",
+        "type_ok": true,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": true
+      }
+    }
+  ]
+}

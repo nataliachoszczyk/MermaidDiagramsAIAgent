@@ -1,0 +1,947 @@
+{
+  "config": {
+    "date": "2026-11-14T18:27:17",
+    "model": "qwen3:4b-instruct-2507-q8_0",
+    "model_digest": "aa7252f68dda4d25dfffa65b3760af6d2c3231a140c0060c78d444686d98a374",
+    "setting": "zero-shot",
+    "base_url": "http://127.0.0.1:11434/v1/",
+    "temperature": 0.0,
+    "seed": 0,
+    "max_tokens": 1024,
+    "limit": null,
+    "sample": 10,
+    "system_prompt": "You convert a description of a process into a Mermaid diagram.\n\nRules:\n- Use `flowchart TD` for processes with steps and decisions; use `sequenceDiagram` for interactions between participants.\n- Output only the Mermaid code: no code fences, no explanations, no text before or after the diagram.\n- Keywords are lowercase. Put labels with special characters in double quotes. Never use `end` as a node id.\n- Keep the labels in the language of the description.\n- If the text does not describe a process, answer exactly: BRAK_PROCESU\n",
+    "system_prompt_sha256": "814e2dbf8ce3b7a719c3103d732e2599f91cadb1bd496e5c857519169a30a1f8",
+    "data": "data/golden/golden.jsonl",
+    "data_sha256": "5a412bd9287f81315ce7b9844224d91d131db249f0d1fbf4b8e114560d41bdbb",
+    "matching": "embedding",
+    "embedding_model": "bge-m3:latest",
+    "embedding_model_digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+    "threshold": 0.7,
+    "mmdc": "12.2.0",
+    "git_commit": "fcfd5f7dcf4290b082c37efc5af1edf700907275"
+  },
+  "summary": {
+    "overall": {
+      "n": 10,
+      "n_refusal": 1,
+      "mermaid_only": 1,
+      "render_rate": 0.8888888888888888,
+      "type_acc": 0.6666666666666666,
+      "node_f1": 0.5809138392471725,
+      "edge_f1": 0.531383552298585,
+      "shape_acc": 0.6989177489177489,
+      "node_f1_rendering_only": 0.6535280691530692,
+      "edge_f1_rendering_only": 0.5978064963359081,
+      "refusal_acc": 1,
+      "truncated": 0
+    },
+    "by_diagram_type": {
+      "flowchart": {
+        "n": 6,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.8713707588707589,
+        "edge_f1": 0.7970753284478774,
+        "shape_acc": 0.6989177489177489,
+        "node_f1_rendering_only": 0.8713707588707589,
+        "edge_f1_rendering_only": 0.7970753284478774,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "none": {
+        "n": 1,
+        "n_refusal": 1,
+        "mermaid_only": null,
+        "render_rate": null,
+        "type_acc": null,
+        "node_f1": null,
+        "edge_f1": null,
+        "shape_acc": null,
+        "node_f1_rendering_only": null,
+        "edge_f1_rendering_only": null,
+        "refusal_acc": 1,
+        "truncated": 0
+      },
+      "sequenceDiagram": {
+        "n": 3,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 0.6666666666666666,
+        "type_acc": 0,
+        "node_f1": 0.0,
+        "edge_f1": 0.0,
+        "shape_acc": null,
+        "node_f1_rendering_only": 0.0,
+        "edge_f1_rendering_only": 0.0,
+        "refusal_acc": null,
+        "truncated": 0
+      }
+    },
+    "by_difficulty": {
+      "easy": {
+        "n": 1,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 0,
+        "type_acc": 0,
+        "node_f1": 0.0,
+        "edge_f1": 0.0,
+        "shape_acc": null,
+        "node_f1_rendering_only": null,
+        "edge_f1_rendering_only": null,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "hard": {
+        "n": 1,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.8461538461538461,
+        "edge_f1": 0.7407407407407408,
+        "shape_acc": 0.6363636363636364,
+        "node_f1_rendering_only": 0.8461538461538461,
+        "edge_f1_rendering_only": 0.7407407407407408,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "medium": {
+        "n": 7,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 0.7142857142857143,
+        "node_f1": 0.626010101010101,
+        "edge_f1": 0.5773873185637891,
+        "shape_acc": 0.7114285714285714,
+        "node_f1_rendering_only": 0.626010101010101,
+        "edge_f1_rendering_only": 0.5773873185637891,
+        "refusal_acc": null,
+        "truncated": 0
+      }
+    },
+    "by_description_style": {
+      "brief": {
+        "n": 4,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 1,
+        "node_f1": 0.8682449494949495,
+        "edge_f1": 0.7831550802139038,
+        "shape_acc": 0.7392857142857143,
+        "node_f1_rendering_only": 0.8682449494949495,
+        "edge_f1_rendering_only": 0.7831550802139038,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "natural": {
+        "n": 3,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 1,
+        "type_acc": 0.3333333333333333,
+        "node_f1": 0.30303030303030304,
+        "edge_f1": 0.30303030303030304,
+        "shape_acc": 0.6,
+        "node_f1_rendering_only": 0.30303030303030304,
+        "edge_f1_rendering_only": 0.30303030303030304,
+        "refusal_acc": null,
+        "truncated": 0
+      },
+      "structured": {
+        "n": 2,
+        "n_refusal": 0,
+        "mermaid_only": 1,
+        "render_rate": 0.5,
+        "type_acc": 0.5,
+        "node_f1": 0.4230769230769231,
+        "edge_f1": 0.3703703703703704,
+        "shape_acc": 0.6363636363636364,
+        "node_f1_rendering_only": 0.8461538461538461,
+        "edge_f1_rendering_only": 0.7407407407407408,
+        "refusal_acc": null,
+        "truncated": 0
+      }
+    }
+  },
+  "examples": [
+    {
+      "id": "golden-flow-0006",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Logowanie przez Google, sprawdzenie czy zalogowano: tak - przejście do panelu i koniec; nie - zalogowanie się przez Google i powrót do logowania przez Google.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Logowanie przez Google]\nB --> C{Czy zalogowano?}\nC -->|Tak| D[Przejdź do panelu]\nD --> Z([Koniec])\nC -->|Nie| E[Zaloguj się przez Google]\nE --> B",
+      "raw_output": "flowchart TD\n    A[Logowanie przez Google] --> B{Czy zalogowano?}\n    B -- Tak --> C[Przejście do panelu]\n    C --> D[Koniec]\n    B -- Nie --> A",
+      "code": "flowchart TD\n    A[Logowanie przez Google] --> B{Czy zalogowano?}\n    B -- Tak --> C[Przejście do panelu]\n    C --> D[Koniec]\n    B -- Nie --> A",
+      "finish_reason": "stop",
+      "completion_tokens": 52,
+      "latency_s": 56.09,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "f1": 0.8
+        },
+        "edge": {
+          "precision": 0.75,
+          "recall": 0.5,
+          "f1": 0.6
+        },
+        "shape_acc": 0.75,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Logowanie przez Google",
+            "reference_label": "Logowanie przez Google",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Czy zalogowano?",
+            "reference_label": "Czy zalogowano?",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "Z",
+            "predicted_label": "Koniec",
+            "reference_label": "Koniec",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Przejście do panelu",
+            "reference_label": "Przejdź do panelu",
+            "method": "embedding",
+            "similarity": 0.9209,
+            "matched": true
+          }
+        ],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0034",
+      "diagram_type": "flowchart",
+      "difficulty": "hard",
+      "description_style": "structured",
+      "description": "Proces zaczyna się od odebrania zgłoszenia. Następnie sprawdzam, czy problem jest pilny. Jeśli tak, zgłoszenie jest przekazywane do pilnego wsparcia i proces się kończy. Jeśli nie, przechodzę do rozwiązania problemu. Potem sprawdzam, czy problem został rozwiązany. Jeśli nie, zgłoszenie jest przekazywane do dalszej analizy i proces się kończy. Jeśli tak, sprawdzam, czy klient jest zadowolony z rozwiązania. Jeśli klient jest zadowolony, zgłoszenie zostaje zamknięte i proces się kończy. Jeśli nie jest zadowolony, zgłoszenie jest przekierowywane do zespołu wsparcia, a następnie następuje kontakt z klientem w celu udzielenia dalszej pomocy, po czym proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Odbierz zgłoszenie]\n B --> C{Czy problem jest pilny?}\n C -->|Tak| D[Przekaż do pilnego wsparcia]\n D --> Z([Koniec])\n C -->|Nie| E[Rozwiąż problem]\n E --> F{Czy problem został rozwiązany?}\n F -->|Nie| G[Przekaż do dalszej analizy]\n G --> Z([Koniec])\n F -->|Tak| H{Czy klient jest zadowolony z rozwiązania?}\n H -->|Tak| I[Zamknij zgłoszenie]\n I --> Z([Koniec])\n H -->|Nie| J[Przekieruj do zespołu wsparcia]\n J --> K[Skontaktuj się z klientem w celu dalszej pomocy]\n K --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Odebranie zgłoszenia] --> B[Sprawdzenie, czy problem jest pilny?]\n    B -- Tak --> C[Przekazanie do pilnego wsparcia]\n    C --> D[Proces się kończy]\n    B -- Nie --> E[ Rozwiązanie problemu]\n    E --> F[Sprawdzenie, czy problem został rozwiązany?]\n    F -- Nie --> G[Przekazanie do dalszej analizy]\n    G --> H[Proces się kończy]\n    F -- Tak --> I[Sprawdzenie, czy klient jest zadowolony?]\n    I -- Tak --> J[Zamknięcie zgłoszenia]\n    J --> K[Proces się kończy]\n    I -- Nie --> L[Przekierowanie do zespołu wsparcia]\n    L --> M[Kontakt z klientem w celu udzielenia dalszej pomocy]\n    M --> N[Proces się kończy]",
+      "code": "flowchart TD\n    A[Odebranie zgłoszenia] --> B[Sprawdzenie, czy problem jest pilny?]\n    B -- Tak --> C[Przekazanie do pilnego wsparcia]\n    C --> D[Proces się kończy]\n    B -- Nie --> E[ Rozwiązanie problemu]\n    E --> F[Sprawdzenie, czy problem został rozwiązany?]\n    F -- Nie --> G[Przekazanie do dalszej analizy]\n    G --> H[Proces się kończy]\n    F -- Tak --> I[Sprawdzenie, czy klient jest zadowolony?]\n    I -- Tak --> J[Zamknięcie zgłoszenia]\n    J --> K[Proces się kończy]\n    I -- Nie --> L[Przekierowanie do zespołu wsparcia]\n    L --> M[Kontakt z klientem w celu udzielenia dalszej pomocy]\n    M --> N[Proces się kończy]",
+      "finish_reason": "stop",
+      "completion_tokens": 220,
+      "latency_s": 133.14,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.7857142857142857,
+          "recall": 0.9166666666666666,
+          "f1": 0.8461538461538461
+        },
+        "edge": {
+          "precision": 0.7692307692307693,
+          "recall": 0.7142857142857143,
+          "f1": 0.7407407407407408
+        },
+        "shape_acc": 0.6363636363636364,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Odebranie zgłoszenia",
+            "reference_label": "Odbierz zgłoszenie",
+            "method": "embedding",
+            "similarity": 0.9029,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzenie, czy problem jest pilny?",
+            "reference_label": "Czy problem jest pilny?",
+            "method": "embedding",
+            "similarity": 0.8875,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Przekazanie do pilnego wsparcia",
+            "reference_label": "Przekaż do pilnego wsparcia",
+            "method": "embedding",
+            "similarity": 0.896,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "Z",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7354,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Rozwiązanie problemu",
+            "reference_label": "Rozwiąż problem",
+            "method": "embedding",
+            "similarity": 0.8384,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Sprawdzenie, czy problem został rozwiązany?",
+            "reference_label": "Czy problem został rozwiązany?",
+            "method": "embedding",
+            "similarity": 0.8475,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Przekazanie do dalszej analizy",
+            "reference_label": "Przekaż do dalszej analizy",
+            "method": "embedding",
+            "similarity": 0.8927,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "A",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.5086,
+            "matched": false
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "H",
+            "predicted_label": "Sprawdzenie, czy klient jest zadowolony?",
+            "reference_label": "Czy klient jest zadowolony z rozwiązania?",
+            "method": "embedding",
+            "similarity": 0.8472,
+            "matched": true
+          },
+          {
+            "predicted_id": "J",
+            "reference_id": "I",
+            "predicted_label": "Zamknięcie zgłoszenia",
+            "reference_label": "Zamknij zgłoszenie",
+            "method": "embedding",
+            "similarity": 0.8918,
+            "matched": true
+          },
+          {
+            "predicted_id": "L",
+            "reference_id": "J",
+            "predicted_label": "Przekierowanie do zespołu wsparcia",
+            "reference_label": "Przekieruj do zespołu wsparcia",
+            "method": "embedding",
+            "similarity": 0.9335,
+            "matched": true
+          },
+          {
+            "predicted_id": "M",
+            "reference_id": "K",
+            "predicted_label": "Kontakt z klientem w celu udzielenia dalszej pomocy",
+            "reference_label": "Skontaktuj się z klientem w celu dalszej pomocy",
+            "method": "embedding",
+            "similarity": 0.9396,
+            "matched": true
+          }
+        ],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0050",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "natural",
+      "description": "Zaczynam od tego, że identyfikuję zgłoszony problem, czyli po prostu ustalam, z czym mam do czynienia. Potem patrzę, czy sprawa jest poważna - jeśli waga problemu jest wysoka, od razu przekazuję to dalej do zespołu wsparcia, żeby się tym zajęli. Jeśli jednak nie jest to nic poważnego, to sam załatwiam sprawę na czacie z użytkownikiem. W obu przypadkach, czy to po przekazaniu do wsparcia, czy po rozwiązaniu na czacie, proces się kończy.",
+      "expected_mermaid": "flowchart TD\n A([Start]) --> B[Zidentyfikuj problem]\n B --> C{Czy waga problemu jest wysoka?}\n C -->|Tak| D[Przypisz do zespołu wsparcia]\n C -->|Nie| E[Rozwiąż problem przez czat]\n E --> Z([Koniec])\n D --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Identyfikuję zgłoszony problem] --> B[Czy sprawa jest poważna?]\n    B -->|Tak, waga problemu jest wysoka| C[Przekazuję do zespołu wsparcia]\n    B -->|Nie, nie jest to nic poważnego| D[Załatwiam sprawę na czacie z użytkownikiem]\n    C --> E[Proces się kończy]\n    D --> E[Proces się kończy]",
+      "code": "flowchart TD\n    A[Identyfikuję zgłoszony problem] --> B[Czy sprawa jest poważna?]\n    B -->|Tak, waga problemu jest wysoka| C[Przekazuję do zespołu wsparcia]\n    B -->|Nie, nie jest to nic poważnego| D[Załatwiam sprawę na czacie z użytkownikiem]\n    C --> E[Proces się kończy]\n    D --> E[Proces się kończy]",
+      "finish_reason": "stop",
+      "completion_tokens": 112,
+      "latency_s": 70.45,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "shape_acc": 0.6,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Identyfikuję zgłoszony problem",
+            "reference_label": "Zidentyfikuj problem",
+            "method": "embedding",
+            "similarity": 0.8249,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Czy sprawa jest poważna?",
+            "reference_label": "Czy waga problemu jest wysoka?",
+            "method": "embedding",
+            "similarity": 0.7285,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Przekazuję do zespołu wsparcia",
+            "reference_label": "Przypisz do zespołu wsparcia",
+            "method": "embedding",
+            "similarity": 0.8176,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Załatwiam sprawę na czacie z użytkownikiem",
+            "reference_label": "Rozwiąż problem przez czat",
+            "method": "embedding",
+            "similarity": 0.7456,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "Z",
+            "predicted_label": "Proces się kończy",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.7354,
+            "matched": true
+          }
+        ],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0054",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Autoryzuję płatność, potem sprawdzam, czy kontrola oszustw jest włączona: jeśli tak, wykonuję sprawdzenie pod kątem oszustw i kończę, jeśli nie, płatność uznaję za opłaconą bez kontroli oszustw i kończę.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Autoryzuj płatność]\nB --> C{Czy kontrola oszustw jest włączona?}\nC -->|Tak| D[Sprawdź pod kątem oszustw]\nD --> Z([Koniec])\nC -->|Nie| E[Opłacono bez kontroli oszustw]\nE --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Autoryzuję płatność] --> B[Sprawdzam, czy kontrola oszustw jest włączona?]\n    B -- Tak --> C[Wykonuję sprawdzenie pod kątem oszustw]\n    C --> D[Kończę]\n    B -- Nie --> E[Płatność uznaję za opłaconą bez kontroli oszustw]\n    E --> D",
+      "code": "flowchart TD\n    A[Autoryzuję płatność] --> B[Sprawdzam, czy kontrola oszustw jest włączona?]\n    B -- Tak --> C[Wykonuję sprawdzenie pod kątem oszustw]\n    C --> D[Kończę]\n    B -- Nie --> E[Płatność uznaję za opłaconą bez kontroli oszustw]\n    E --> D",
+      "finish_reason": "stop",
+      "completion_tokens": 99,
+      "latency_s": 54.96,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "edge": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091
+        },
+        "shape_acc": 0.6,
+        "node_pairs": [
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Autoryzuję płatność",
+            "reference_label": "Autoryzuj płatność",
+            "method": "embedding",
+            "similarity": 0.9238,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzam, czy kontrola oszustw jest włączona?",
+            "reference_label": "Czy kontrola oszustw jest włączona?",
+            "method": "embedding",
+            "similarity": 0.9641,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Wykonuję sprawdzenie pod kątem oszustw",
+            "reference_label": "Sprawdź pod kątem oszustw",
+            "method": "embedding",
+            "similarity": 0.8083,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "Z",
+            "predicted_label": "Kończę",
+            "reference_label": "Koniec",
+            "method": "embedding",
+            "similarity": 0.8011,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Płatność uznaję za opłaconą bez kontroli oszustw",
+            "reference_label": "Opłacono bez kontroli oszustw",
+            "method": "embedding",
+            "similarity": 0.8722,
+            "matched": true
+          }
+        ],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0063",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Wczytuję oryginalny plik obrazu, sprawdzam czy rozmiar obrazu jest duży: jeśli tak, zmieniam rozmiar na duży i generuję miniaturę ze zmienionego obrazu, koniec; jeśli nie, generuję miniaturę bezpośrednio, konwertuję do formatu miniatury, zapisuję plik miniatury, koniec.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Wczytaj oryginalny plik obrazu]\nB --> C{Czy rozmiar obrazu jest duży?}\nC -->|Tak| D[Zmień rozmiar obrazu na duży]\nD --> E[Wygeneruj miniaturę ze zmienionego obrazu]\nE --> Z([Koniec])\nC -->|Nie| F[Wygeneruj miniaturę bezpośrednio]\nF --> G[Przekonwertuj do formatu miniatury]\nG --> H[Zapisz plik miniatury]\nH --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Wczytuję oryginalny plik obrazu] --> B[Sprawdzam czy rozmiar obrazu jest duży?]\n    B -- Tak --> C[Zmieniam rozmiar na duży]\n    C --> D[Generuję miniaturę ze zmienionego obrazu]\n    D --> E[Koniec]\n    B -- Nie --> F[Generuję miniaturę bezpośrednio]\n    F --> G[Konwertuję do formatu miniatury]\n    G --> H[Zapisuję plik miniatury]\n    H --> I[Koniec]",
+      "code": "flowchart TD\n    A[Wczytuję oryginalny plik obrazu] --> B[Sprawdzam czy rozmiar obrazu jest duży?]\n    B -- Tak --> C[Zmieniam rozmiar na duży]\n    C --> D[Generuję miniaturę ze zmienionego obrazu]\n    D --> E[Koniec]\n    B -- Nie --> F[Generuję miniaturę bezpośrednio]\n    F --> G[Konwertuję do formatu miniatury]\n    G --> H[Zapisuję plik miniatury]\n    H --> I[Koniec]",
+      "finish_reason": "stop",
+      "completion_tokens": 136,
+      "latency_s": 75.54,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.8888888888888888,
+          "recall": 0.8888888888888888,
+          "f1": 0.8888888888888888
+        },
+        "edge": {
+          "precision": 0.875,
+          "recall": 0.7777777777777778,
+          "f1": 0.823529411764706
+        },
+        "shape_acc": 0.75,
+        "node_pairs": [
+          {
+            "predicted_id": "E",
+            "reference_id": "Z",
+            "predicted_label": "Koniec",
+            "reference_label": "Koniec",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Wczytuję oryginalny plik obrazu",
+            "reference_label": "Wczytaj oryginalny plik obrazu",
+            "method": "embedding",
+            "similarity": 0.8654,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Sprawdzam czy rozmiar obrazu jest duży?",
+            "reference_label": "Czy rozmiar obrazu jest duży?",
+            "method": "embedding",
+            "similarity": 0.8985,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Zmieniam rozmiar na duży",
+            "reference_label": "Zmień rozmiar obrazu na duży",
+            "method": "embedding",
+            "similarity": 0.876,
+            "matched": true
+          },
+          {
+            "predicted_id": "D",
+            "reference_id": "E",
+            "predicted_label": "Generuję miniaturę ze zmienionego obrazu",
+            "reference_label": "Wygeneruj miniaturę ze zmienionego obrazu",
+            "method": "embedding",
+            "similarity": 0.9649,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Generuję miniaturę bezpośrednio",
+            "reference_label": "Wygeneruj miniaturę bezpośrednio",
+            "method": "embedding",
+            "similarity": 0.9495,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Konwertuję do formatu miniatury",
+            "reference_label": "Przekonwertuj do formatu miniatury",
+            "method": "embedding",
+            "similarity": 0.9278,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "H",
+            "predicted_label": "Zapisuję plik miniatury",
+            "reference_label": "Zapisz plik miniatury",
+            "method": "embedding",
+            "similarity": 0.9397,
+            "matched": true
+          },
+          {
+            "predicted_id": "I",
+            "reference_id": "A",
+            "predicted_label": "Koniec",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.5576,
+            "matched": false
+          }
+        ],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-flow-0066",
+      "diagram_type": "flowchart",
+      "difficulty": "medium",
+      "description_style": "brief",
+      "description": "Produkt trafia do koszyka, potem decyzja: płatność kartą kredytową - jeśli tak, przetwarzam płatność kartą i koniec; jeśli nie, przetwarzam płatność przez PayPal, weryfikuję dane płatności, zakup zakończony sukcesem i koniec.",
+      "expected_mermaid": "flowchart TD\nA([Start]) --> B[Produkt dodany do koszyka]\nB --> C{Czy płatność kartą kredytową?}\nC -->|Tak| D[Przetwórz płatność kartą kredytową]\nD --> Z([Koniec])\nC -->|Nie| E[Przetwórz płatność przez PayPal]\nE --> F[Zweryfikuj dane płatności]\nF --> G[Zakup zakończony sukcesem]\nG --> Z([Koniec])",
+      "raw_output": "flowchart TD\n    A[Produkt trafia do koszyka] --> B{Płatność kartą kredytową?}\n    B -- Tak --> C[Przetwarzam płatność kartą]\n    C --> D[Koniec]\n    B -- Nie --> E[Przetwarzam płatność przez PayPal]\n    E --> F[Weryfikuję dane płatności]\n    F --> G[Zakup zakończony sukcesem]\n    G --> H[Koniec]",
+      "code": "flowchart TD\n    A[Produkt trafia do koszyka] --> B{Płatność kartą kredytową?}\n    B -- Tak --> C[Przetwarzam płatność kartą]\n    C --> D[Koniec]\n    B -- Nie --> E[Przetwarzam płatność przez PayPal]\n    E --> F[Weryfikuję dane płatności]\n    F --> G[Zakup zakończony sukcesem]\n    G --> H[Koniec]",
+      "finish_reason": "stop",
+      "completion_tokens": 111,
+      "latency_s": 61.64,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": true,
+        "parsed": true,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.875,
+          "recall": 0.875,
+          "f1": 0.875
+        },
+        "edge": {
+          "precision": 0.8571428571428571,
+          "recall": 0.75,
+          "f1": 0.7999999999999999
+        },
+        "shape_acc": 0.8571428571428571,
+        "node_pairs": [
+          {
+            "predicted_id": "D",
+            "reference_id": "Z",
+            "predicted_label": "Koniec",
+            "reference_label": "Koniec",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "G",
+            "reference_id": "G",
+            "predicted_label": "Zakup zakończony sukcesem",
+            "reference_label": "Zakup zakończony sukcesem",
+            "method": "exact",
+            "similarity": 1.0,
+            "matched": true
+          },
+          {
+            "predicted_id": "A",
+            "reference_id": "B",
+            "predicted_label": "Produkt trafia do koszyka",
+            "reference_label": "Produkt dodany do koszyka",
+            "method": "embedding",
+            "similarity": 0.8147,
+            "matched": true
+          },
+          {
+            "predicted_id": "B",
+            "reference_id": "C",
+            "predicted_label": "Płatność kartą kredytową?",
+            "reference_label": "Czy płatność kartą kredytową?",
+            "method": "embedding",
+            "similarity": 0.9489,
+            "matched": true
+          },
+          {
+            "predicted_id": "C",
+            "reference_id": "D",
+            "predicted_label": "Przetwarzam płatność kartą",
+            "reference_label": "Przetwórz płatność kartą kredytową",
+            "method": "embedding",
+            "similarity": 0.7819,
+            "matched": true
+          },
+          {
+            "predicted_id": "E",
+            "reference_id": "E",
+            "predicted_label": "Przetwarzam płatność przez PayPal",
+            "reference_label": "Przetwórz płatność przez PayPal",
+            "method": "embedding",
+            "similarity": 0.8729,
+            "matched": true
+          },
+          {
+            "predicted_id": "F",
+            "reference_id": "F",
+            "predicted_label": "Weryfikuję dane płatności",
+            "reference_label": "Zweryfikuj dane płatności",
+            "method": "embedding",
+            "similarity": 0.9379,
+            "matched": true
+          },
+          {
+            "predicted_id": "H",
+            "reference_id": "A",
+            "predicted_label": "Koniec",
+            "reference_label": "Start",
+            "method": "embedding",
+            "similarity": 0.5576,
+            "matched": false
+          }
+        ],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0020",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "medium",
+      "description_style": "natural",
+      "description": "Chodzi o to, że użytkownik wybiera sobie wideo do obejrzenia w aplikacji streamingowej i od tego wszystko się zaczyna. Aplikacja prosi wtedy Content Delivery Network o to wideo, a Content Delivery Network z kolei idzie po nie do magazynu wideo, który odsyła mu dane wideo z powrotem. Mając już dane, Content Delivery Network strumieniuje wideo do aplikacji, a ta puszcza je użytkownikowi. Dodatkowo aplikacja wysyła do usługi analitycznej informację o zdarzeniu odtwarzania - usługa sama sobie przetwarza te dane i potem potwierdza aplikacji, że zarejestrowała zdarzenie. Czyli w skrócie: wybór, pobranie z magazynu przez Content Delivery Network, streaming, odtwarzanie i na końcu zalogowanie tego do analityki.",
+      "expected_mermaid": "sequenceDiagram\n\nparticipant U as Użytkownik\nparticipant SA as Aplikacja streamingowa\nparticipant CDN as Content Delivery Network\nparticipant VS as Magazyn wideo\nparticipant AS as Usługa analityczna\n\nNote over U: Wybór treści\nU->>SA: Wybierz wideo\nactivate SA\n\nSA->>CDN: Poproś o wideo\nactivate CDN\n\nCDN->>VS: Pobierz wideo\nactivate VS\nVS-->>CDN: Dane wideo\ndeactivate VS\n\nCDN-->>SA: Strumieniuj wideo\ndeactivate CDN\n\nSA->>U: Odtwórz wideo\n\nSA->>AS: Zarejestruj zdarzenie odtwarzania\nactivate AS\n\nAS->>AS: Przetwórz dane odtwarzania\nAS-->>SA: Potwierdź zarejestrowanie\ndeactivate AS\ndeactivate SA",
+      "raw_output": "flowchart TD\n    A[Użytkownik wybiera wideo] --> B[Aplikacja prosi CDN o wideo]\n    B --> C[CDN idzie do magazynu wideo]\n    C --> D[Magazyn wideo wysyła dane wideo]\n    D --> E[CDN strumieniuje wideo do aplikacji]\n    E --> F[Aplikacja puszcza wideo dla użytkownika]\n    F --> G[Aplikacja wysyła informację o odtwarzaniu do usługi analitycznej]\n    G --> H[Usługa analityczna przetwarza dane]\n    H --> I[Usługa potwierdza aplikacji, że zarejestrowano zdarzenie]",
+      "code": "flowchart TD\n    A[Użytkownik wybiera wideo] --> B[Aplikacja prosi CDN o wideo]\n    B --> C[CDN idzie do magazynu wideo]\n    C --> D[Magazyn wideo wysyła dane wideo]\n    D --> E[CDN strumieniuje wideo do aplikacji]\n    E --> F[Aplikacja puszcza wideo dla użytkownika]\n    F --> G[Aplikacja wysyła informację o odtwarzaniu do usługi analitycznej]\n    G --> H[Usługa analityczna przetwarza dane]\n    H --> I[Usługa potwierdza aplikacji, że zarejestrowano zdarzenie]",
+      "finish_reason": "stop",
+      "completion_tokens": 172,
+      "latency_s": 127.84,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0026",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "medium",
+      "description_style": "natural",
+      "description": "Chodzi o to, jak klient robi rezerwację stolika przez naszą aplikację. Klient wybiera sobie restaurację i godzinę w aplikacji rezerwacyjnej, a ta od razu leci do usługi uwierzytelniania z prośbą o zweryfikowanie danych klienta. Jak dane są okej, to usługa uwierzytelniania odsyła token do aplikacji, aplikacja przekazuje szczegóły rezerwacji do usługi rezerwacji, ta przetwarza rezerwację i odsyła potwierdzenie z powrotem do aplikacji. Na koniec aplikacja prosi usługę powiadomień, żeby dała znać klientowi, że rezerwacja się udała, i klient dostaje potwierdzenie. No ale jak dane uwierzytelniające okażą się błędne, to usługa uwierzytelniania po prostu zwraca aplikacji komunikat o błędzie i na tym się kończy.",
+      "expected_mermaid": "sequenceDiagram\n\nparticipant C as Klient\nparticipant RA as Aplikacja rezerwacyjna\nparticipant AS as Usługa uwierzytelniania\nparticipant RS as Usługa rezerwacji\nparticipant NS as Usługa powiadomień\n\nNote over C: Dokonywanie rezerwacji w restauracji\n\nC->>RA: Wybiera restaurację i godzinę\nRA->>AS: Wyślij żądanie uwierzytelnienia\nactivate AS\nAS->>AS: Zweryfikuj dane uwierzytelniające klienta\nalt dane uwierzytelniające są poprawne\n    AS-->>RA: Zwróć token\n    RA->>RS: Wyślij szczegóły rezerwacji\n    activate RS\n    RS->>RS: Przetwórz rezerwację\n    RS-->>RA: Zwróć potwierdzenie\n    deactivate RS\n    RA->>NS: Powiadom o udanej rezerwacji\n    activate NS\n    NS-->>C: Wyślij potwierdzenie\n    deactivate NS\nelse dane uwierzytelniające są niepoprawne\n    AS-->>RA: Zwróć komunikat o błędzie\nend\ndeactivate AS",
+      "raw_output": "flowchart TD\n    A[Klient wybiera restaurację i godzinę] --> B[Aplikacja wysyła dane uwierzytelniania do usługi uwierzytelniania]\n    B --> C{Czy dane są poprawne?}\n    C -- TAK --> D[Usługa uwierzytelniania wysyła token do aplikacji]\n    D --> E[Aplikacja przekazuje szczegóły rezerwacji do usługi rezerwacji]\n    E --> F[Usługa rezerwacji przetwarza rezerwację]\n    F --> G[Usługa rezerwacji wysyła potwierdzenie do aplikacji]\n    G --> H[Aplikacja wysyła powiadomienie do usługi powiadomień]\n    H --> I[Klient otrzymuje potwierdzenie rezerwacji]\n    C -- NIE --> J[Usługa uwierzytelniania zwraca komunikat o błędzie]\n    J --> K[Proces kończy się błędem]",
+      "code": "flowchart TD\n    A[Klient wybiera restaurację i godzinę] --> B[Aplikacja wysyła dane uwierzytelniania do usługi uwierzytelniania]\n    B --> C{Czy dane są poprawne?}\n    C -- TAK --> D[Usługa uwierzytelniania wysyła token do aplikacji]\n    D --> E[Aplikacja przekazuje szczegóły rezerwacji do usługi rezerwacji]\n    E --> F[Usługa rezerwacji przetwarza rezerwację]\n    F --> G[Usługa rezerwacji wysyła potwierdzenie do aplikacji]\n    G --> H[Aplikacja wysyła powiadomienie do usługi powiadomień]\n    H --> I[Klient otrzymuje potwierdzenie rezerwacji]\n    C -- NIE --> J[Usługa uwierzytelniania zwraca komunikat o błędzie]\n    J --> K[Proces kończy się błędem]",
+      "finish_reason": "stop",
+      "completion_tokens": 245,
+      "latency_s": 148.48,
+      "render_error": "",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": true,
+        "predicted_type": "flowchart",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-seq-0031",
+      "diagram_type": "sequenceDiagram",
+      "difficulty": "easy",
+      "description_style": "structured",
+      "description": "Klient zamawia kawę u kasjera. Kasjer podaje klientowi kwotę do zapłaty. Klient płaci kasjerowi. Kasjer przekazuje zamówienie bariście. Barista wydaje kawę klientowi.",
+      "expected_mermaid": "sequenceDiagram\nparticipant K as Klient\nparticipant KS as Kasjer\nparticipant B as Barista\n\nK->>KS: Zamów kawę\nKS-->>K: Kwota do zapłaty\nK->>KS: Zapłać\nKS->>B: Przekaż zamówienie\nB->>K: Wydaj kawę",
+      "raw_output": "flowchart TD\n    A[Klient zamawia kawę u kasjera] --> B[Kasjer podaje klientowi kwotę do zapłaty]\n    B --> C[Klient płaci kasjerowi]\n    C --> D[Kasjer przekazuje zamówienie baristi}\n    D --> E[Barista wydaje kawę klientowi]",
+      "code": "flowchart TD\n    A[Klient zamawia kawę u kasjera] --> B[Kasjer podaje klientowi kwotę do zapłaty]\n    B --> C[Klient płaci kasjerowi]\n    C --> D[Kasjer przekazuje zamówienie baristi}\n    D --> E[Barista wydaje kawę klientowi]",
+      "finish_reason": "stop",
+      "completion_tokens": 81,
+      "latency_s": 45.21,
+      "render_error": "Error: Parse error on line 4:\n...e zamówienie baristi}    D --> E[Barist\n-----------------------^\nExpecting 'SQE', 'TAGEND', 'UNICODE_TEXT', 'TEXT', 'TAGSTART', got 'DIAMOND_STOP'\nParser.parseError (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/chunk-ROCK7MPB.mjs:1636:21)\nParser.parse (https://mermaid-cli-intercept.invalid/tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/mermaid/dist/chunks/mermaid.esm/chunk-ROCK7MPB.mjs:1708:16)\n    at #evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:402:19)\n    at async ExecutionContext.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:288:16)\n    at async IsolatedWorld.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:104:16)\n    at async CdpJSHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/JSHandle.js:154:20)\n    at async CdpElementHandle.evaluate (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:344:20)\n    at async CdpElementHandle.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/ElementHandle.js:498:24)\n    at async CdpFrame.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer-core/lib/puppeteer/api/Frame.js:469:20)\n    at async CdpPage.$eval (file:///tmp/tools/node-v26.13.1-linux-x64/lib/node_modules/@mermaid-js/mermaid-c",
+      "score": {
+        "mermaid_only": true,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "flowchart",
+        "type_ok": false,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": null
+      }
+    },
+    {
+      "id": "golden-none-0003",
+      "diagram_type": "none",
+      "difficulty": null,
+      "description_style": null,
+      "description": "Wczorajszy film był strasznie nudny. Aktorzy grali bez przekonania, a muzyka zupełnie nie pasowała do scen. Nie polecam nikomu.",
+      "expected_mermaid": "BRAK_PROCESU",
+      "raw_output": "BRAK_PROCESU",
+      "code": "BRAK_PROCESU",
+      "finish_reason": "stop",
+      "completion_tokens": 7,
+      "latency_s": 8.4,
+      "render_error": "",
+      "score": {
+        "mermaid_only": false,
+        "fenced": false,
+        "extra_text": false,
+        "renders": false,
+        "predicted_type": "none",
+        "type_ok": true,
+        "parsed": false,
+        "parse_warnings": [],
+        "node": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "edge": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "shape_acc": null,
+        "node_pairs": [],
+        "message_pairs": [],
+        "refusal_ok": true
+      }
+    }
+  ]
+}
