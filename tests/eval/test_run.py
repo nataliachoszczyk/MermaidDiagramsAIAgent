@@ -1,11 +1,19 @@
 from dataclasses import asdict
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
 
 from mermaiddiagramsaiagent.eval.metrics import score_example
 from mermaiddiagramsaiagent.eval.output import REFUSAL, normalize_output
-from mermaiddiagramsaiagent.eval.run import aggregate, sample_records, select_records, summarize
+from mermaiddiagramsaiagent.eval.run import (
+    aggregate,
+    call_cost_usd,
+    reasoning_tokens,
+    sample_records,
+    select_records,
+    summarize,
+)
 
 REFERENCE = "flowchart TD\n    A[Złóż wniosek] --> B[Rozpatrz]"
 
@@ -119,3 +127,25 @@ def test_select_records_keeps_the_file_order() -> None:
 def test_select_records_rejects_an_unknown_id() -> None:
     with pytest.raises(SystemExit, match="flowchart-9"):
         select_records(records_of(flowchart=3), ["flowchart-9"])
+
+
+def test_call_cost_sums_the_proxy_cost_parts_in_dollars() -> None:
+    usage = SimpleNamespace(cost={"input_tokens_cost_nanodollars": 624500, "output_tokens_cost_nanodollars": 3054000})
+    assert call_cost_usd(usage) == pytest.approx(0.0036785)
+
+
+def test_call_cost_is_none_for_servers_without_it() -> None:
+    assert call_cost_usd(SimpleNamespace()) is None
+    assert call_cost_usd(None) is None
+
+
+def test_reasoning_tokens_from_usage_details() -> None:
+    usage = SimpleNamespace(completion_tokens_details=SimpleNamespace(reasoning_tokens=842))
+    assert reasoning_tokens(usage) == 842
+    assert reasoning_tokens(SimpleNamespace(completion_tokens_details=None)) is None
+
+
+def test_aggregate_adds_up_the_cost_and_has_none_without_it() -> None:
+    priced = [example(REFERENCE, REFERENCE, cost_usd=0.25), example(REFERENCE, REFERENCE, cost_usd=0.5)]
+    assert aggregate(priced)["cost_usd"] == 0.75
+    assert aggregate([example(REFERENCE, REFERENCE)])["cost_usd"] is None

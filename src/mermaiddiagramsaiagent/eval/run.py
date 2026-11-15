@@ -3,8 +3,12 @@
     uv run evaluate --model qwen3:4b-instruct-2507-q8_0 --data data/pilot/pilot_en.jsonl
     uv run evaluate --model qwen3:4b-instruct-2507-q8_0 --data data/golden/golden.jsonl \
         --setting few-shot --shots data/shots/shots_pl.jsonl
+    uv run evaluate --model google/gemini-3-flash-preview --kaggle-proxy --max-tokens 8192 \
+        --data data/golden/golden.jsonl
 
 Inference goes through the OpenAI-compatible API; the server is configured in .env (see .env.example).
+With --kaggle-proxy the evaluated model is a hosted one behind the Kaggle Model Proxy (KAGGLE.md §9), while the
+embedding model for node matching stays on the server from .env.
 """
 
 import argparse
@@ -29,7 +33,7 @@ from mermaiddiagramsaiagent.data.jsonl import read_jsonl
 from mermaiddiagramsaiagent.eval.metrics import DEFAULT_THRESHOLD, Embedder, score_example
 from mermaiddiagramsaiagent.eval.output import is_refusal, normalize_output
 from mermaiddiagramsaiagent.eval.render import RenderResult, check_mmdc_works, mmdc_version, render
-from mermaiddiagramsaiagent.llm import check_model_available, make_client
+from mermaiddiagramsaiagent.llm import check_model_available, make_client, make_kaggle_proxy_client
 
 SYSTEM_PROMPT_PATH = Path("prompts/system.txt")
 GOLDEN_PATH = Path("data/golden/golden.jsonl")
@@ -58,6 +62,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sample", type=int, help="only N examples, drawn from every diagram type (for quick checks)")
     parser.add_argument("--no-think", action="store_true", help="turn thinking off (hybrid models, e.g. qwen3:1.7b)")
     parser.add_argument("--ids", help="only the records with these ids, comma-separated (to repeat a quick check)")
+    parser.add_argument(
+        "--kaggle-proxy", action="store_true", help="evaluate a hosted model of the Kaggle Model Proxy (KAGGLE.md §9)"
+    )
     args = parser.parse_args()
     if (args.setting == "few-shot") != (args.shots is not None):
         parser.error("--shots is required with --setting few-shot and only allowed with it")
@@ -90,12 +97,14 @@ def sample_records(records: list[dict[str, Any]], n: int) -> list[dict[str, Any]
 
 def main() -> None:
     args = parse_args()
-    client = make_client()
-    check_model_available(client, args.model)
-    embed = None
+    client = make_kaggle_proxy_client() if args.kaggle_proxy else make_client()
+    if not args.kaggle_proxy:  # the proxy has no model list; an unknown model fails at the first request
+        check_model_available(client, args.model)
+    embed, embed_client = None, None
     if args.matching == "embedding":
-        check_model_available(client, args.embedding_model)
-        embed = make_embedder(client, args.embedding_model)
+        embed_client = make_client() if args.kaggle_proxy else client
+        check_model_available(embed_client, args.embedding_model)
+        embed = make_embedder(embed_client, args.embedding_model)
     check_mmdc_works()
     system_prompt = SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
     all_records = read_jsonl(args.data)
@@ -117,7 +126,7 @@ def main() -> None:
             print_progress(i, len(records), example)
 
     result = {
-        "config": run_config(args, client, system_prompt, shots),
+        "config": run_config(args, client, embed_client, system_prompt, shots),
         "summary": summarize(examples),
         "examples": examples,
     }
@@ -215,10 +224,26 @@ def evaluate_record(
         "code": output.code,
         "finish_reason": choice.finish_reason,
         "completion_tokens": response.usage.completion_tokens if response.usage else None,
+        "reasoning_tokens": reasoning_tokens(response.usage),  # hosted thinking models report only the count
+        "cost_usd": call_cost_usd(response.usage),  # Kaggle Model Proxy only
         "latency_s": round(latency_s, 2),
         "render_error": rendered.error,
         "score": asdict(score),
     }
+
+
+def reasoning_tokens(usage: Any) -> int | None:
+    details = getattr(usage, "completion_tokens_details", None)
+    return getattr(details, "reasoning_tokens", None)
+
+
+def call_cost_usd(usage: Any) -> float | None:
+    """Price of one call from the `cost` field the Kaggle Model Proxy adds to `usage` (nanodollars per part);
+    None for servers without it."""
+    cost = getattr(usage, "cost", None)
+    if not isinstance(cost, dict):
+        return None
+    return sum(value for value in cost.values() if isinstance(value, (int, float))) / 1e9
 
 
 def summarize(examples: list[dict[str, Any]]) -> dict[str, Any]:
@@ -255,7 +280,13 @@ def aggregate(examples: list[dict[str, Any]]) -> dict[str, Any]:
         "edge_f1_rendering_only": mean_or_none(s["edge"]["f1"] for s in rendering),
         "refusal_acc": mean_or_none(refusals),
         "truncated": sum(example["finish_reason"] == "length" for example in examples),
+        "cost_usd": total_cost_usd(examples),
     }
+
+
+def total_cost_usd(examples: list[dict[str, Any]]) -> float | None:
+    costs = [example["cost_usd"] for example in examples if example.get("cost_usd") is not None]
+    return round(sum(costs), 6) if costs else None
 
 
 def mean_or_none(values: Iterable[float]) -> float | None:
@@ -264,9 +295,13 @@ def mean_or_none(values: Iterable[float]) -> float | None:
 
 
 def run_config(
-    args: argparse.Namespace, client: OpenAI, system_prompt: str, shots: list[dict[str, Any]]
+    args: argparse.Namespace,
+    client: OpenAI,
+    embed_client: OpenAI | None,
+    system_prompt: str,
+    shots: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    embedding = args.matching == "embedding"
+    embedding = embed_client is not None
     return {
         "date": datetime.now().isoformat(timespec="seconds"),
         "model": args.model,
@@ -276,6 +311,7 @@ def run_config(
         "shots_sha256": sha256(args.shots.read_bytes()) if args.shots else None,
         "shot_ids": [shot["id"] for shot in shots],
         "base_url": str(client.base_url),
+        "kaggle_proxy": args.kaggle_proxy,
         "temperature": TEMPERATURE,
         "seed": SEED,
         "max_tokens": args.max_tokens,
@@ -289,7 +325,10 @@ def run_config(
         "data_sha256": sha256(args.data.read_bytes()),
         "matching": args.matching,
         "embedding_model": args.embedding_model if embedding else None,
-        "embedding_model_digest": ollama_digest(str(client.base_url), args.embedding_model) if embedding else None,
+        "embedding_base_url": str(embed_client.base_url) if embed_client else None,
+        "embedding_model_digest": (
+            ollama_digest(str(embed_client.base_url), args.embedding_model) if embed_client else None
+        ),
         "threshold": args.threshold if embedding else None,
         "mmdc": mmdc_version(),
         "git_commit": git_commit(),

@@ -227,8 +227,11 @@ uvx --with six kaggle benchmarks auth -y --env-file .env.kaggle
 uvx --with six kaggle benchmarks quota
 ```
 
-`.env.kaggle` is gitignored. Commands that support the proxy take `--kaggle-proxy` (today: `build-golden`) and
-read the key from that file. `uvx --with six kaggle benchmarks init --env-file <file>` also lists the models of
+`.env.kaggle` is gitignored. Commands that support the proxy take `--kaggle-proxy` (`build-golden`, `evaluate`,
+`kaggle-eval`) and read the key from that file, or from `MODEL_PROXY_URL` / `MODEL_PROXY_API_KEY` if they are
+already set. In a kernel, `kaggle-eval --kaggle-proxy` uses those variables when the kernel has them, and otherwise
+fetches a key with the kernel secrets `KAGGLE_USERNAME` and `KAGGLE_KEY` (attach them to the kernel on the website).
+The embedding model for `evaluate` still runs in Ollama. `uvx --with six kaggle benchmarks init --env-file <file>` also lists the models of
 the account in `LLMS_AVAILABLE`; the proxy has no model list endpoint.
 
 Checked on 2026-11-13:
@@ -238,6 +241,14 @@ Checked on 2026-11-13:
 - `google/gemini-3-flash-preview` and `openai/gpt-oss-120b` answer. `qwen/qwen3-next-80b-a3b-instruct` is listed
   but returns 404.
 - Every response reports its cost (`usage.cost`, in nanodollars).
+
+Checked on 2026-11-15 (`LLMS_AVAILABLE` and one call each): no Claude Opus or Haiku on the proxy, only
+`anthropic/claude-sonnet-5@default`. `temperature: 0` is accepted by `google/gemini-3-flash-preview`,
+`google/gemini-3.1-flash-lite-preview`, `openai/gpt-oss-120b`, `openai/gpt-5.4-nano-2026-03-17` and
+`ibm/granite-4.0-h-small` (which always writes its thinking into the answer); `deepseek-ai/deepseek-r1-0528` and
+`qwen/qwen3-next-80b-a3b-instruct` return 404. Gemini 3 Flash thinks by default and its thinking counts towards
+`max_tokens` (842 of 1024 tokens on one golden record); `reasoning_effort: none` (`evaluate --no-think`) turns it
+off.
 
 The quota exists for Kaggle Benchmarks. Whether the Kaggle terms allow other uses was not checked.
 Training data must not come from here: it has to be generated with a local open model (`CLAUDE.md`).

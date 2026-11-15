@@ -150,7 +150,10 @@ Every generated record keeps the generator model name and the generation paramet
 - Temperature 0, seed 0, fixed max tokens. **[OPEN]** max tokens = 1024.
 - Thinking is off for every model. The base model is an instruct model without thinking; a hybrid model
   (`qwen3:1.7b`, `qwen3:0.6b`) is run with `--no-think` (`reasoning_effort: none`), and the run file keeps the
-  length of any reasoning text per example (`reasoning_chars`), which must be 0.
+  length of any reasoning text per example (`reasoning_chars`), which must be 0. A hosted model reports only a
+  count (`reasoning_tokens`), which must be empty or 0; Gemini 3 Flash is run with `--no-think` too.
+- Reference model (upper bound): `google/gemini-3-flash-preview` through the Kaggle Model Proxy
+  (`evaluate --kaggle-proxy`), zero-shot and few-shot, same prompts, temperature, seed and max tokens.
 
 ### 4.2 Per-example pipeline
 
@@ -227,6 +230,8 @@ Each run (`uv run evaluate --model <name> --data <jsonl>`) writes
 (zero-shot / few-shot / fine-tuned checkpoint), system prompt text and hash, temperature, seed, max tokens,
 data file hash, matching method, embedding model and digest, τ, mmdc version, git commit, per-example results (raw output, render error,
 scores) and aggregated metrics. Few-shot runs also record the shots file, its hash and the example ids.
+Runs through the Kaggle Model Proxy record `kaggle_proxy`, the embedding server, and per example and in total the
+price (`cost_usd`) and the thinking token count (`reasoning_tokens`).
 
 ## 5. Training
 
@@ -267,3 +272,4 @@ scores) and aggregated metrics. Few-shot runs also record the shots file, its ha
 | 2026-11-14 | Golden texts (translation, descriptions) are generated with a hosted model through the Kaggle Model Proxy | No local GPU; a strong model writes better Polish, so fewer manual fixes; the local-open-model rule is about training data |
 | 2026-11-14 | Only RonnieAllen diagrams without logic defects go into golden (84 of 174) | 71 source diagrams have a decision with one branch; a broken reference would be unfair to the model |
 | 2026-11-14 | A golden record whose source diagram has a logic defect is corrected by hand (diagram and description); `notes` says what and why | The human read found 14 such diagrams among the 84; an illogical reference makes the description unnatural. These records no longer have the structure of the source |
+| 2026-11-15 | Upper-bound reference model: `google/gemini-3-flash-preview` through the Kaggle Model Proxy, thinking off | No Claude Opus on the proxy. `claude-sonnet-5` wrote the golden descriptions, so it would be scored on its own texts, and it rejects `temperature`; Gemini accepts temperature 0. Thinking off as for every other model, so the model is the only change; with thinking on it used 842 of 1024 max tokens on one golden record |
