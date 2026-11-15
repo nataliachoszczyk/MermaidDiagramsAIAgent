@@ -227,12 +227,17 @@ uvx --with six kaggle benchmarks auth -y --env-file .env.kaggle
 uvx --with six kaggle benchmarks quota
 ```
 
-`.env.kaggle` is gitignored. Commands that support the proxy take `--kaggle-proxy` (`build-golden`, `evaluate`,
-`kaggle-eval`) and read the key from that file, or from `MODEL_PROXY_URL` / `MODEL_PROXY_API_KEY` if they are
-already set. A kernel does not have those variables (checked 2026-11-15), so `kaggle-eval --kaggle-proxy` fetches a key with
-`KAGGLE_USERNAME` and `KAGGLE_KEY`: add them once as secrets of the account (values from `kaggle.json`) and
-attach them to the kernel (editor → Add-ons → Secrets). The job script reads them with `kaggle_secrets`, which
-exists only in the kernel's own Python, and passes them on as environment variables.
+`.env.kaggle` is gitignored. Commands that support the proxy take `--kaggle-proxy` (`build-golden`, `evaluate`) and
+read the key from that file, or from `MODEL_PROXY_URL` / `MODEL_PROXY_API_KEY` if they are
+already set. **A kernel cannot reach the proxy** (checked 2026-11-15): it has no `MODEL_PROXY_*` variables, and a kernel
+pushed with `kaggle kernels push` gets HTTP 400 for secrets attached in the web editor. So a hosted model is
+evaluated in two steps:
+
+1. Locally, ask the model: `uv run evaluate --model <proxy model> --kaggle-proxy --matching exact <arguments>`
+   (no Ollama needed; the scores of this file do not count). Put the run file into the job folder (`answers/`).
+2. In a kernel, score it: `kaggle-eval --replay <run file> -- <the same arguments>` pulls only the embedding
+   model, and `evaluate --replay` renders and scores the saved answers. It refuses a file whose model, setting,
+   shots, system prompt, data, thinking or max tokens differ, and records the file and its hash in `replay`.
 The embedding model for `evaluate` still runs in Ollama. `uvx --with six kaggle benchmarks init --env-file <file>` also lists the models of
 the account in `LLMS_AVAILABLE`; the proxy has no model list endpoint.
 

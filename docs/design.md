@@ -153,7 +153,9 @@ Every generated record keeps the generator model name and the generation paramet
   length of any reasoning text per example (`reasoning_chars`), which must be 0. A hosted model reports only a
   count (`reasoning_tokens`), which must be empty or 0; Gemini 3 Flash is run with `--no-think` too.
 - Reference model (upper bound): `google/gemini-3-flash-preview` through the Kaggle Model Proxy
-  (`evaluate --kaggle-proxy`), zero-shot and few-shot, same prompts, temperature, seed and max tokens.
+  (`evaluate --kaggle-proxy`), zero-shot and few-shot, same prompts, temperature, seed and max tokens. The answers
+  are fetched locally and scored in a Kaggle kernel with `evaluate --replay`, because a kernel cannot reach the
+  proxy (`KAGGLE.md` §9).
 
 ### 4.2 Per-example pipeline
 
@@ -231,7 +233,8 @@ Each run (`uv run evaluate --model <name> --data <jsonl>`) writes
 data file hash, matching method, embedding model and digest, τ, mmdc version, git commit, per-example results (raw output, render error,
 scores) and aggregated metrics. Few-shot runs also record the shots file, its hash and the example ids.
 Runs through the Kaggle Model Proxy record `kaggle_proxy`, the embedding server, and per example and in total the
-price (`cost_usd`) and the thinking token count (`reasoning_tokens`).
+price (`cost_usd`) and the thinking token count (`reasoning_tokens`). A `--replay` run records the replayed file,
+its hash, date and git commit (`replay`), and the server of the run that asked the model.
 
 ## 5. Training
 

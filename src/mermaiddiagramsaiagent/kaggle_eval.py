@@ -5,9 +5,8 @@
 Arguments after `--` go to `evaluate` unchanged. Run it from the repository root. It is written for the Kaggle
 image (Linux, root, apt); on a normal machine set up Ollama and `mmdc` by hand and call `evaluate` directly.
 
-With --kaggle-proxy the model is a hosted one behind the Kaggle Model Proxy (KAGGLE.md §9): only the embedding
-model is pulled into Ollama. The proxy key comes from the kernel environment (MODEL_PROXY_URL, MODEL_PROXY_API_KEY)
-or, if it is not there, from the kernel secrets KAGGLE_USERNAME and KAGGLE_KEY through `kaggle benchmarks auth`.
+With --replay <run file> the answers come from that file (a hosted model asked through the Kaggle Model Proxy on
+the local machine, KAGGLE.md §9): only the embedding model is pulled, and the answers are rendered and scored.
 """
 
 import argparse
@@ -36,8 +35,8 @@ CHROMIUM_LIBS = (
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--model", required=True, help="Ollama model to evaluate (a proxy model with --kaggle-proxy)")
-    parser.add_argument("--kaggle-proxy", action="store_true", help="evaluate a hosted model of the Kaggle Model Proxy")
+    parser.add_argument("--model", required=True, help="Ollama model to evaluate (the hosted model with --replay)")
+    parser.add_argument("--replay", type=Path, help="score the answers of this run file instead of calling the model")
     parser.add_argument("--data", type=Path, required=True, help="evaluation JSONL")
     parser.add_argument("--out", type=Path, required=True, help="folder for the result file, under /kaggle/working")
     parser.add_argument("--embedding-model", default=DEFAULT_EMBEDDING_MODEL)
@@ -53,19 +52,18 @@ def main() -> None:
     print("GPU:", gpu or "none", flush=True)
     if not gpu and not args.allow_cpu:
         raise SystemExit("no GPU: check the phone verification of the account and `enable_gpu` in the metadata")
-    key_source = ensure_proxy_key() if args.kaggle_proxy else None  # before the installs, so that it fails fast
 
     install_mmdc()
     server = start_ollama()
     try:
-        pulled = (args.embedding_model,) if args.kaggle_proxy else (args.model, args.embedding_model)
+        pulled = (args.embedding_model,) if args.replay else (args.model, args.embedding_model)
         for model in pulled:
             run(["ollama", "pull", model])
         before = set(RESULTS_DIR.glob("*.json"))
-        proxy_flag = ["--kaggle-proxy"] if args.kaggle_proxy else []
+        replay = ["--replay", str(args.replay)] if args.replay else []
         run(
             [sys.executable, "-m", "mermaiddiagramsaiagent.eval.run", "--model", args.model, "--data", str(args.data)]
-            + ["--embedding-model", args.embedding_model, *proxy_flag, *args.evaluate_args]
+            + ["--embedding-model", args.embedding_model, *replay, *args.evaluate_args]
         )
         args.out.mkdir(parents=True, exist_ok=True)
         for path in sorted(set(RESULTS_DIR.glob("*.json")) - before):
@@ -73,29 +71,10 @@ def main() -> None:
         loaded = subprocess.run(["ollama", "ps"], capture_output=True, text=True).stdout
         print(loaded, flush=True)  # the PROCESSOR column shows whether the models ran on the GPU
         environment = {"gpu": gpu, "ollama_ps": loaded, "ollama": output(["ollama", "--version"])}
-        environment["proxy_key_source"] = key_source
         environment["total_seconds"] = round(time.perf_counter() - started)
         (args.out / "environment.json").write_text(json.dumps(environment, indent=2), encoding="utf-8")
     finally:
         server.terminate()
-
-
-def ensure_proxy_key() -> str:
-    """Make the Kaggle Model Proxy key available to `evaluate`; returns where it came from (never the key)."""
-    if os.environ.get("MODEL_PROXY_URL") and os.environ.get("MODEL_PROXY_API_KEY"):
-        print("proxy key: from the kernel environment", flush=True)
-        return "environment"
-    # `kaggle_secrets` exists only in the kernel's own Python, not in the project environment, so the job script
-    # reads the secrets and passes them here as environment variables.
-    if not (os.environ.get("KAGGLE_USERNAME") and os.environ.get("KAGGLE_KEY")):
-        raise SystemExit(
-            "no Kaggle Model Proxy key: the kernel environment has no MODEL_PROXY_URL / MODEL_PROXY_API_KEY, and "
-            "KAGGLE_USERNAME / KAGGLE_KEY are not set (attach them to the kernel as secrets; the job script passes them)"
-        )
-    # Writes .env.kaggle in the repository root, where `evaluate --kaggle-proxy` reads it.
-    run(["uvx", "--with", "six", "kaggle", "benchmarks", "auth", "-y", "--env-file", ".env.kaggle"])
-    print("proxy key: from `kaggle benchmarks auth` with KAGGLE_USERNAME / KAGGLE_KEY", flush=True)
-    return "secrets"
 
 
 def gpu_names() -> list[str]:

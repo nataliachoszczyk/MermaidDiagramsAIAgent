@@ -1,13 +1,12 @@
-"""Smoke test on the CPU of a hosted reference model, gemini-3-flash-preview through the Kaggle Model Proxy:
-few-shot (three examples from data/shots/shots_pl.jsonl), on 5 golden records (2 flowcharts, 2 sequence
-diagrams, 1 refusal) that the Qwen3 smoke jobs also ran. The model runs at Google; the kernel only renders with
-mmdc and embeds labels with bge-m3."""
+"""Smoke test on the CPU of a hosted reference model, gemini-3-flash-preview, few-shot (three examples from data/shots/shots_pl.jsonl):
+5 golden records (2 flowcharts, 2 sequence diagrams, 1 refusal) that the Qwen3 smoke jobs also ran.
 
-import os
+A kernel cannot reach the Kaggle Model Proxy, so the answers were fetched on the local machine with
+`evaluate --kaggle-proxy` (thinking off, the arguments below) and are committed in answers/. The kernel only
+renders them with mmdc and scores them with bge-m3 embeddings (`evaluate --replay`)."""
+
 import subprocess
 import sys
-
-from kaggle_secrets import UserSecretsClient
 
 REPO = "https://github.com/nataliachoszczyk/MermaidDiagramsAIAgent.git"
 BRANCH = "eval-gemini"
@@ -16,16 +15,10 @@ CODENAME = "eval-smoke-gemini-fs"
 MODEL = "google/gemini-3-flash-preview"
 DATA = "data/golden/golden.jsonl"
 SHOTS = "data/shots/shots_pl.jsonl"
-KAGGLE_EVAL_ARGS = ["--allow-cpu", "--kaggle-proxy"]
+ANSWERS = "jobs/runs/2026-11-15_12_eval-smoke-gemini-fs/answers/2026-11-15_1325_google-gemini-3-flash-preview_few-shot_golden_exact.json"
+KAGGLE_EVAL_ARGS = ["--allow-cpu", "--replay", ANSWERS]
 IDS = ["golden-flow-0006", "golden-flow-0050", "golden-seq-0020", "golden-seq-0026", "golden-none-0003"]
-# Thinking off as for every model (design.md §4.1); with it on, it eats most of the 1024 max tokens.
 EVALUATE_ARGS = ["--ids", ",".join(IDS), "--no-think", "--setting", "few-shot", "--shots", SHOTS]
-
-# The proxy key is fetched in the kernel with the account credentials, attached to the kernel as two secrets.
-# kaggle_secrets exists only in this Python, not in the project environment, so they go on as variables.
-secrets = UserSecretsClient()
-for name in ("KAGGLE_USERNAME", "KAGGLE_KEY"):
-    os.environ[name] = secrets.get_secret(name)
 
 subprocess.run(["git", "clone", "--depth", "1", "--branch", BRANCH, REPO, CLONE], check=True)
 print("commit", subprocess.run(["git", "-C", CLONE, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip())
