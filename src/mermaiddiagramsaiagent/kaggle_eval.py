@@ -4,6 +4,9 @@
 
 Arguments after `--` go to `evaluate` unchanged. Run it from the repository root. It is written for the Kaggle
 image (Linux, root, apt); on a normal machine set up Ollama and `mmdc` by hand and call `evaluate` directly.
+
+With --replay <run file> the answers come from that file (a hosted model asked through the Kaggle Model Proxy on
+the local machine, KAGGLE.md §9): only the embedding model is pulled, and the answers are rendered and scored.
 """
 
 import argparse
@@ -32,7 +35,8 @@ CHROMIUM_LIBS = (
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--model", required=True, help="Ollama model to evaluate")
+    parser.add_argument("--model", required=True, help="Ollama model to evaluate (the hosted model with --replay)")
+    parser.add_argument("--replay", type=Path, help="score the answers of this run file instead of calling the model")
     parser.add_argument("--data", type=Path, required=True, help="evaluation JSONL")
     parser.add_argument("--out", type=Path, required=True, help="folder for the result file, under /kaggle/working")
     parser.add_argument("--embedding-model", default=DEFAULT_EMBEDDING_MODEL)
@@ -52,12 +56,14 @@ def main() -> None:
     install_mmdc()
     server = start_ollama()
     try:
-        for model in (args.model, args.embedding_model):
+        pulled = (args.embedding_model,) if args.replay else (args.model, args.embedding_model)
+        for model in pulled:
             run(["ollama", "pull", model])
         before = set(RESULTS_DIR.glob("*.json"))
+        replay = ["--replay", str(args.replay)] if args.replay else []
         run(
             [sys.executable, "-m", "mermaiddiagramsaiagent.eval.run", "--model", args.model, "--data", str(args.data)]
-            + ["--embedding-model", args.embedding_model, *args.evaluate_args]
+            + ["--embedding-model", args.embedding_model, *replay, *args.evaluate_args]
         )
         args.out.mkdir(parents=True, exist_ok=True)
         for path in sorted(set(RESULTS_DIR.glob("*.json")) - before):

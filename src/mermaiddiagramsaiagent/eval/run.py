@@ -3,8 +3,15 @@
     uv run evaluate --model qwen3:4b-instruct-2507-q8_0 --data data/pilot/pilot_en.jsonl
     uv run evaluate --model qwen3:4b-instruct-2507-q8_0 --data data/golden/golden.jsonl \
         --setting few-shot --shots data/shots/shots_pl.jsonl
+    uv run evaluate --model google/gemini-3-flash-preview --kaggle-proxy --no-think --matching exact \
+        --data data/golden/golden.jsonl
 
 Inference goes through the OpenAI-compatible API; the server is configured in .env (see .env.example).
+With --kaggle-proxy the evaluated model is a hosted one behind the Kaggle Model Proxy (KAGGLE.md §9), while the
+embedding model for node matching stays on the server from .env.
+With --replay <run file> the answers come from an earlier run of the same model, data, prompt and setting, and
+are only rendered and scored again: used to score on Kaggle answers that were fetched through the proxy locally,
+because a Kaggle kernel cannot reach the proxy.
 """
 
 import argparse
@@ -42,6 +49,9 @@ NO_THINK_BODY = {"reasoning_effort": "none"}  # Ollama: turns thinking off for m
 GROUP_KEYS = ("diagram_type", "difficulty", "description_style")
 DEFAULT_K = 3
 EMPTY_RETRIES = 2
+ANSWER_KEYS = (
+    "raw_output", "reasoning_chars", "finish_reason", "completion_tokens", "reasoning_tokens", "cost_usd", "latency_s"
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -60,7 +70,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--no-think", action="store_true", help="turn thinking off (hybrid models, e.g. qwen3:1.7b)")
     parser.add_argument("--ids", help="only the records with these ids, comma-separated (to repeat a quick check)")
     parser.add_argument(
-        "--kaggle-proxy", action="store_true", help="ask a hosted model of the Kaggle Model Proxy (KAGGLE.md §9)"
+        "--kaggle-proxy", action="store_true", help="evaluate a hosted model of the Kaggle Model Proxy (KAGGLE.md §9)"
+    )
+    parser.add_argument(
+        "--replay", type=Path, help="take the model answers from this earlier run file instead of calling the model"
     )
     args = parser.parse_args()
     if (args.setting == "few-shot") != (args.shots is not None):
@@ -94,14 +107,17 @@ def sample_records(records: list[dict[str, Any]], n: int) -> list[dict[str, Any]
 
 def main() -> None:
     args = parse_args()
-    client = make_client()  # the local server: the model, or only the embeddings with --kaggle-proxy
-    chat = make_kaggle_proxy_client() if args.kaggle_proxy else client
-    if not args.kaggle_proxy:  # the proxy has no model list endpoint
-        check_model_available(client, args.model)
-    embed = None
+    replay = json.loads(args.replay.read_text(encoding="utf-8")) if args.replay else None
+    client = None
+    if replay is None:
+        client = make_kaggle_proxy_client() if args.kaggle_proxy else make_client()
+        if not args.kaggle_proxy:  # the proxy has no model list; an unknown model fails at the first request
+            check_model_available(client, args.model)
+    embed, embed_client = None, None
     if args.matching == "embedding":
-        check_model_available(client, args.embedding_model)
-        embed = make_embedder(client, args.embedding_model)
+        embed_client = client if client is not None and not args.kaggle_proxy else make_client()
+        check_model_available(embed_client, args.embedding_model)
+        embed = make_embedder(embed_client, args.embedding_model)
     check_mmdc_works()
     system_prompt = SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
     all_records = read_jsonl(args.data)
@@ -111,20 +127,22 @@ def main() -> None:
         records = sample_records(records, args.sample)
     if args.ids:
         records = select_records(records, args.ids.split(","))
+    answers = replay_answers(replay, args, system_prompt, shots, records) if replay else {}
 
     sampling = {"temperature": TEMPERATURE, "seed": SEED}  # emptied if the model rejects them
     examples = []
     with tempfile.TemporaryDirectory() as tmp:
         for i, record in enumerate(records, start=1):
-            example = evaluate_record(
-                chat, args.model, system_prompt, args.max_tokens, record, Path(tmp), embed, args.threshold,
-                args.no_think, shots, sampling,
+            answer = answers.get(record["id"]) or ask_model(
+                client, args.model, system_prompt, args.max_tokens, record["description"], args.no_think, shots, sampling,
             )
+            example = evaluate_record(record, answer, Path(tmp), embed, args.threshold)
             examples.append(example)
             print_progress(i, len(records), example)
 
+    generation = replay_generation(replay, args.replay) if replay else live_generation(client, args, sampling)
     result = {
-        "config": run_config(args, chat, client, system_prompt, shots, sampling),
+        "config": run_config(args, generation, embed_client, system_prompt, shots),
         "summary": summarize(examples),
         "examples": examples,
     }
@@ -180,33 +198,116 @@ def make_embedder(client: OpenAI, model: str) -> Embedder:
     return embed
 
 
-def evaluate_record(
+def ask_model(
     client: OpenAI,
     model: str,
     system_prompt: str,
     max_tokens: int,
-    record: dict[str, Any],
-    work_dir: Path,
-    embed: Embedder | None,
-    threshold: float,
+    description: str,
     no_think: bool = False,
     shots: list[dict[str, Any]] | None = None,
     sampling: dict[str, float] | None = None,
 ) -> dict[str, Any]:
+    """One model call; returns the answer fields of an example (ANSWER_KEYS)."""
     started = time.perf_counter()
     response = complete(
         client,
         {"temperature": TEMPERATURE, "seed": SEED} if sampling is None else sampling,
         model=model,
-        messages=build_messages(system_prompt, shots or [], record["description"]),
+        messages=build_messages(system_prompt, shots or [], description),
         max_tokens=max_tokens,
         extra_body=NO_THINK_BODY if no_think else None,
     )
     latency_s = time.perf_counter() - started
     choice = response.choices[0] if response.choices else None
     message = choice.message if choice else None
-    raw_output = (message.content if message else None) or ""  # still empty after the retries: scored as a failure
-    output = normalize_output(raw_output)
+    return {
+        "raw_output": (message.content if message else None) or "",  # still empty after the retries: a failure
+        "reasoning_chars": len(getattr(message, "reasoning", None) or ""),  # 0 when the model did not think
+        "finish_reason": choice.finish_reason if choice else "empty",
+        "completion_tokens": response.usage.completion_tokens if response.usage else None,
+        "reasoning_tokens": reasoning_tokens(response.usage),  # hosted thinking models report only the count
+        "cost_usd": call_cost_usd(response.usage),  # Kaggle Model Proxy only
+        "latency_s": round(latency_s, 2),
+    }
+
+
+def replay_answers(
+    replay: dict[str, Any],
+    args: argparse.Namespace,
+    system_prompt: str,
+    shots: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Answer fields per record id from an earlier run file. That run must have asked the same model the same
+    thing: model, setting, shots, system prompt, data, thinking and max tokens are checked."""
+    config = replay["config"]
+    expected = {
+        "model": args.model,
+        "setting": args.setting,
+        "shot_ids": [shot["id"] for shot in shots],
+        "system_prompt_sha256": sha256(system_prompt.encode("utf-8")),
+        "no_think": args.no_think,
+        "max_tokens": args.max_tokens,
+    }
+    differ = [key for key, value in expected.items() if config.get(key) != value]
+    files = {"data_sha256": args.data, "shots_sha256": args.shots}
+    differ += [key for key, path in files.items() if not same_file(path, config.get(key))]
+    if differ:
+        raise SystemExit(f"{args.replay} was run with a different {', '.join(differ)}")
+    answers = {example["id"]: {key: example.get(key) for key in ANSWER_KEYS} for example in replay["examples"]}
+    missing = [record["id"] for record in records if record["id"] not in answers]
+    if missing:
+        raise SystemExit(f"{args.replay} has no answer for: {', '.join(missing)}")
+    return answers
+
+
+def same_file(path: Path | None, recorded: str | None) -> bool:
+    """Whether a file has the recorded hash, with either line ending: a Windows checkout has CRLF, Linux LF."""
+    if path is None:
+        return recorded is None
+    lf = path.read_bytes().replace(b"\r\n", b"\n")
+    return recorded in (sha256(lf), sha256(lf.replace(b"\n", b"\r\n")))
+
+
+def live_generation(client: OpenAI, args: argparse.Namespace, sampling: dict[str, float]) -> dict[str, Any]:
+    return {
+        "model_digest": ollama_digest(str(client.base_url), args.model),
+        "base_url": str(client.base_url),
+        "kaggle_proxy": args.kaggle_proxy,
+        "temperature": sampling.get("temperature"),
+        "seed": sampling.get("seed"),
+        "replay": None,
+    }
+
+
+def replay_generation(replay: dict[str, Any], path: Path) -> dict[str, Any]:
+    """Where the replayed answers came from: the server of the earlier run and that run file."""
+    config = replay["config"]
+    return {
+        "model_digest": config.get("model_digest"),
+        "base_url": config.get("base_url"),
+        "kaggle_proxy": config.get("kaggle_proxy", False),
+        "temperature": config.get("temperature"),
+        "seed": config.get("seed"),
+        "replay": {
+            "file": path.as_posix(),
+            "sha256": sha256(path.read_bytes().replace(b"\r\n", b"\n")),
+            "date": config.get("date"),
+            "git_commit": config.get("git_commit"),
+        },
+    }
+
+
+def evaluate_record(
+    record: dict[str, Any],
+    answer: dict[str, Any],
+    work_dir: Path,
+    embed: Embedder | None,
+    threshold: float,
+) -> dict[str, Any]:
+    """Render and score one model answer (from `ask_model` or an earlier run file)."""
+    output = normalize_output(answer["raw_output"])
     if is_refusal(record["expected_mermaid"]) or is_refusal(output.code):
         rendered = RenderResult(False, "")  # a refusal is not a diagram: nothing to render
     else:
@@ -219,13 +320,8 @@ def evaluate_record(
         "description_style": record.get("description_style"),
         "description": record["description"],
         "expected_mermaid": record["expected_mermaid"],
-        "raw_output": raw_output,
-        "reasoning_chars": len(getattr(message, "reasoning", None) or ""),  # 0 when the model did not think
+        **answer,
         "code": output.code,
-        "finish_reason": choice.finish_reason if choice else "empty",
-        "completion_tokens": response.usage.completion_tokens if response.usage else None,
-        "latency_s": round(latency_s, 2),
-        "cost_usd": proxy_cost(response),
         "render_error": rendered.error,
         "score": asdict(score),
     }
@@ -249,10 +345,19 @@ def complete(client: OpenAI, sampling: dict[str, float], **request: Any) -> Any:
     return response
 
 
-def proxy_cost(response: Any) -> float | None:
-    """Cost in dollars that the Kaggle Model Proxy reports per response (in nanodollars); None elsewhere."""
-    cost = getattr(response.usage, "cost", None) if response.usage else None
-    return sum(cost.values()) / 1e9 if isinstance(cost, dict) else None
+
+def reasoning_tokens(usage: Any) -> int | None:
+    details = getattr(usage, "completion_tokens_details", None)
+    return getattr(details, "reasoning_tokens", None)
+
+
+def call_cost_usd(usage: Any) -> float | None:
+    """Price of one call from the `cost` field the Kaggle Model Proxy adds to `usage` (nanodollars per part);
+    None for servers without it."""
+    cost = getattr(usage, "cost", None)
+    if not isinstance(cost, dict):
+        return None
+    return sum(value for value in cost.values() if isinstance(value, (int, float))) / 1e9
 
 
 def summarize(examples: list[dict[str, Any]]) -> dict[str, Any]:
@@ -289,7 +394,13 @@ def aggregate(examples: list[dict[str, Any]]) -> dict[str, Any]:
         "edge_f1_rendering_only": mean_or_none(s["edge"]["f1"] for s in rendering),
         "refusal_acc": mean_or_none(refusals),
         "truncated": sum(example["finish_reason"] == "length" for example in examples),
+        "cost_usd": total_cost_usd(examples),
     }
+
+
+def total_cost_usd(examples: list[dict[str, Any]]) -> float | None:
+    costs = [example["cost_usd"] for example in examples if example.get("cost_usd") is not None]
+    return round(sum(costs), 6) if costs else None
 
 
 def mean_or_none(values: Iterable[float]) -> float | None:
@@ -299,25 +410,25 @@ def mean_or_none(values: Iterable[float]) -> float | None:
 
 def run_config(
     args: argparse.Namespace,
-    client: OpenAI,
-    local: OpenAI,
+    generation: dict[str, Any],
+    embed_client: OpenAI | None,
     system_prompt: str,
     shots: list[dict[str, Any]],
-    sampling: dict[str, float],
 ) -> dict[str, Any]:
-    embedding = args.matching == "embedding"
+    embedding = embed_client is not None
     return {
         "date": datetime.now().isoformat(timespec="seconds"),
         "model": args.model,
-        "model_digest": ollama_digest(str(client.base_url), args.model),
+        "model_digest": generation["model_digest"],
         "setting": args.setting,
         "shots": args.shots.as_posix() if args.shots else None,
         "shots_sha256": sha256(args.shots.read_bytes()) if args.shots else None,
         "shot_ids": [shot["id"] for shot in shots],
-        "base_url": str(client.base_url),
-        "kaggle_proxy": args.kaggle_proxy,
-        "temperature": sampling.get("temperature"),  # None: the model rejected it and used its default
-        "seed": sampling.get("seed"),
+        "base_url": generation["base_url"],
+        "kaggle_proxy": generation["kaggle_proxy"],
+        "replay": generation["replay"],
+        "temperature": generation["temperature"],  # None: the model rejected it and used its default
+        "seed": generation["seed"],
         "max_tokens": args.max_tokens,
         "no_think": args.no_think,
         "limit": args.limit,
@@ -329,7 +440,10 @@ def run_config(
         "data_sha256": sha256(args.data.read_bytes()),
         "matching": args.matching,
         "embedding_model": args.embedding_model if embedding else None,
-        "embedding_model_digest": ollama_digest(str(local.base_url), args.embedding_model) if embedding else None,
+        "embedding_base_url": str(embed_client.base_url) if embed_client else None,
+        "embedding_model_digest": (
+            ollama_digest(str(embed_client.base_url), args.embedding_model) if embed_client else None
+        ),
         "threshold": args.threshold if embedding else None,
         "mmdc": mmdc_version(),
         "git_commit": git_commit(),

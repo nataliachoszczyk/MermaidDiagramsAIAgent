@@ -227,10 +227,20 @@ uvx --with six kaggle benchmarks auth -y --env-file .env.kaggle
 uvx --with six kaggle benchmarks quota
 ```
 
-`.env.kaggle` is gitignored. Commands that support the proxy take `--kaggle-proxy` (today: `build-golden`, `evaluate`) and
-read the key from that file. `evaluate --kaggle-proxy` sends the chat requests to the proxy and keeps the
-embeddings on the local server; a model that rejects `temperature` or `seed` runs without them, and the run
-file records `temperature: null`. `uvx --with six kaggle benchmarks init --env-file <file>` also lists the models of
+`.env.kaggle` is gitignored. Commands that support the proxy take `--kaggle-proxy` (`build-golden`, `evaluate`) and
+read the key from that file, or from `MODEL_PROXY_URL` / `MODEL_PROXY_API_KEY` if they are
+already set. **A kernel cannot reach the proxy** (checked 2026-11-15): it has no `MODEL_PROXY_*` variables, and a kernel
+pushed with `kaggle kernels push` gets HTTP 400 for secrets attached in the web editor. So a hosted model is
+evaluated in two steps:
+
+1. Locally, ask the model: `uv run evaluate --model <proxy model> --kaggle-proxy --matching exact <arguments>`
+   (no Ollama needed; the scores of this file do not count). Put the run file into the job folder (`answers/`).
+2. In a kernel, score it: `kaggle-eval --replay <run file> -- <the same arguments>` pulls only the embedding
+   model, and `evaluate --replay` renders and scores the saved answers. It refuses a file whose model, setting,
+   shots, system prompt, data, thinking or max tokens differ, and records the file and its hash in `replay`.
+
+A model that rejects `temperature` or `seed` (Claude Sonnet 5) runs without them, and the run file records
+`temperature: null`; an empty response is asked again twice. The embedding model for `evaluate` still runs in Ollama. `uvx --with six kaggle benchmarks init --env-file <file>` also lists the models of
 the account in `LLMS_AVAILABLE`; the proxy has no model list endpoint.
 
 Checked on 2026-11-13:
@@ -240,6 +250,14 @@ Checked on 2026-11-13:
 - `google/gemini-3-flash-preview` and `openai/gpt-oss-120b` answer. `qwen/qwen3-next-80b-a3b-instruct` is listed
   but returns 404.
 - Every response reports its cost (`usage.cost`, in nanodollars).
+
+Checked on 2026-11-15 (`LLMS_AVAILABLE` and one call each): no Claude Opus or Haiku on the proxy, only
+`anthropic/claude-sonnet-5@default`. `temperature: 0` is accepted by `google/gemini-3-flash-preview`,
+`google/gemini-3.1-flash-lite-preview`, `openai/gpt-oss-120b`, `openai/gpt-5.4-nano-2026-03-17` and
+`ibm/granite-4.0-h-small` (which always writes its thinking into the answer); `deepseek-ai/deepseek-r1-0528` and
+`qwen/qwen3-next-80b-a3b-instruct` return 404. Gemini 3 Flash thinks by default and its thinking counts towards
+`max_tokens` (842 of 1024 tokens on one golden record); `reasoning_effort: none` (`evaluate --no-think`) turns it
+off.
 
 The quota exists for Kaggle Benchmarks. Whether the Kaggle terms allow other uses was not checked.
 Training data must not come from here: it has to be generated with a local open model (`CLAUDE.md`).
