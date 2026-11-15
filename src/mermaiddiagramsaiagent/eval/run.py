@@ -23,13 +23,13 @@ from pathlib import Path
 from statistics import mean
 from typing import Any
 
-from openai import OpenAI
+from openai import BadRequestError, OpenAI
 
 from mermaiddiagramsaiagent.data.jsonl import read_jsonl
 from mermaiddiagramsaiagent.eval.metrics import DEFAULT_THRESHOLD, Embedder, score_example
 from mermaiddiagramsaiagent.eval.output import is_refusal, normalize_output
 from mermaiddiagramsaiagent.eval.render import RenderResult, check_mmdc_works, mmdc_version, render
-from mermaiddiagramsaiagent.llm import check_model_available, make_client
+from mermaiddiagramsaiagent.llm import check_model_available, make_client, make_kaggle_proxy_client
 
 SYSTEM_PROMPT_PATH = Path("prompts/system.txt")
 GOLDEN_PATH = Path("data/golden/golden.jsonl")
@@ -41,6 +41,7 @@ DEFAULT_EMBEDDING_MODEL = "bge-m3:latest"
 NO_THINK_BODY = {"reasoning_effort": "none"}  # Ollama: turns thinking off for models where it is on/off
 GROUP_KEYS = ("diagram_type", "difficulty", "description_style")
 DEFAULT_K = 3
+EMPTY_RETRIES = 2
 
 
 def parse_args() -> argparse.Namespace:
@@ -58,6 +59,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sample", type=int, help="only N examples, drawn from every diagram type (for quick checks)")
     parser.add_argument("--no-think", action="store_true", help="turn thinking off (hybrid models, e.g. qwen3:1.7b)")
     parser.add_argument("--ids", help="only the records with these ids, comma-separated (to repeat a quick check)")
+    parser.add_argument(
+        "--kaggle-proxy", action="store_true", help="ask a hosted model of the Kaggle Model Proxy (KAGGLE.md §9)"
+    )
     args = parser.parse_args()
     if (args.setting == "few-shot") != (args.shots is not None):
         parser.error("--shots is required with --setting few-shot and only allowed with it")
@@ -90,8 +94,10 @@ def sample_records(records: list[dict[str, Any]], n: int) -> list[dict[str, Any]
 
 def main() -> None:
     args = parse_args()
-    client = make_client()
-    check_model_available(client, args.model)
+    client = make_client()  # the local server: the model, or only the embeddings with --kaggle-proxy
+    chat = make_kaggle_proxy_client() if args.kaggle_proxy else client
+    if not args.kaggle_proxy:  # the proxy has no model list endpoint
+        check_model_available(client, args.model)
     embed = None
     if args.matching == "embedding":
         check_model_available(client, args.embedding_model)
@@ -106,18 +112,19 @@ def main() -> None:
     if args.ids:
         records = select_records(records, args.ids.split(","))
 
+    sampling = {"temperature": TEMPERATURE, "seed": SEED}  # emptied if the model rejects them
     examples = []
     with tempfile.TemporaryDirectory() as tmp:
         for i, record in enumerate(records, start=1):
             example = evaluate_record(
-                client, args.model, system_prompt, args.max_tokens, record, Path(tmp), embed, args.threshold,
-                args.no_think, shots,
+                chat, args.model, system_prompt, args.max_tokens, record, Path(tmp), embed, args.threshold,
+                args.no_think, shots, sampling,
             )
             examples.append(example)
             print_progress(i, len(records), example)
 
     result = {
-        "config": run_config(args, client, system_prompt, shots),
+        "config": run_config(args, chat, client, system_prompt, shots, sampling),
         "summary": summarize(examples),
         "examples": examples,
     }
@@ -184,19 +191,21 @@ def evaluate_record(
     threshold: float,
     no_think: bool = False,
     shots: list[dict[str, Any]] | None = None,
+    sampling: dict[str, float] | None = None,
 ) -> dict[str, Any]:
     started = time.perf_counter()
-    response = client.chat.completions.create(
+    response = complete(
+        client,
+        {"temperature": TEMPERATURE, "seed": SEED} if sampling is None else sampling,
         model=model,
         messages=build_messages(system_prompt, shots or [], record["description"]),
-        temperature=TEMPERATURE,
-        seed=SEED,
         max_tokens=max_tokens,
         extra_body=NO_THINK_BODY if no_think else None,
     )
     latency_s = time.perf_counter() - started
-    choice = response.choices[0]
-    raw_output = choice.message.content or ""
+    choice = response.choices[0] if response.choices else None
+    message = choice.message if choice else None
+    raw_output = (message.content if message else None) or ""  # still empty after the retries: scored as a failure
     output = normalize_output(raw_output)
     if is_refusal(record["expected_mermaid"]) or is_refusal(output.code):
         rendered = RenderResult(False, "")  # a refusal is not a diagram: nothing to render
@@ -211,14 +220,39 @@ def evaluate_record(
         "description": record["description"],
         "expected_mermaid": record["expected_mermaid"],
         "raw_output": raw_output,
-        "reasoning_chars": len(getattr(choice.message, "reasoning", None) or ""),  # 0 when the model did not think
+        "reasoning_chars": len(getattr(message, "reasoning", None) or ""),  # 0 when the model did not think
         "code": output.code,
-        "finish_reason": choice.finish_reason,
+        "finish_reason": choice.finish_reason if choice else "empty",
         "completion_tokens": response.usage.completion_tokens if response.usage else None,
         "latency_s": round(latency_s, 2),
+        "cost_usd": proxy_cost(response),
         "render_error": rendered.error,
         "score": asdict(score),
     }
+
+
+def complete(client: OpenAI, sampling: dict[str, float], **request: Any) -> Any:
+    """A chat completion with `sampling` (temperature, seed). Some hosted models reject these parameters: then
+    `sampling` is emptied, so the rest of the run and its config show that the model sampled with its defaults."""
+    for attempt in range(EMPTY_RETRIES + 1):
+        try:
+            response = client.chat.completions.create(**request, **sampling)
+        except BadRequestError as error:
+            if not sampling or not any(name in str(error) for name in sampling):
+                raise
+            print(f"The model rejects {', '.join(sampling)}; generating with its default sampling.", flush=True)
+            sampling.clear()
+            response = client.chat.completions.create(**request)
+        if response.choices and response.choices[0].message is not None:
+            return response
+        print(f"Empty response (attempt {attempt + 1}); asking again.", flush=True)  # seen on the Kaggle proxy
+    return response
+
+
+def proxy_cost(response: Any) -> float | None:
+    """Cost in dollars that the Kaggle Model Proxy reports per response (in nanodollars); None elsewhere."""
+    cost = getattr(response.usage, "cost", None) if response.usage else None
+    return sum(cost.values()) / 1e9 if isinstance(cost, dict) else None
 
 
 def summarize(examples: list[dict[str, Any]]) -> dict[str, Any]:
@@ -264,7 +298,12 @@ def mean_or_none(values: Iterable[float]) -> float | None:
 
 
 def run_config(
-    args: argparse.Namespace, client: OpenAI, system_prompt: str, shots: list[dict[str, Any]]
+    args: argparse.Namespace,
+    client: OpenAI,
+    local: OpenAI,
+    system_prompt: str,
+    shots: list[dict[str, Any]],
+    sampling: dict[str, float],
 ) -> dict[str, Any]:
     embedding = args.matching == "embedding"
     return {
@@ -276,8 +315,9 @@ def run_config(
         "shots_sha256": sha256(args.shots.read_bytes()) if args.shots else None,
         "shot_ids": [shot["id"] for shot in shots],
         "base_url": str(client.base_url),
-        "temperature": TEMPERATURE,
-        "seed": SEED,
+        "kaggle_proxy": args.kaggle_proxy,
+        "temperature": sampling.get("temperature"),  # None: the model rejected it and used its default
+        "seed": sampling.get("seed"),
         "max_tokens": args.max_tokens,
         "no_think": args.no_think,
         "limit": args.limit,
@@ -289,7 +329,7 @@ def run_config(
         "data_sha256": sha256(args.data.read_bytes()),
         "matching": args.matching,
         "embedding_model": args.embedding_model if embedding else None,
-        "embedding_model_digest": ollama_digest(str(client.base_url), args.embedding_model) if embedding else None,
+        "embedding_model_digest": ollama_digest(str(local.base_url), args.embedding_model) if embedding else None,
         "threshold": args.threshold if embedding else None,
         "mmdc": mmdc_version(),
         "git_commit": git_commit(),

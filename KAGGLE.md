@@ -227,8 +227,10 @@ uvx --with six kaggle benchmarks auth -y --env-file .env.kaggle
 uvx --with six kaggle benchmarks quota
 ```
 
-`.env.kaggle` is gitignored. Commands that support the proxy take `--kaggle-proxy` (today: `build-golden`) and
-read the key from that file. `uvx --with six kaggle benchmarks init --env-file <file>` also lists the models of
+`.env.kaggle` is gitignored. Commands that support the proxy take `--kaggle-proxy` (today: `build-golden`, `evaluate`) and
+read the key from that file. `evaluate --kaggle-proxy` sends the chat requests to the proxy and keeps the
+embeddings on the local server; a model that rejects `temperature` or `seed` runs without them, and the run
+file records `temperature: null`. `uvx --with six kaggle benchmarks init --env-file <file>` also lists the models of
 the account in `LLMS_AVAILABLE`; the proxy has no model list endpoint.
 
 Checked on 2026-11-13:

@@ -1,0 +1,9 @@
+{
+  "gpu": [
+    "Tesla T4",
+    "Tesla T4"
+  ],
+  "ollama_ps": "NAME                           ID              SIZE      PROCESSOR    CONTEXT    RUNNER      UNTIL              \nqwen3:4b-instruct-2507-q8_0    aa7252f68dda    9.3 GB    100% GPU     32768      llamacpp    4 minutes from now    \nbge-m3:latest                  790764642607    689 MB    100% GPU     8192       llamacpp    4 minutes from now    \n",
+  "ollama": "ollama version is 0.40.16",
+  "total_seconds": 1142
+}

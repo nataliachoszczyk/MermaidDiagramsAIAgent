@@ -1,12 +1,14 @@
 """Few-shot prompt construction and the guard against shots that overlap the evaluation data or the golden set."""
 
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from openai import BadRequestError
 
 from mermaiddiagramsaiagent.data.jsonl import read_jsonl, write_jsonl
-from mermaiddiagramsaiagent.eval.run import GOLDEN_PATH, build_messages, load_shots
+from mermaiddiagramsaiagent.eval.run import GOLDEN_PATH, build_messages, complete, load_shots
 
 SHOTS_PATH = Path("data/shots/shots_pl.jsonl")
 
@@ -72,3 +74,52 @@ def test_load_shots_ignores_missing_source_refs(tmp_path: Path) -> None:
 def test_committed_shots_do_not_overlap_golden() -> None:
     shots = load_shots(SHOTS_PATH, 3, read_jsonl(GOLDEN_PATH))
     assert {s["diagram_type"] for s in shots} == {"flowchart", "sequenceDiagram"}
+
+
+def reply(text: str | None) -> SimpleNamespace:
+    """A chat completion as the client returns it; None = no message, as the Kaggle proxy sometimes sends."""
+    message = None if text is None else SimpleNamespace(content=text)
+    return SimpleNamespace(choices=[SimpleNamespace(message=message, finish_reason="stop")])
+
+
+class FakeCompletions:
+    """Rejects `temperature` like some hosted models, then gives the replies in order (the last one repeats)."""
+
+    def __init__(self, *replies: str | None) -> None:
+        self.replies = list(replies) or ["ok"]
+        self.calls: list[dict[str, Any]] = []
+
+    def create(self, **request: Any) -> SimpleNamespace:
+        self.calls.append(request)
+        if "temperature" in request:
+            error = BadRequestError.__new__(BadRequestError)  # skips the HTTP response the real one carries
+            Exception.__init__(error, "temperature is not supported")
+            raise error
+        return reply(self.replies.pop(0) if len(self.replies) > 1 else self.replies[0])
+
+
+def fake_client(completions: FakeCompletions) -> SimpleNamespace:
+    return SimpleNamespace(chat=SimpleNamespace(completions=completions))
+
+
+def test_complete_drops_rejected_sampling_for_the_rest_of_the_run() -> None:
+    completions = FakeCompletions()
+    sampling = {"temperature": 0.0, "seed": 0}
+    assert complete(fake_client(completions), sampling, model="m").choices[0].message.content == "ok"
+    assert sampling == {}
+    complete(fake_client(completions), sampling, model="m")
+    assert [("temperature" in c) for c in completions.calls] == [True, False, False]
+
+
+def test_complete_asks_again_after_an_empty_response() -> None:
+    completions = FakeCompletions(None, "flowchart TD")
+    response = complete(fake_client(completions), {}, model="m")
+    assert response.choices[0].message.content == "flowchart TD"
+    assert len(completions.calls) == 2
+
+
+def test_complete_gives_up_after_the_retries() -> None:
+    completions = FakeCompletions(None)
+    response = complete(fake_client(completions), {}, model="m")
+    assert response.choices[0].message is None
+    assert len(completions.calls) == 3

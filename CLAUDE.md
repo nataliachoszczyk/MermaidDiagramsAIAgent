@@ -49,7 +49,7 @@ Package: `src/mermaiddiagramsaiagent/`. Items marked *(planned)* do not exist ye
   part of the golden set: Polish texts and a description for chosen source diagrams, structure and `mmdc` checked;
   keeps records already in the output file; read every record afterwards. `--kaggle-proxy`: see `KAGGLE.md` §9
 - `uv run evaluate --model <name> --data <jsonl> [--limit N] [--sample N] [--ids a,b] [--matching exact] [--no-think]
-  [--setting few-shot --shots <jsonl> [--k 3]]` –
+  [--setting few-shot --shots <jsonl> [--k 3]] [--kaggle-proxy]` –
   evaluate a model, save the run to `results/`; nodes are matched by label embeddings unless `--matching exact`; `--sample N`
   takes N records from every diagram type (fixed seed) and `--ids` the named records, for smoke tests; `--no-think` turns thinking off
   (needed for hybrid models such as `qwen3:1.7b`, so that they answer like the instruct base model)
