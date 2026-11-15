@@ -3,7 +3,7 @@
     uv run evaluate --model qwen3:4b-instruct-2507-q8_0 --data data/pilot/pilot_en.jsonl
     uv run evaluate --model qwen3:4b-instruct-2507-q8_0 --data data/golden/golden.jsonl \
         --setting few-shot --shots data/shots/shots_pl.jsonl
-    uv run evaluate --model google/gemini-3-flash-preview --kaggle-proxy --max-tokens 8192 \
+    uv run evaluate --model google/gemini-3-flash-preview --kaggle-proxy --no-think --matching exact \
         --data data/golden/golden.jsonl
 
 Inference goes through the OpenAI-compatible API; the server is configured in .env (see .env.example).
